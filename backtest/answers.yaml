@@ -1,0 +1,71 @@
+# 正解（予測のコミット 5286315 の後に追加）
+# 出典は各社の決算説明資料など。社名は伏せ、URL だけを載せる。
+answers:
+  case_01_Q1:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.4・p.7 / p.7）"
+    source_url: "https://www2.jpx.co.jp/disc/29360/140120250114550169.pdf"
+  case_01_Q2:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（p.7 / p.4）"
+    source_url: "https://www2.jpx.co.jp/disc/29360/140120241015597844.pdf"
+  case_01_Q3:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.7）"
+    source_url: ""
+  case_01_Q4:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（該当箇所）"
+    source_url: ""
+  case_02_Q1:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（p.44 / p.36）"
+    source_url: "https://www2.jpx.co.jp/disc/39940/140120251015573969.pdf"
+  case_02_Q2:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.67）"
+    source_url: "https://www2.jpx.co.jp/disc/39940/140120260114533742.pdf"
+  case_02_Q3:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.66）"
+    source_url: ""
+  case_03_Q1:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（p.11）"
+    source_url: "https://www2.jpx.co.jp/disc/60960/140120230510564593.pdf"
+  case_03_Q2:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（該当箇所）"
+    source_url: ""
+  case_03_Q3:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.24）"
+    source_url: "https://www2.jpx.co.jp/disc/60960/140120230810541378.pdf"
+  case_04_Q1:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.17 / p.19）"
+    source_url: "https://www2.jpx.co.jp/disc/95570/140120241114523151.pdf"
+  case_04_Q2:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.18）"
+    source_url: "https://www2.jpx.co.jp/disc/95570/140120250212571601.pdf"
+  case_05_Q1:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（該当箇所）"
+    source_url: "https://group.kadokawa.co.jp/information/media-download/1289/74d684607ca1d582"
+  case_05_Q2:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（該当箇所）"
+    source_url: "https://group.kadokawa.co.jp/information/media-download/1182/a20948c4cb27ac91"
+  case_06_Q1:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.36）"
+    source_url: "https://www2.jpx.co.jp/disc/44240/140120221109561181.pdf"
+  case_06_Q2:
+    answer: no
+    source_ja: "上場企業の決算説明資料・発表資料（p.36）"
+    source_url: ""
+  case_06_Q3:
+    answer: yes
+    source_ja: "上場企業の決算説明資料・発表資料（p.36 / p.12）"
+    source_url: ""
