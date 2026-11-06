@@ -216,7 +216,9 @@ def test_views_match_p_over_10k(pop, rules):
     """新しいアカウントの投稿のうち1万回以上の割合が p_post_over_10k に合う（本体だけで超える回を除く）。"""
     draws = Draws(seed=3, runs=4)
     spec = {**VIDEO, "accounts": 4000}
-    v = OrganicVideo(spec, rules, draws, pop, pop.smartphone, np.ones((draws.n, pop.n)), 60)
+    r0 = copy.deepcopy(rules)   # 毎日投稿の上積みを除いた、新しいアカウントの分布そのもの
+    r0.organic_video["freq_uplift_daily"] = {"low": 0.0, "mid": 0.0, "high": 0.0, "source": "test"}
+    v = OrganicVideo(spec, r0, draws, pop, pop.smartphone, np.ones((draws.n, pop.n)), 60)
     views = v.post_views(0, 1)[..., 0]                         # (回, アカウント)
     R = rules.organic_video
     p_over = draws.value("organic_video:p_post_over_10k", R["p_post_over_10k"])
