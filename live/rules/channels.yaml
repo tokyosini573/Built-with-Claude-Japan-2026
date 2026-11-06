@@ -1,0 +1,169 @@
+# 広告チャネル
+#
+# オンライン（instagram, x, tiktok, youtube, line）:
+#   表示回数 = 1日の予算 ÷ CPM × 1,000
+#   1表示あたり設置確率 = CTR × クリック→設置率（プリセット別）× 判断の倍率 × 傾向の係数
+#   届く人 = その SNS を使っている人 × 実験のターゲット（年齢・性別）× 出荷地域
+# transit（電車広告）: 乗車1,000人あたり費用で「乗車延べ人数」を買う。
+#   届く人 = 通勤・通学者 × 住んでいる都道府県の鉄道利用率 × 出荷地域。年齢・性別では絞れない。
+#   1接触あたり設置確率 = 視認率 × 視認→設置率
+# offline（大学・イベント）: 1,000人接触あたり費用。
+#   届く人 = 学生（employment = student）で 18〜29歳 × 出荷地域。
+#
+# 値は low / mid / high。出典は data/DATA_SOURCES.md 3-F、2-10。
+
+version: 1
+
+online:
+  instagram:
+    name_ja: Instagram
+    sns_column: sns_instagram
+    cpm_jpy:
+      low: 500
+      mid: 750
+      high: 3000
+      source: "3-F imitsu 2025 / pamxy 2025 / ownly 2026"
+      note: 代理店ブログの相場（3次）。high 3,000円の ownly は根拠データ未記載。mid は出典範囲の算術中央値。
+    ctr:
+      low: 0.0076
+      mid: 0.0101
+      high: 0.0134
+      source: "3-F Influee（Reels / Feed / Stories、グローバル）"
+      note: 日本の実測なし。mid（Feed）は3値の中央を置いた規則の例外。
+  x:
+    name_ja: X
+    sns_column: sns_x
+    cpm_jpy:
+      low: 400
+      mid: 500
+      high: 1000
+      source: "3-F pamxy 2025 / app-tatsujin 2026 / ownly 2026"
+      note: 3次。
+    ctr:
+      low: 0.0045
+      mid: 0.0045
+      high: 0.032
+      source: "3-F 逆算 CTR（CPM ÷ CPC）約0.45% / 日本の個別事例 1.5%〜3.2%"
+      note: 規則の例外。事例は成功例として公表されたもので高めに偏るため、mid は CPM・CPC の中央値からの逆算値にした。high だけ事例の最大値。
+  tiktok:
+    name_ja: TikTok
+    sns_column: sns_tiktok
+    cpm_jpy:
+      low: 100
+      mid: 650
+      high: 1500
+      source: "3-F pamxy 2025 / stock-sun 2026 / ownly 2026"
+      note: 3次。mid 650円は4つの端点の中央値。
+    ctr:
+      low: 0.0049
+      mid: 0.0061
+      high: 0.0073
+      source: "3-F Triple Whale（Influee 経由）/ Lebesgue（グローバル）"
+      note: 日本の実測なし。mid は掲載日が最も新しい値（規則の例外）。
+  youtube:
+    name_ja: YouTube
+    sns_column: sns_youtube
+    cpm_jpy:
+      low: 300
+      mid: 450
+      high: 800
+      source: "3-F sienca 2025 / pamxy 2025 / ownly 2026"
+      note: 3次。
+    ctr:
+      low: 0.0065
+      mid: 0.0065
+      high: 0.007
+      source: "3-F sienca（storegrowers）/ LINEヤフーコラムが引用した WordStream（米国）"
+      note: 地域未記載の海外ベンチマーク。日本の実測ではない。
+  line:
+    name_ja: LINE
+    sns_column: sns_line
+    cpm_jpy:
+      low: 200
+      mid: 450
+      high: 1200
+      source: "3-F LINEヤフー公式料金ページ（最低入札 200円、1次）/ ligla 2025 / pamxy 2025"
+    ctr:
+      low: 0.004
+      mid: 0.004
+      high: 0.004
+      source: "3-F 逆算 CTR 約0.4%（CPM ÷ CPC）"
+      note: 実測なし。2つの範囲から出した算術値なので単一値。
+
+# クリック → 設置（プリセット別）
+# 出典に直接の値はない。CPI（設置単価）と CPC（クリック単価）から 設置率 = CPC ÷ CPI で逆算した。
+#   CPC の基準 = 70円（3-F YouTube 平均 70円、Instagram 40〜100円の中央）。
+#   CPI = 計測会社の日本の値（ドル × usd_jpy 150）。high 側は代理店相場の CPI 250円（3-F、3次）。
+# この結果、Instagram の mid では 実効 CPI = CPM ÷ (1000 × CTR × 設置率) ≈ 870円 となり、
+# 計測会社の日本デーティング CPI $5.46（≈ 819円）とそろう。
+click_to_install:
+  matching:
+    low: 0.066
+    mid: 0.085
+    high: 0.28
+    source: "3-A CPI $7.02 [LD22] / $5.46 [A22] p.28 / 3-F 代理店相場 CPI 250円、CPC 70円（3-F）から逆算"
+    note: 逆算値。DATA_SOURCES の推奨どおり、代理店相場は high 側（安い CPI のシナリオ）だけに使う。
+  subscription:
+    low: 0.085
+    mid: 0.085
+    high: 0.28
+    source: "3-F 日本全体の平均 CPI $5.50（gamebiz、2017-18、2次）/ 代理店相場 CPI 250円、CPC 70円から逆算"
+    note: サブスクの日本 CPI はないため、日本全体の平均 CPI を使う。
+  habit:
+    low: 0.085
+    mid: 0.085
+    high: 0.28
+    source: "3-F 日本全体の平均 CPI $5.50（gamebiz、2017-18、2次）/ 代理店相場 CPI 250円、CPC 70円から逆算"
+    note: 習慣系ツールの日本 CPI はないため、日本全体の平均 CPI を使う。
+  shopping:
+    low: 0.13
+    mid: 0.13
+    high: 0.28
+    source: "3-D CPI $3.59 [L19] p.8・13 / $2.82 [LS19] p.22 / 3-F 代理店相場 CPI 250円、CPC 70円から逆算"
+
+transit:
+  name_ja: 電車広告
+  cost_per_1000_riders_jpy:
+    low: 57
+    mid: 81
+    high: 175
+    source: "3-F 交通広告の CPM 逆算（車内デジタル: ドア上ビジョン / TRAIN TV / Tokyo Metro Vision）"
+    note: 分母は乗車延べ人数で、広告の表示数ではない。首都圏の料金表を全国に当てはめている。
+  view_rate:
+    low: 0.406
+    mid: 0.435
+    high: 0.49
+    source: "3-F Tokyo Metro Vision 到達率 40.6% / 中づり 到達率 43.5% / TRAIN TV 認知率 49.0%"
+    note: 調査条件は未記載。視認確率の代わりに使う（DATA_SOURCES 3-F の注記）。
+  view_to_install:
+    low: 0.0001
+    mid: 0.0003
+    high: 0.001
+    source: assumption
+    note: 見た人が設置する割合。公開値なし。クリックできずストアで検索する必要があるため、オンラインの実効値（Instagram mid で 1表示あたり約0.086%）の約3分の1を mid に置いた。上限の目安はゲーム IPM 0.53%（[AG26PR]、ゲーム限定）。
+  commuter_employment: [regular, nonregular, self_employed, student]
+  rail_share_by_pref:
+    source: "国勢調査2020 第17-1表（表ID 000032214689）、data/sources/digital/census2020_rail_share_by_pref.csv の rail_any_share_pct_excl_unknown"
+    note: 15歳以上の通勤・通学者のうち鉄道を使う割合（下限値）。テレワーク補正はしていない。
+    values: {1: 0.155, 2: 0.027, 3: 0.043, 4: 0.173, 5: 0.032, 6: 0.031, 7: 0.046, 8: 0.114, 9: 0.073, 10: 0.060,
+             11: 0.406, 12: 0.431, 13: 0.620, 14: 0.533, 15: 0.057, 16: 0.062, 17: 0.046, 18: 0.041, 19: 0.060, 20: 0.064,
+             21: 0.096, 22: 0.081, 23: 0.227, 24: 0.110, 25: 0.204, 26: 0.296, 27: 0.431, 28: 0.347, 29: 0.363, 30: 0.092,
+             31: 0.036, 32: 0.022, 33: 0.075, 34: 0.132, 35: 0.053, 36: 0.031, 37: 0.070, 38: 0.041, 39: 0.036, 40: 0.186,
+             41: 0.057, 42: 0.052, 43: 0.045, 44: 0.041, 45: 0.018, 46: 0.044, 47: 0.021}
+
+offline:
+  name_ja: 大学・イベント
+  cost_per_1000_contacts_jpy:
+    low: 117000
+    mid: 350000
+    high: 583000
+    source: "3-F ユーキャンパス 媒体資料（2026年6月版）正門前サンプリング 7万円〜（1大学2名3時間）÷ ティッシュ配布 1時間1人 20〜70個 の逆算"
+    note: mid は low と high の算術中央値。学食トレイ広告は接触人数がわからないため使わない。
+  contact_to_install:
+    low: 0.005
+    mid: 0.02
+    high: 0.05
+    source: assumption
+    note: 手渡しで接触した学生が設置する割合。公開値なし。対面で QR を見せられるため、オンラインより高い値を置いた。
+  student_employment: student
+  age: [18, 29]
