@@ -8,6 +8,7 @@
 | `presets.yaml` | アプリ種類4つ（matching / subscription / habit / shopping）のリテンション、登録率、核心行動、決済、特別規則。関門（本人確認など）、決済後の継続、価格の扱い |
 | `channels.yaml` | 広告チャネル7つ（instagram, x, tiktok, youtube, line, transit, offline）の単価・CTR・届く人、クリック→設置率 |
 | `multipliers.yaml` | Claude の判断（higher / similar / lower）の倍率、ペルソナの関心（interest）の倍率、人ごとの揺らぎ、傾向（trait_*）の係数、クチコミ（身近な人づて・X 上の拡散） |
+| `organic_video.yaml` | **12d263a の固定後に追加、バックテストでは未検証。** 動画の大量投稿チャネル（広告費を払わない短尺動画）の再生数の分布・フォロワーの増え方・1再生あたりの設置・飽き・重複のペナルティ。出典は `03_조사/08_오가닉영상.md` |
 | `sensitivity.md` | 感度表。仮定を1つずつ low / high に振ったときの A/B の決済者と「B が良い確率」（`python -m teppuri.engine.sensitivity` で作り直す） |
 
 ## 出典の読み方
@@ -89,6 +90,42 @@ changes:
 - **daily.paying**: その日に払い続けている人数（既存の決済者を含む）。`totals.paying_end` は最終日の値です。`daily.payers` と `totals.payers` は新しく決済した人だけです。
 - **区間の集計**: `teppuri/engine/window.py`。`interval_band(daily_runs, 31, 120, "sum")` は回ごとに区間を集計してから分位点を取ります。リプレイ JSON しかないときは `interval_from_replay(replay, "A", "revenue_jpy", 31, 120)`（日ごとの分位点を集計する近似）。
 - 限界: ever_installed を推定するときの「一定のペースで獲得」と、今使っている人の成熟期の曲線は形の仮定です。公開値があれば ever_installed・monthly_churn を入力してください。
+
+## 動画の大量投稿（organic_video）— 12d263a の固定後に追加、バックテストでは未検証
+
+**ルールを固定した（コミット 12d263a）後に足したチャネルです。バックテストでは検証していません。**
+既存の値・既存のチャネルの計算は変えていません。app.yaml の plan に `organic_video` を書かなければ、結果は固定時と完全に同じです（`tests/test_organic_video.py`）。
+
+> **規約と法令の注意**: 各アカウントがアプリ公式または広告と明示し、AI 生成表示をつけ、アカウントごとに内容の異なる動画を投稿する前提です。同じ動画の使い回しや一般人を装う運用は、各社規約の違反（推薦外・停止）と景品表示法のステルスマーケティング規制（2023-10-01 施行）に当たるおそれがあります。
+
+```yaml
+organic_video:
+  platforms: [tiktok, instagram, youtube]   # instagram = リール、youtube = ショート
+  accounts: 10                              # 各アカウントは全プラットフォームに同じ動画を投稿する
+  posts_per_account_per_day: 1              # 小数も可（0.5 = 2日に1本）
+  start_day: 1
+  days: 50                                  # 省略時は期間の最後まで
+  cost_per_video_jpy: 1050                  # 動画1本の制作費。広告費とは別に spend_jpy に足す（目安は organic_video.yaml の reference_cost_per_video_jpy）
+  unique_videos_per_account: true           # 既定 true = アカウントごとに別の動画。false = 同じ動画を全アカウントで使い回す
+  creative_ids: [v1, v2]                    # 任意。判断（install）を引く creative の ID
+```
+
+値の出典は `03_조사/08_오가닉영상.md` 末尾「エンジンに使うなら」の表（low / mid / high をそのまま）。どれも日本以外のデータで、`source` に信頼度（1次・3次・推計・仮定）を書いています。毎日、回ごとに:
+
+1. **1投稿の再生数**（対数正規の本体 + パレートの裾）
+   - 本体: `median_new_account` × 調整 × exp(`sigma_between_accounts` × z_アカウント + `sigma_within_account` × z_投稿)。z_アカウントはアカウント × プラットフォームごとに1回引いて期間中使う（アカウントの当たり外れ）。
+   - 裾: 確率 q で `viral_tail_min_views`（1万回）× U^(−1/α) × 調整（パレート、α = `viral_tail_alpha`）。q は、新しいアカウントの投稿のうち1万回以上の割合が `p_post_over_10k` になるように決める: q = (p − 本体だけでの割合) / (1 − 本体だけでの割合)、本体だけで超えていれば 0。
+   - `max_views_per_post` で切る。再生はその日に全部起きるとします。mid 回も抽選します（中央値だけでは大当たりが出ないため）。
+   - 調整 = max(1, フォロワー / `followers_reference`)^`followers_exponent`（再生 ∝ フォロワー^k）× 毎日投稿の上積み（1 + `freq_uplift_daily` × 週の本数に応じた割合。週1本で0、週7本以上で全量）× 同じアカウントの飽き（11本目以降、1本ごとに 1 − `same_account_decay_per_post`）× 重複のペナルティ（`unique_videos_per_account: false` のとき、最初のアカウント以外は 1 − `cross_account_duplicate_penalty`。原本だけが推薦される）。
+2. **アカウントの成長**: フォロワー += 再生数 × `follow_per_view`（アカウント × プラットフォームごと）。
+3. **誰が見るか**: 再生数 × `japan_view_share` を、そのプラットフォームの利用者（人口の `sns_tiktok` / `sns_instagram` / `sns_youtube`）に weight に比例して配ります。アカウントは地域を絞れないので**全国**。出荷地域（regions）の外の人にも届きますが、設置はしません（X のクチコミと同じ扱い。`available_outside_regions: true` なら設置できる）。
+4. **再生 → 設置**: 1再生あたり = `view_to_install` × 判断の倍率（install。`creative_ids` があればその creative の判断を平均、なければ広告と同じ install の倍率）× 傾向（`trait_ad_aversion` × `trait_novelty`、広告と同じ係数）× ペルソナの関心 × 見る側の飽き exp(−λ × これまでに見た回数)、λ = ln2 / `viewer_fatigue_half_views`。1人の1日の設置確率 = 1 − exp(−h)、h = 基準 × (e^(−λS) − e^(−λ(S+f))) / λ（S = これまでに見た回数、f = その日に見た回数）。広告で設置しなかった分にだけ掛け、クチコミより先に計算します。min_age 未満とスマホなしは設置しません。
+5. **制作費**: `unique_videos_per_account: true` なら「アカウント数 × 本数」本分、false なら「本数」分 × `cost_per_video_jpy`（プラットフォーム数には掛けない）。
+6. **出力**: daily と totals に `video_posts`（投稿数 = アカウント数 × 本数 × プラットフォーム数）、`video_views`（再生数、海外などを含む全体）、`video_reached`（1万人の中で初めて見た人）、`installs_video`、`spend_video_jpy`。どれも他の数字と同じく1万人基準（日本全体は scale_to_japan 倍）。`installs` と `spend_jpy` は動画の分を含みます（`installs_ad` は広告だけ）。`daily_cumulative` に `video_reached` と `installs_video`。organic_video の無い案には出しません。
+7. **乱数**: 日・プラットフォーム・種類ごとに流れを分け、アカウントや1日の本数を増やしても前からの投稿の乱数は変わりません。A案・B案は同じ回で同じ乱数です。
+8. **感度**: `sensitivity.md` の節「固定後に追加した機能（バックテスト未検証）」（`python -m teppuri.engine.sensitivity --video`）。
+
+限界: 日本のオーガニック動画の値は見つかっておらず、すべて日本以外の自社データ（非無作為）・3次・推計・仮定です。1再生あたりの設置は3次の積（0.01〜0.4%）で、結果の水準を最も動かします。アカウント間のばらつき（σ_between）は多様なクリエイター全体から推計した値で、同じ運営者のアカウントどうしではもっと小さいかもしれません。また、当たりのアカウントほどフォロワーが増えて再生が伸びるので、合計の再生は少数のアカウントに偏ります（基準で最大のアカウントが約4割）。プラットフォームのおすすめの仕組み（関心のある人に寄せて見せる）、投稿の質の学習、凍結・シャドウバン、後日の再生の伸び、年代ごとのショート動画の視聴頻度は入れていません。
 
 ## 範囲の抽選（30回）
 
