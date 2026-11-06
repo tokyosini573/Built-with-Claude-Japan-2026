@@ -40,9 +40,6 @@
  "creatives": {
   "a1": "ads/a1.png",
   "a2": "ads/a2.png",
-  "a3": "ads/a3.png",
-  "b1": "ads/b1.png",
-  "b2": "ads/b2.png",
-  "b3": "ads/b3.png"
+  "a3": "ads/a3.png"
  }
 }

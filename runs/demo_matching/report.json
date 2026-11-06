@@ -1,0 +1,1064 @@
+{
+ "app_id": "demo_matching",
+ "model": "claude-opus-5-5",
+ "headline_ja": "広告費を大きく抑えたB案は費用対効果で有利そうだが、インストールや課金の差ははっきりしない",
+ "report_ja": "広告費を大きく抑えたB案は費用対効果で有利そうだが、インストールや課金の差ははっきりしない\n\n【結論】\nB案（広告を出さず動画投稿で広める案）は、A案（SNS広告を中心にした案）よりずっと少ない費用で、一万人あたりのインストール中央値がA案 0.629 に対しB案 0.9 とやや多めでした。ただしB案は幅が 0.267〜7.0 と大きく、同じ回どうしでB案が上回った割合は 50% です。売上でB案が上回った回は 40%、課金者では 50% で、成果の差ははっきりしません。一方、インストール単価の中央値はB案 61.1 円、A案 821.7 円で、ROASもB案 0.209、A案 0.0588 とB案の方が効率は良さそうです。\n\n【ファネルで人が離れた場所】\nどちらの案も、インストール→会員登録→本人確認→最初のやりとり→課金の順に細くなります。A案では会員登録 0.296、本人確認 0.144、核となる行動 0.0133、課金者 0.00415 でした。最も大きく減るのは本人確認から最初のメッセージまでの間で、審査待ちと男性の有料プランが重なる場所です。\n\n【離脱理由のテーマ】\n・本人確認書類や住まい・職業の入力への個人情報の警戒\n・審査待ちの間に興味が冷める\n・男性の月額料金が重く、無料お試しもない\n・女性は無料で、そもそも払う場面がない\n・広告の問いかけや本人確認の強調への反発\n・B案では動画が既婚者など対象外の人にも届いた\n\n【次に試すとよいこと】\n・審査待ちの間もプロフィール閲覧などで楽しめる工夫や、審査時間の短縮\n・男性向けの無料お試しや短い期間のプラン\n・住まいの表示範囲や近さの見せ方の説明を丁寧にする\n・動画では本人確認を「手間」ではなく「安心」として伝え、独身層に届く内容にする\n・B案は当たり外れが大きいので、動画の切り口を複数試す\n\n【読み方の注意】\n結果は中央値だけでなく幅（下振れ〜上振れ）で見てください。離脱理由は代表人物の判断で、同じグループの他の人はそれを受け継いでいます。",
+ "drop_themes": [
+  {
+   "theme_ja": "本人確認・個人情報入力への警戒",
+   "plan": "A,B",
+   "step": "install/signup/gate:id_verification",
+   "drop_reason_ids": [
+    "A.dr1",
+    "A.dr4",
+    "A.dr5",
+    "A.dr7",
+    "A.dr8",
+    "A.dr10",
+    "A.dr11",
+    "A.dr13",
+    "A.dr14",
+    "B.dr0",
+    "B.dr5",
+    "B.dr7",
+    "B.dr8",
+    "B.dr11",
+    "B.dr13"
+   ],
+   "summary_ja": "身分証や顔写真の提出、住まいや職業の入力、近さの表示に対して個人情報を気にする人が手を止めています。"
+  },
+  {
+   "theme_ja": "審査待ちで気持ちが冷める",
+   "plan": "A,B",
+   "step": "gate:id_verification/core_action",
+   "drop_reason_ids": [
+    "A.dr12",
+    "A.dr17",
+    "A.dr18",
+    "A.dr19",
+    "B.dr10",
+    "B.dr12",
+    "B.dr14",
+    "B.dr16"
+   ],
+   "summary_ja": "承認されるまで話せない待ち時間がもどかしく、すぐ試したい気持ちが下がっています。"
+  },
+  {
+   "theme_ja": "男性の月額料金が重い",
+   "plan": "A,B",
+   "step": "install/core_action/retention/pay",
+   "drop_reason_ids": [
+    "A.dr3",
+    "A.dr15",
+    "A.dr21",
+    "A.dr23",
+    "A.dr28",
+    "B.dr1",
+    "B.dr4",
+    "B.dr15",
+    "B.dr18",
+    "B.dr19",
+    "B.dr21",
+    "B.dr22",
+    "B.dr25",
+    "B.dr28",
+    "B.dr29"
+   ],
+   "summary_ja": "メッセージに有料プランが必要で無料お試しもないため、価格に敏感な人が最初のやりとりや継続、支払いで止まっています。"
+  },
+  {
+   "theme_ja": "女性は無料で払う場面がない",
+   "plan": "A,B",
+   "step": "core_action/pay",
+   "drop_reason_ids": [
+    "A.dr16",
+    "A.dr25",
+    "A.dr26",
+    "A.dr27",
+    "A.dr29",
+    "B.dr17",
+    "B.dr26",
+    "B.dr27"
+   ],
+   "summary_ja": "女性は無料で使えるため使い始めは平均的ですが、課金とは無関係で売上にはつながりません。"
+  },
+  {
+   "theme_ja": "広告の訴求への反発",
+   "plan": "A,B",
+   "step": "install",
+   "drop_reason_ids": [
+    "A.dr0",
+    "A.dr2",
+    "B.dr2"
+   ],
+   "summary_ja": "不安を問いかける広告や本人確認を強調する表現が、広告嫌いや関心の低い人には押し付けがましく映っています。"
+  },
+  {
+   "theme_ja": "対象外の人に届いた",
+   "plan": "B",
+   "step": "install/signup",
+   "drop_reason_ids": [
+    "B.dr3",
+    "B.dr9"
+   ],
+   "summary_ja": "動画が既婚者など恋愛アプリを必要としない人にも届き、入口で離れています。"
+  },
+  {
+   "theme_ja": "入力の手間は平均的",
+   "plan": "A,B",
+   "step": "signup",
+   "drop_reason_ids": [
+    "A.dr6",
+    "A.dr9",
+    "B.dr6"
+   ],
+   "summary_ja": "入力項目は多めでも個人情報を気にしない人は平均的に進めており、大きな壁にはなっていません。"
+  },
+  {
+   "theme_ja": "継続は評判と生活の必然性しだい",
+   "plan": "A,B",
+   "step": "retention",
+   "drop_reason_ids": [
+    "A.dr20",
+    "A.dr22",
+    "A.dr24",
+    "B.dr20",
+    "B.dr23",
+    "B.dr24"
+   ],
+   "summary_ja": "近くの人を見る楽しさはあるものの、口コミや評判が見えないことや出会いの必要性の薄さから継続は平均的にとどまっています。"
+  }
+ ],
+ "facts": {
+  "meta.period_days": {
+   "value": "90",
+   "label": "期間（日）"
+  },
+  "meta.runs": {
+   "value": "30",
+   "label": "実行回数"
+  },
+  "meta.population": {
+   "value": "10,000",
+   "label": "人口（人）"
+  },
+  "A.totals.impressions.p10": {
+   "value": "519.1",
+   "label": "A案 広告表示 p10（一万人あたり）"
+  },
+  "A.totals.impressions.p50": {
+   "value": "840",
+   "label": "A案 広告表示 p50（一万人あたり）"
+  },
+  "A.totals.impressions.p90": {
+   "value": "1,111",
+   "label": "A案 広告表示 p90（一万人あたり）"
+  },
+  "A.totals.reached.p10": {
+   "value": "439.7",
+   "label": "A案 広告が届いた人数 p10（一万人あたり）"
+  },
+  "A.totals.reached.p50": {
+   "value": "649",
+   "label": "A案 広告が届いた人数 p50（一万人あたり）"
+  },
+  "A.totals.reached.p90": {
+   "value": "774.6",
+   "label": "A案 広告が届いた人数 p90（一万人あたり）"
+  },
+  "A.totals.spend_jpy.p10": {
+   "value": "516.5",
+   "label": "A案 広告費（円） p10（一万人あたり）"
+  },
+  "A.totals.spend_jpy.p50": {
+   "value": "516.5",
+   "label": "A案 広告費（円） p50（一万人あたり）"
+  },
+  "A.totals.spend_jpy.p90": {
+   "value": "516.5",
+   "label": "A案 広告費（円） p90（一万人あたり）"
+  },
+  "A.totals.installs.p10": {
+   "value": "0.411",
+   "label": "A案 インストール p10（一万人あたり）"
+  },
+  "A.totals.installs.p50": {
+   "value": "0.629",
+   "label": "A案 インストール p50（一万人あたり）"
+  },
+  "A.totals.installs.p90": {
+   "value": "1.7",
+   "label": "A案 インストール p90（一万人あたり）"
+  },
+  "A.totals.installs_ad.p10": {
+   "value": "0.347",
+   "label": "A案 広告経由のインストール p10（一万人あたり）"
+  },
+  "A.totals.installs_ad.p50": {
+   "value": "0.53",
+   "label": "A案 広告経由のインストール p50（一万人あたり）"
+  },
+  "A.totals.installs_ad.p90": {
+   "value": "1.5",
+   "label": "A案 広告経由のインストール p90（一万人あたり）"
+  },
+  "A.totals.installs_wom.p10": {
+   "value": "0.0643",
+   "label": "A案 口コミ経由のインストール p10（一万人あたり）"
+  },
+  "A.totals.installs_wom.p50": {
+   "value": "0.138",
+   "label": "A案 口コミ経由のインストール p50（一万人あたり）"
+  },
+  "A.totals.installs_wom.p90": {
+   "value": "0.295",
+   "label": "A案 口コミ経由のインストール p90（一万人あたり）"
+  },
+  "A.totals.installs_wom_local.p10": {
+   "value": "0.0229",
+   "label": "A案 installs_wom_local p10（一万人あたり）"
+  },
+  "A.totals.installs_wom_local.p50": {
+   "value": "0.0692",
+   "label": "A案 installs_wom_local p50（一万人あたり）"
+  },
+  "A.totals.installs_wom_local.p90": {
+   "value": "0.202",
+   "label": "A案 installs_wom_local p90（一万人あたり）"
+  },
+  "A.totals.installs_wom_x.p10": {
+   "value": "0.0182",
+   "label": "A案 installs_wom_x p10（一万人あたり）"
+  },
+  "A.totals.installs_wom_x.p50": {
+   "value": "0.0384",
+   "label": "A案 installs_wom_x p50（一万人あたり）"
+  },
+  "A.totals.installs_wom_x.p90": {
+   "value": "0.132",
+   "label": "A案 installs_wom_x p90（一万人あたり）"
+  },
+  "A.totals.signups.p10": {
+   "value": "0.179",
+   "label": "A案 会員登録 p10（一万人あたり）"
+  },
+  "A.totals.signups.p50": {
+   "value": "0.296",
+   "label": "A案 会員登録 p50（一万人あたり）"
+  },
+  "A.totals.signups.p90": {
+   "value": "0.795",
+   "label": "A案 会員登録 p90（一万人あたり）"
+  },
+  "A.totals.core_actions.p10": {
+   "value": "0.00242",
+   "label": "A案 核となる行動 p10（一万人あたり）"
+  },
+  "A.totals.core_actions.p50": {
+   "value": "0.0133",
+   "label": "A案 核となる行動 p50（一万人あたり）"
+  },
+  "A.totals.core_actions.p90": {
+   "value": "0.0413",
+   "label": "A案 核となる行動 p90（一万人あたり）"
+  },
+  "A.totals.payers.p10": {
+   "value": "0.000842",
+   "label": "A案 課金者（期間中に一度でも決済） p10（一万人あたり）"
+  },
+  "A.totals.payers.p50": {
+   "value": "0.00415",
+   "label": "A案 課金者（期間中に一度でも決済） p50（一万人あたり）"
+  },
+  "A.totals.payers.p90": {
+   "value": "0.015",
+   "label": "A案 課金者（期間中に一度でも決済） p90（一万人あたり）"
+  },
+  "A.totals.revenue_jpy.p10": {
+   "value": "5.5",
+   "label": "A案 売上（円） p10（一万人あたり）"
+  },
+  "A.totals.revenue_jpy.p50": {
+   "value": "30.4",
+   "label": "A案 売上（円） p50（一万人あたり）"
+  },
+  "A.totals.revenue_jpy.p90": {
+   "value": "116.5",
+   "label": "A案 売上（円） p90（一万人あたり）"
+  },
+  "A.totals.active_end.p10": {
+   "value": "0.0167",
+   "label": "A案 最終日のアクティブ p10（一万人あたり）"
+  },
+  "A.totals.active_end.p50": {
+   "value": "0.0343",
+   "label": "A案 最終日のアクティブ p50（一万人あたり）"
+  },
+  "A.totals.active_end.p90": {
+   "value": "0.105",
+   "label": "A案 最終日のアクティブ p90（一万人あたり）"
+  },
+  "A.totals.paying_end.p10": {
+   "value": "0.00057",
+   "label": "A案 paying_end p10（一万人あたり）"
+  },
+  "A.totals.paying_end.p50": {
+   "value": "0.00262",
+   "label": "A案 paying_end p50（一万人あたり）"
+  },
+  "A.totals.paying_end.p90": {
+   "value": "0.00925",
+   "label": "A案 paying_end p90（一万人あたり）"
+  },
+  "A.totals.gate:id_verification.p10": {
+   "value": "0.0833",
+   "label": "A案 gate:id_verification p10（一万人あたり）"
+  },
+  "A.totals.gate:id_verification.p50": {
+   "value": "0.144",
+   "label": "A案 gate:id_verification p50（一万人あたり）"
+  },
+  "A.totals.gate:id_verification.p90": {
+   "value": "0.464",
+   "label": "A案 gate:id_verification p90（一万人あたり）"
+  },
+  "A.totals.cpi_jpy.p10": {
+   "value": "301.9",
+   "label": "A案 インストール単価（円） p10（一万人あたり）"
+  },
+  "A.totals.cpi_jpy.p50": {
+   "value": "821.7",
+   "label": "A案 インストール単価（円） p50（一万人あたり）"
+  },
+  "A.totals.cpi_jpy.p90": {
+   "value": "1,261",
+   "label": "A案 インストール単価（円） p90（一万人あたり）"
+  },
+  "A.totals.roas.p10": {
+   "value": "0.0107",
+   "label": "A案 ROAS p10（一万人あたり）"
+  },
+  "A.totals.roas.p50": {
+   "value": "0.0588",
+   "label": "A案 ROAS p50（一万人あたり）"
+  },
+  "A.totals.roas.p90": {
+   "value": "0.226",
+   "label": "A案 ROAS p90（一万人あたり）"
+  },
+  "A.dr0.share": {
+   "value": "3%",
+   "label": "A案 install の離脱理由 A.dr0 の割合"
+  },
+  "A.dr1.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr1 の割合"
+  },
+  "A.dr2.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr2 の割合"
+  },
+  "A.dr3.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr3 の割合"
+  },
+  "A.dr4.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr4 の割合"
+  },
+  "A.dr5.share": {
+   "value": "3%",
+   "label": "A案 signup の離脱理由 A.dr5 の割合"
+  },
+  "A.dr6.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr6 の割合"
+  },
+  "A.dr7.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr7 の割合"
+  },
+  "A.dr8.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr8 の割合"
+  },
+  "A.dr9.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr9 の割合"
+  },
+  "A.dr10.share": {
+   "value": "3%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr10 の割合"
+  },
+  "A.dr11.share": {
+   "value": "3%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr11 の割合"
+  },
+  "A.dr12.share": {
+   "value": "2%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr12 の割合"
+  },
+  "A.dr13.share": {
+   "value": "2%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr13 の割合"
+  },
+  "A.dr14.share": {
+   "value": "2%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr14 の割合"
+  },
+  "A.dr15.share": {
+   "value": "4%",
+   "label": "A案 core_action の離脱理由 A.dr15 の割合"
+  },
+  "A.dr16.share": {
+   "value": "3%",
+   "label": "A案 core_action の離脱理由 A.dr16 の割合"
+  },
+  "A.dr17.share": {
+   "value": "3%",
+   "label": "A案 core_action の離脱理由 A.dr17 の割合"
+  },
+  "A.dr18.share": {
+   "value": "2%",
+   "label": "A案 core_action の離脱理由 A.dr18 の割合"
+  },
+  "A.dr19.share": {
+   "value": "2%",
+   "label": "A案 core_action の離脱理由 A.dr19 の割合"
+  },
+  "A.dr20.share": {
+   "value": "3%",
+   "label": "A案 retention の離脱理由 A.dr20 の割合"
+  },
+  "A.dr21.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr21 の割合"
+  },
+  "A.dr22.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr22 の割合"
+  },
+  "A.dr23.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr23 の割合"
+  },
+  "A.dr24.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr24 の割合"
+  },
+  "A.dr25.share": {
+   "value": "6%",
+   "label": "A案 pay の離脱理由 A.dr25 の割合"
+  },
+  "A.dr26.share": {
+   "value": "5%",
+   "label": "A案 pay の離脱理由 A.dr26 の割合"
+  },
+  "A.dr27.share": {
+   "value": "4%",
+   "label": "A案 pay の離脱理由 A.dr27 の割合"
+  },
+  "A.dr28.share": {
+   "value": "4%",
+   "label": "A案 pay の離脱理由 A.dr28 の割合"
+  },
+  "A.dr29.share": {
+   "value": "4%",
+   "label": "A案 pay の離脱理由 A.dr29 の割合"
+  },
+  "B.totals.impressions.p10": {
+   "value": "0",
+   "label": "B案 広告表示 p10（一万人あたり）"
+  },
+  "B.totals.impressions.p50": {
+   "value": "0",
+   "label": "B案 広告表示 p50（一万人あたり）"
+  },
+  "B.totals.impressions.p90": {
+   "value": "0",
+   "label": "B案 広告表示 p90（一万人あたり）"
+  },
+  "B.totals.reached.p10": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p10（一万人あたり）"
+  },
+  "B.totals.reached.p50": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p50（一万人あたり）"
+  },
+  "B.totals.reached.p90": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p90（一万人あたり）"
+  },
+  "B.totals.spend_jpy.p10": {
+   "value": "54.2",
+   "label": "B案 広告費（円） p10（一万人あたり）"
+  },
+  "B.totals.spend_jpy.p50": {
+   "value": "54.2",
+   "label": "B案 広告費（円） p50（一万人あたり）"
+  },
+  "B.totals.spend_jpy.p90": {
+   "value": "54.2",
+   "label": "B案 広告費（円） p90（一万人あたり）"
+  },
+  "B.totals.installs.p10": {
+   "value": "0.267",
+   "label": "B案 インストール p10（一万人あたり）"
+  },
+  "B.totals.installs.p50": {
+   "value": "0.9",
+   "label": "B案 インストール p50（一万人あたり）"
+  },
+  "B.totals.installs.p90": {
+   "value": "7.0",
+   "label": "B案 インストール p90（一万人あたり）"
+  },
+  "B.totals.installs_ad.p10": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p10（一万人あたり）"
+  },
+  "B.totals.installs_ad.p50": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p50（一万人あたり）"
+  },
+  "B.totals.installs_ad.p90": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p90（一万人あたり）"
+  },
+  "B.totals.installs_wom.p10": {
+   "value": "0.0333",
+   "label": "B案 口コミ経由のインストール p10（一万人あたり）"
+  },
+  "B.totals.installs_wom.p50": {
+   "value": "0.105",
+   "label": "B案 口コミ経由のインストール p50（一万人あたり）"
+  },
+  "B.totals.installs_wom.p90": {
+   "value": "0.931",
+   "label": "B案 口コミ経由のインストール p90（一万人あたり）"
+  },
+  "B.totals.installs_wom_local.p10": {
+   "value": "0.0227",
+   "label": "B案 installs_wom_local p10（一万人あたり）"
+  },
+  "B.totals.installs_wom_local.p50": {
+   "value": "0.0483",
+   "label": "B案 installs_wom_local p50（一万人あたり）"
+  },
+  "B.totals.installs_wom_local.p90": {
+   "value": "0.782",
+   "label": "B案 installs_wom_local p90（一万人あたり）"
+  },
+  "B.totals.installs_wom_x.p10": {
+   "value": "0.00731",
+   "label": "B案 installs_wom_x p10（一万人あたり）"
+  },
+  "B.totals.installs_wom_x.p50": {
+   "value": "0.0334",
+   "label": "B案 installs_wom_x p50（一万人あたり）"
+  },
+  "B.totals.installs_wom_x.p90": {
+   "value": "0.423",
+   "label": "B案 installs_wom_x p90（一万人あたり）"
+  },
+  "B.totals.signups.p10": {
+   "value": "0.111",
+   "label": "B案 会員登録 p10（一万人あたり）"
+  },
+  "B.totals.signups.p50": {
+   "value": "0.358",
+   "label": "B案 会員登録 p50（一万人あたり）"
+  },
+  "B.totals.signups.p90": {
+   "value": "2.6",
+   "label": "B案 会員登録 p90（一万人あたり）"
+  },
+  "B.totals.core_actions.p10": {
+   "value": "0.000801",
+   "label": "B案 核となる行動 p10（一万人あたり）"
+  },
+  "B.totals.core_actions.p50": {
+   "value": "0.00702",
+   "label": "B案 核となる行動 p50（一万人あたり）"
+  },
+  "B.totals.core_actions.p90": {
+   "value": "0.159",
+   "label": "B案 核となる行動 p90（一万人あたり）"
+  },
+  "B.totals.payers.p10": {
+   "value": "0.000144",
+   "label": "B案 課金者（期間中に一度でも決済） p10（一万人あたり）"
+  },
+  "B.totals.payers.p50": {
+   "value": "0.00196",
+   "label": "B案 課金者（期間中に一度でも決済） p50（一万人あたり）"
+  },
+  "B.totals.payers.p90": {
+   "value": "0.0485",
+   "label": "B案 課金者（期間中に一度でも決済） p90（一万人あたり）"
+  },
+  "B.totals.revenue_jpy.p10": {
+   "value": "0.817",
+   "label": "B案 売上（円） p10（一万人あたり）"
+  },
+  "B.totals.revenue_jpy.p50": {
+   "value": "11.3",
+   "label": "B案 売上（円） p50（一万人あたり）"
+  },
+  "B.totals.revenue_jpy.p90": {
+   "value": "319.4",
+   "label": "B案 売上（円） p90（一万人あたり）"
+  },
+  "B.totals.active_end.p10": {
+   "value": "0.00922",
+   "label": "B案 最終日のアクティブ p10（一万人あたり）"
+  },
+  "B.totals.active_end.p50": {
+   "value": "0.0416",
+   "label": "B案 最終日のアクティブ p50（一万人あたり）"
+  },
+  "B.totals.active_end.p90": {
+   "value": "0.402",
+   "label": "B案 最終日のアクティブ p90（一万人あたり）"
+  },
+  "B.totals.paying_end.p10": {
+   "value": "0.000108",
+   "label": "B案 paying_end p10（一万人あたり）"
+  },
+  "B.totals.paying_end.p50": {
+   "value": "0.00147",
+   "label": "B案 paying_end p50（一万人あたり）"
+  },
+  "B.totals.paying_end.p90": {
+   "value": "0.0322",
+   "label": "B案 paying_end p90（一万人あたり）"
+  },
+  "B.totals.video_posts.p10": {
+   "value": "0.155",
+   "label": "B案 video_posts p10（一万人あたり）"
+  },
+  "B.totals.video_posts.p50": {
+   "value": "0.155",
+   "label": "B案 video_posts p50（一万人あたり）"
+  },
+  "B.totals.video_posts.p90": {
+   "value": "0.155",
+   "label": "B案 video_posts p90（一万人あたり）"
+  },
+  "B.totals.video_views.p10": {
+   "value": "751.4",
+   "label": "B案 video_views p10（一万人あたり）"
+  },
+  "B.totals.video_views.p50": {
+   "value": "1,966",
+   "label": "B案 video_views p50（一万人あたり）"
+  },
+  "B.totals.video_views.p90": {
+   "value": "15,530",
+   "label": "B案 video_views p90（一万人あたり）"
+  },
+  "B.totals.video_reached.p10": {
+   "value": "588.1",
+   "label": "B案 video_reached p10（一万人あたり）"
+  },
+  "B.totals.video_reached.p50": {
+   "value": "1,424",
+   "label": "B案 video_reached p50（一万人あたり）"
+  },
+  "B.totals.video_reached.p90": {
+   "value": "4,526",
+   "label": "B案 video_reached p90（一万人あたり）"
+  },
+  "B.totals.installs_video.p10": {
+   "value": "0.202",
+   "label": "B案 installs_video p10（一万人あたり）"
+  },
+  "B.totals.installs_video.p50": {
+   "value": "0.795",
+   "label": "B案 installs_video p50（一万人あたり）"
+  },
+  "B.totals.installs_video.p90": {
+   "value": "6.1",
+   "label": "B案 installs_video p90（一万人あたり）"
+  },
+  "B.totals.spend_video_jpy.p10": {
+   "value": "54.2",
+   "label": "B案 spend_video_jpy p10（一万人あたり）"
+  },
+  "B.totals.spend_video_jpy.p50": {
+   "value": "54.2",
+   "label": "B案 spend_video_jpy p50（一万人あたり）"
+  },
+  "B.totals.spend_video_jpy.p90": {
+   "value": "54.2",
+   "label": "B案 spend_video_jpy p90（一万人あたり）"
+  },
+  "B.totals.gate:id_verification.p10": {
+   "value": "0.0473",
+   "label": "B案 gate:id_verification p10（一万人あたり）"
+  },
+  "B.totals.gate:id_verification.p50": {
+   "value": "0.154",
+   "label": "B案 gate:id_verification p50（一万人あたり）"
+  },
+  "B.totals.gate:id_verification.p90": {
+   "value": "1.1",
+   "label": "B案 gate:id_verification p90（一万人あたり）"
+  },
+  "B.totals.cpi_jpy.p10": {
+   "value": "8.0",
+   "label": "B案 インストール単価（円） p10（一万人あたり）"
+  },
+  "B.totals.cpi_jpy.p50": {
+   "value": "61.1",
+   "label": "B案 インストール単価（円） p50（一万人あたり）"
+  },
+  "B.totals.cpi_jpy.p90": {
+   "value": "203.7",
+   "label": "B案 インストール単価（円） p90（一万人あたり）"
+  },
+  "B.totals.roas.p10": {
+   "value": "0.0151",
+   "label": "B案 ROAS p10（一万人あたり）"
+  },
+  "B.totals.roas.p50": {
+   "value": "0.209",
+   "label": "B案 ROAS p50（一万人あたり）"
+  },
+  "B.totals.roas.p90": {
+   "value": "5.9",
+   "label": "B案 ROAS p90（一万人あたり）"
+  },
+  "B.dr0.share": {
+   "value": "0.8%",
+   "label": "B案 install の離脱理由 B.dr0 の割合"
+  },
+  "B.dr1.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr1 の割合"
+  },
+  "B.dr2.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr2 の割合"
+  },
+  "B.dr3.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr3 の割合"
+  },
+  "B.dr4.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr4 の割合"
+  },
+  "B.dr5.share": {
+   "value": "0.9%",
+   "label": "B案 signup の離脱理由 B.dr5 の割合"
+  },
+  "B.dr6.share": {
+   "value": "0.7%",
+   "label": "B案 signup の離脱理由 B.dr6 の割合"
+  },
+  "B.dr7.share": {
+   "value": "0.7%",
+   "label": "B案 signup の離脱理由 B.dr7 の割合"
+  },
+  "B.dr8.share": {
+   "value": "0.7%",
+   "label": "B案 signup の離脱理由 B.dr8 の割合"
+  },
+  "B.dr9.share": {
+   "value": "0.6%",
+   "label": "B案 signup の離脱理由 B.dr9 の割合"
+  },
+  "B.dr10.share": {
+   "value": "1%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr10 の割合"
+  },
+  "B.dr11.share": {
+   "value": "1%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr11 の割合"
+  },
+  "B.dr12.share": {
+   "value": "0.9%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr12 の割合"
+  },
+  "B.dr13.share": {
+   "value": "0.9%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr13 の割合"
+  },
+  "B.dr14.share": {
+   "value": "0.8%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr14 の割合"
+  },
+  "B.dr15.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr15 の割合"
+  },
+  "B.dr16.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr16 の割合"
+  },
+  "B.dr17.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr17 の割合"
+  },
+  "B.dr18.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr18 の割合"
+  },
+  "B.dr19.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr19 の割合"
+  },
+  "B.dr20.share": {
+   "value": "1%",
+   "label": "B案 retention の離脱理由 B.dr20 の割合"
+  },
+  "B.dr21.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr21 の割合"
+  },
+  "B.dr22.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr22 の割合"
+  },
+  "B.dr23.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr23 の割合"
+  },
+  "B.dr24.share": {
+   "value": "0.7%",
+   "label": "B案 retention の離脱理由 B.dr24 の割合"
+  },
+  "B.dr25.share": {
+   "value": "3%",
+   "label": "B案 pay の離脱理由 B.dr25 の割合"
+  },
+  "B.dr26.share": {
+   "value": "3%",
+   "label": "B案 pay の離脱理由 B.dr26 の割合"
+  },
+  "B.dr27.share": {
+   "value": "2%",
+   "label": "B案 pay の離脱理由 B.dr27 の割合"
+  },
+  "B.dr28.share": {
+   "value": "2%",
+   "label": "B案 pay の離脱理由 B.dr28 の割合"
+  },
+  "B.dr29.share": {
+   "value": "2%",
+   "label": "B案 pay の離脱理由 B.dr29 の割合"
+  },
+  "cmp.B_minus_A.installs.p10": {
+   "value": "-1.0",
+   "label": "B案−A案 インストール の差 p10（同じ回どうし）"
+  },
+  "cmp.B_minus_A.installs.p50": {
+   "value": "0.12",
+   "label": "B案−A案 インストール の差 p50（同じ回どうし）"
+  },
+  "cmp.B_minus_A.installs.p90": {
+   "value": "5.9",
+   "label": "B案−A案 インストール の差 p90（同じ回どうし）"
+  },
+  "cmp.B_minus_A.payers.p10": {
+   "value": "-0.00725",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p10（同じ回どうし）"
+  },
+  "cmp.B_minus_A.payers.p50": {
+   "value": "-0.000189",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p50（同じ回どうし）"
+  },
+  "cmp.B_minus_A.payers.p90": {
+   "value": "0.0406",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p90（同じ回どうし）"
+  },
+  "cmp.B_minus_A.revenue_jpy.p10": {
+   "value": "-58.4",
+   "label": "B案−A案 売上（円） の差 p10（同じ回どうし）"
+  },
+  "cmp.B_minus_A.revenue_jpy.p50": {
+   "value": "-3.8",
+   "label": "B案−A案 売上（円） の差 p50（同じ回どうし）"
+  },
+  "cmp.B_minus_A.revenue_jpy.p90": {
+   "value": "263.8",
+   "label": "B案−A案 売上（円） の差 p90（同じ回どうし）"
+  },
+  "cmp.B_minus_A.active_end.p10": {
+   "value": "-0.0401",
+   "label": "B案−A案 最終日のアクティブ の差 p10（同じ回どうし）"
+  },
+  "cmp.B_minus_A.active_end.p50": {
+   "value": "0.00282",
+   "label": "B案−A案 最終日のアクティブ の差 p50（同じ回どうし）"
+  },
+  "cmp.B_minus_A.active_end.p90": {
+   "value": "0.337",
+   "label": "B案−A案 最終日のアクティブ の差 p90（同じ回どうし）"
+  },
+  "cmp.B_minus_A.core_actions.p10": {
+   "value": "-0.0261",
+   "label": "B案−A案 核となる行動 の差 p10（同じ回どうし）"
+  },
+  "cmp.B_minus_A.core_actions.p50": {
+   "value": "-0.00096",
+   "label": "B案−A案 核となる行動 の差 p50（同じ回どうし）"
+  },
+  "cmp.B_minus_A.core_actions.p90": {
+   "value": "0.141",
+   "label": "B案−A案 核となる行動 の差 p90（同じ回どうし）"
+  },
+  "cmp.p_B_better.installs": {
+   "value": "50%",
+   "label": "インストール でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.payers": {
+   "value": "50%",
+   "label": "課金者（期間中に一度でも決済） でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.revenue_jpy": {
+   "value": "40%",
+   "label": "売上（円） でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.active_end": {
+   "value": "50%",
+   "label": "最終日のアクティブ でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.core_actions": {
+   "value": "50%",
+   "label": "核となる行動 でB案がA案を上回った回の割合"
+  }
+ },
+ "template": {
+  "headline_ja": "広告費を大きく抑えたB案は費用対効果で有利そうだが、インストールや課金の差ははっきりしない",
+  "report_ja": "【結論】\nB案（広告を出さず動画投稿で広める案）は、A案（SNS広告を中心にした案）よりずっと少ない費用で、一万人あたりのインストール中央値がA案 {{A.totals.installs.p50}} に対しB案 {{B.totals.installs.p50}} とやや多めでした。ただしB案は幅が {{B.totals.installs.p10}}〜{{B.totals.installs.p90}} と大きく、同じ回どうしでB案が上回った割合は {{cmp.p_B_better.installs}} です。売上でB案が上回った回は {{cmp.p_B_better.revenue_jpy}}、課金者では {{cmp.p_B_better.payers}} で、成果の差ははっきりしません。一方、インストール単価の中央値はB案 {{B.totals.cpi_jpy.p50}} 円、A案 {{A.totals.cpi_jpy.p50}} 円で、ROASもB案 {{B.totals.roas.p50}}、A案 {{A.totals.roas.p50}} とB案の方が効率は良さそうです。\n\n【ファネルで人が離れた場所】\nどちらの案も、インストール→会員登録→本人確認→最初のやりとり→課金の順に細くなります。A案では会員登録 {{A.totals.signups.p50}}、本人確認 {{A.totals.gate:id_verification.p50}}、核となる行動 {{A.totals.core_actions.p50}}、課金者 {{A.totals.payers.p50}} でした。最も大きく減るのは本人確認から最初のメッセージまでの間で、審査待ちと男性の有料プランが重なる場所です。\n\n【離脱理由のテーマ】\n・本人確認書類や住まい・職業の入力への個人情報の警戒\n・審査待ちの間に興味が冷める\n・男性の月額料金が重く、無料お試しもない\n・女性は無料で、そもそも払う場面がない\n・広告の問いかけや本人確認の強調への反発\n・B案では動画が既婚者など対象外の人にも届いた\n\n【次に試すとよいこと】\n・審査待ちの間もプロフィール閲覧などで楽しめる工夫や、審査時間の短縮\n・男性向けの無料お試しや短い期間のプラン\n・住まいの表示範囲や近さの見せ方の説明を丁寧にする\n・動画では本人確認を「手間」ではなく「安心」として伝え、独身層に届く内容にする\n・B案は当たり外れが大きいので、動画の切り口を複数試す\n\n【読み方の注意】\n結果は中央値だけでなく幅（下振れ〜上振れ）で見てください。離脱理由は代表人物の判断で、同じグループの他の人はそれを受け継いでいます。",
+  "themes": [
+   {
+    "theme_ja": "本人確認・個人情報入力への警戒",
+    "plan": "A,B",
+    "step": "install/signup/gate:id_verification",
+    "drop_reason_ids": [
+     "A.dr1",
+     "A.dr4",
+     "A.dr5",
+     "A.dr7",
+     "A.dr8",
+     "A.dr10",
+     "A.dr11",
+     "A.dr13",
+     "A.dr14",
+     "B.dr0",
+     "B.dr5",
+     "B.dr7",
+     "B.dr8",
+     "B.dr11",
+     "B.dr13"
+    ],
+    "summary_ja": "身分証や顔写真の提出、住まいや職業の入力、近さの表示に対して個人情報を気にする人が手を止めています。"
+   },
+   {
+    "theme_ja": "審査待ちで気持ちが冷める",
+    "plan": "A,B",
+    "step": "gate:id_verification/core_action",
+    "drop_reason_ids": [
+     "A.dr12",
+     "A.dr17",
+     "A.dr18",
+     "A.dr19",
+     "B.dr10",
+     "B.dr12",
+     "B.dr14",
+     "B.dr16"
+    ],
+    "summary_ja": "承認されるまで話せない待ち時間がもどかしく、すぐ試したい気持ちが下がっています。"
+   },
+   {
+    "theme_ja": "男性の月額料金が重い",
+    "plan": "A,B",
+    "step": "install/core_action/retention/pay",
+    "drop_reason_ids": [
+     "A.dr3",
+     "A.dr15",
+     "A.dr21",
+     "A.dr23",
+     "A.dr28",
+     "B.dr1",
+     "B.dr4",
+     "B.dr15",
+     "B.dr18",
+     "B.dr19",
+     "B.dr21",
+     "B.dr22",
+     "B.dr25",
+     "B.dr28",
+     "B.dr29"
+    ],
+    "summary_ja": "メッセージに有料プランが必要で無料お試しもないため、価格に敏感な人が最初のやりとりや継続、支払いで止まっています。"
+   },
+   {
+    "theme_ja": "女性は無料で払う場面がない",
+    "plan": "A,B",
+    "step": "core_action/pay",
+    "drop_reason_ids": [
+     "A.dr16",
+     "A.dr25",
+     "A.dr26",
+     "A.dr27",
+     "A.dr29",
+     "B.dr17",
+     "B.dr26",
+     "B.dr27"
+    ],
+    "summary_ja": "女性は無料で使えるため使い始めは平均的ですが、課金とは無関係で売上にはつながりません。"
+   },
+   {
+    "theme_ja": "広告の訴求への反発",
+    "plan": "A,B",
+    "step": "install",
+    "drop_reason_ids": [
+     "A.dr0",
+     "A.dr2",
+     "B.dr2"
+    ],
+    "summary_ja": "不安を問いかける広告や本人確認を強調する表現が、広告嫌いや関心の低い人には押し付けがましく映っています。"
+   },
+   {
+    "theme_ja": "対象外の人に届いた",
+    "plan": "B",
+    "step": "install/signup",
+    "drop_reason_ids": [
+     "B.dr3",
+     "B.dr9"
+    ],
+    "summary_ja": "動画が既婚者など恋愛アプリを必要としない人にも届き、入口で離れています。"
+   },
+   {
+    "theme_ja": "入力の手間は平均的",
+    "plan": "A,B",
+    "step": "signup",
+    "drop_reason_ids": [
+     "A.dr6",
+     "A.dr9",
+     "B.dr6"
+    ],
+    "summary_ja": "入力項目は多めでも個人情報を気にしない人は平均的に進めており、大きな壁にはなっていません。"
+   },
+   {
+    "theme_ja": "継続は評判と生活の必然性しだい",
+    "plan": "A,B",
+    "step": "retention",
+    "drop_reason_ids": [
+     "A.dr20",
+     "A.dr22",
+     "A.dr24",
+     "B.dr20",
+     "B.dr23",
+     "B.dr24"
+    ],
+    "summary_ja": "近くの人を見る楽しさはあるものの、口コミや評判が見えないことや出会いの必要性の薄さから継続は平均的にとどまっています。"
+   }
+  ]
+ }
+}

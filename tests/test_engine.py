@@ -681,5 +681,12 @@ def test_person_decisions_in_replay(app, pop, rules, tmp_path):
     rd = tmp_path / "runs" / "test_matching"
     write_json(run_app(app, pop, rules, [], runs=3), rd / "engine.json")
     (rd / "decisions.json").write_text(json.dumps(dec, ensure_ascii=False), encoding="utf-8")
+    # 合成では、地図で何か起きた人かインタビューした人の分だけ入れる。person 3 をインタビュー対象にする
+    (rd / "interviews.json").write_text(json.dumps([{"person_id": 3, "plan": "A", "qa": []}]), encoding="utf-8")
     out = json.loads(build("test_matching", tmp_path / "runs", tmp_path / "r.json").read_text(encoding="utf-8"))
     assert [d["person_id"] for d in out["person_decisions"]] == [3]
+    # インタビューも出来事もない人は入らない
+    (rd / "interviews.json").write_text("[]", encoding="utf-8")
+    out = json.loads(build("test_matching", tmp_path / "runs", tmp_path / "r.json").read_text(encoding="utf-8"))
+    events = {e[0] for pl in out["plans"].values() for e in pl["sample_run"]["events"]}
+    assert all(d["person_id"] in events for d in out["person_decisions"])

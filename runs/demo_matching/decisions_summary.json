@@ -1,0 +1,90 @@
+{
+ "people": 8489,
+ "rows": 135824,
+ "skipped_people_not_eligible": 1511,
+ "total": {
+  "similar": 27509,
+  "lower": 107907,
+  "higher": 408
+ },
+ "by_group": {
+  "A|core_action": {
+   "similar": 1819,
+   "lower": 6664,
+   "higher": 6
+  },
+  "A|gate:id_verification": {
+   "lower": 7698,
+   "similar": 791
+  },
+  "A|install|a1": {
+   "similar": 1927,
+   "lower": 6562
+  },
+  "A|install|a2": {
+   "similar": 1930,
+   "lower": 6547,
+   "higher": 12
+  },
+  "A|install|a3": {
+   "similar": 2704,
+   "lower": 5688,
+   "higher": 97
+  },
+  "A|pay": {
+   "similar": 1313,
+   "lower": 7114,
+   "higher": 62
+  },
+  "A|retention": {
+   "similar": 1559,
+   "lower": 6930
+  },
+  "A|signup": {
+   "similar": 1972,
+   "lower": 6517
+  },
+  "B|core_action": {
+   "similar": 1861,
+   "lower": 6624,
+   "higher": 4
+  },
+  "B|gate:id_verification": {
+   "lower": 7888,
+   "similar": 600,
+   "higher": 1
+  },
+  "B|install|v1": {
+   "similar": 1683,
+   "lower": 6806
+  },
+  "B|install|v2": {
+   "similar": 1764,
+   "lower": 6670,
+   "higher": 55
+  },
+  "B|install|v3": {
+   "similar": 2318,
+   "higher": 135,
+   "lower": 6036
+  },
+  "B|pay": {
+   "similar": 1569,
+   "lower": 6884,
+   "higher": 36
+  },
+  "B|retention": {
+   "similar": 1710,
+   "lower": 6779
+  },
+  "B|signup": {
+   "similar": 1989,
+   "lower": 6500
+  }
+ },
+ "warnings": [
+  "lower が半分を超えています。判断が厳しく偏っている可能性があります。",
+  "理由に数字が入った判断が 4 件あります（数字はエンジンだけが作る決まり）。",
+  "根拠なしの higher/lower が 225 件あります。"
+ ]
+}

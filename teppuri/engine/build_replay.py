@@ -55,7 +55,10 @@ def build(app_id: str, runs_root: Path | None = None, out: Path | None = None) -
     if decisions.exists():   # 判断を回し直したときも最新を入れる（数字はエンジンを回し直すまで変わらない）
         data = _read(decisions)
         data = data if isinstance(data, list) else data.get("decisions", [])
-        replay["person_decisions"] = person_decision_rows(data, [p[0] for p in replay.get("people", [])])
+        # 1万人全員分だと Web で重すぎる（約17MB）。地図で何か起きた人とインタビューした人の分だけ入れる
+        shown = {e[0] for pl in replay.get("plans", {}).values() for e in pl.get("sample_run", {}).get("events", [])}
+        shown |= {i.get("person_id") for i in replay.get("interviews", [])}
+        replay["person_decisions"] = person_decision_rows(data, [p[0] for p in replay.get("people", []) if p[0] in shown])
     replay.setdefault("person_decisions", [])
 
     out = Path(out) if out else REPO_ROOT / "web" / "public" / "replays" / f"{app_id}.json"
