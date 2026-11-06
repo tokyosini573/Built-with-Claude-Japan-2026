@@ -25,6 +25,14 @@ export interface JapanMapProps {
   ariaLabel?: string;
   /** 地図の出典表記を出す（ATTRIBUTION.md。別の場所にまとめて出すときだけ false） */
   showCredit?: boolean;
+  /** 状態ごとの色・濃さ・大きさ（指定しなければ STATE_COLORS） */
+  stateStyle?: (s: PersonState) => { color: string; alpha?: number; size?: number } | null;
+  /** 点を押したとき（people の行番号）。近くに点がなければ呼ばれない */
+  onPick?: (row: number) => void;
+  /** 強調して描く人（people の行番号） */
+  selectedRow?: number | null;
+  /** 選んだ人の印の色 */
+  selectedColor?: string;
 }
 
 function cssVar(el: Element, name: string, fallback: string): string {
@@ -42,6 +50,10 @@ export function JapanMap({
   maxWidth = 720,
   ariaLabel = "日本地図。点は架空の1万人",
   showCredit = true,
+  stateStyle,
+  onPick,
+  selectedRow = null,
+  selectedColor = "#000",
 }: JapanMapProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -158,6 +170,7 @@ export function JapanMap({
 
     const n = people.length;
     const r = dotSize;
+    const hl = new Set(highlightPrefs);
     // 状態ごとにまとめて描く（進んだ状態ほど上に重ねる）
     const order: PersonState[] = [
       PersonState.None,
@@ -174,19 +187,60 @@ export function JapanMap({
       if (s === PersonState.None && !showUntouched) continue;
       const list = buckets[s];
       if (list.length === 0) continue;
+      const custom = stateStyle ? stateStyle(s) : undefined;
+      if (custom === null) continue;
       // 未接触だけはテーマに合わせる（暗い背景で明るすぎないように）
-      ctx.fillStyle = s === PersonState.None && wrapRef.current ? cssVar(wrapRef.current, "--dot-untouched", STATE_COLORS[s]) : STATE_COLORS[s];
-      const size = s === PersonState.None ? r * 0.8 : r;
+      ctx.fillStyle = custom
+        ? custom.color
+        : s === PersonState.None && wrapRef.current
+          ? cssVar(wrapRef.current, "--dot-untouched", STATE_COLORS[s])
+          : STATE_COLORS[s];
+      const size = custom?.size ?? (s === PersonState.None ? r * 0.8 : r);
       for (const i of list) {
         const x = positions[i * 2], y = positions[i * 2 + 1];
         if (Number.isNaN(x)) continue;
         // n（このグループで進んだ人数）が多い点ほど少し濃く。0.6〜1.0 の範囲に抑える
-        ctx.globalAlpha = s === PersonState.None ? 0.55 : weights ? 0.6 + 0.4 * Math.min(1, Math.log10(1 + weights[i]) / 3) : 1;
+        const base = custom?.alpha ?? 1;
+        // 出稿地域の外にいる未接触の点は薄くして、地域の違いを見えるようにする
+        const outside = hl.size > 0 && !hl.has(people[i][1]);
+        ctx.globalAlpha =
+          s === PersonState.None
+            ? (custom?.alpha ?? 0.55) * (outside ? 0.45 : 1)
+            : base * (weights ? 0.6 + 0.4 * Math.min(1, Math.log10(1 + weights[i]) / 3) : 1);
         ctx.fillRect(x * cssWidth - size / 2, y * cssHeight - size / 2, size, size);
       }
     }
     ctx.globalAlpha = 1;
-  }, [positions, states, weights, cssWidth, cssHeight, dotSize, showUntouched, people.length, highlightKey, themeTick]);
+    if (selectedRow !== null && selectedRow >= 0) {
+      const x = positions[selectedRow * 2] * cssWidth, y = positions[selectedRow * 2 + 1] * cssHeight;
+      if (!Number.isNaN(x)) {
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = cssVar(wrapRef.current!, "--surface", "#fff");
+        ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.stroke();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = selectedColor;
+        ctx.beginPath(); ctx.arc(x, y, 7.5, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+  }, [positions, states, weights, cssWidth, cssHeight, dotSize, showUntouched, people, highlightKey, themeTick, stateStyle, selectedRow, selectedColor]);
+
+  // 押した位置に一番近い点（未接触は除かない。12px 以内）
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onPick || !positions) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    let best = -1, bestD = 144;
+    const n = people.length;
+    for (let i = 0; i < n; i++) {
+      const x = positions[i * 2] * cssWidth, y = positions[i * 2 + 1] * cssHeight;
+      if (Number.isNaN(x)) continue;
+      // 進んだ点を優先（同じくらいの距離なら状態のある点）
+      const bonus = states && states[i] !== PersonState.None ? 0.5 : 1;
+      const d = ((x - px) ** 2 + (y - py) ** 2) * bonus;
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best >= 0) onPick(best);
+  };
 
   return (
     <div ref={wrapRef} style={{ width: "100%" }}>
@@ -201,10 +255,11 @@ export function JapanMap({
         ref={canvasRef}
         role="img"
         aria-label={ariaLabel}
-        style={{ display: map ? "block" : "none", width: cssWidth, height: cssHeight, margin: "0 auto" }}
+        onClick={onPick ? handleClick : undefined}
+        style={{ display: map ? "block" : "none", width: cssWidth, height: cssHeight, margin: "0 auto", cursor: onPick ? "pointer" : undefined }}
       />
       {map && showCredit && (
-        <p className="muted" style={{ fontSize: 10, margin: "4px 0 0", textAlign: "right" }}>
+        <p className="muted" style={{ fontSize: 12, margin: "4px 0 0", textAlign: "right" }}>
           「国土数値情報（行政区域データ）」（国土交通省）をもとにテプリ作成
         </p>
       )}

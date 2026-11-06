@@ -1,0 +1,205 @@
+{
+ "is_mock": true,
+ "note_ja": "これは画面確認用のモックです。事例・質問・確率はすべて架空で、本物のバックテストではありません。",
+ "prediction_commit": null,
+ "baselines": [
+  {
+   "id": "always_yes",
+   "name_ja": "いつも「伸びる」と答える",
+   "hits": 11,
+   "brier": 0.25
+  },
+  {
+   "id": "bigger_budget",
+   "name_ja": "予算が大きいほうが勝つと答える",
+   "hits": 9,
+   "brier": 0.27
+  }
+ ],
+ "cases": [
+  {
+   "case_id": "c1",
+   "title_ja": "（モック）事例A: 恋活アプリ",
+   "description_ja": "（モック）値上げのあと、有料会員は増えたか",
+   "recognized": false,
+   "questions": [
+    {
+     "q_id": "c1q1",
+     "q_ja": "（モック）値上げのあと2四半期で、有料会員は増えたか",
+     "p_yes": 0.38,
+     "answer": false,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c1q2",
+     "q_ja": "（モック）値上げの次の四半期、新規の登録は前の四半期より多かったか",
+     "p_yes": 0.44,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c1q3",
+     "q_ja": "（モック）1年後、有料会員は値上げ前より多かったか",
+     "p_yes": 0.61,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    }
+   ]
+  },
+  {
+   "case_id": "c2",
+   "title_ja": "（モック）事例B: 家計簿アプリ",
+   "description_ja": "（モック）無料体験を7日から30日に延ばした",
+   "recognized": false,
+   "questions": [
+    {
+     "q_id": "c2q1",
+     "q_ja": "（モック）延ばした四半期、有料会員は増えたか",
+     "p_yes": 0.72,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c2q2",
+     "q_ja": "（モック）翌四半期の解約は前より増えたか",
+     "p_yes": 0.55,
+     "answer": false,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c2q3",
+     "q_ja": "（モック）1年後、有料会員は延ばす前より多かったか",
+     "p_yes": 0.66,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    }
+   ]
+  },
+  {
+   "case_id": "c3",
+   "title_ja": "（モック）事例C: フリマアプリ",
+   "description_ja": "（モック）テレビ広告を出した四半期",
+   "recognized": true,
+   "questions": [
+    {
+     "q_id": "c3q1",
+     "q_ja": "（モック）テレビ広告の四半期、新規の利用者は前の四半期より多かったか",
+     "p_yes": 0.81,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c3q2",
+     "q_ja": "（モック）次の四半期も新規の利用者は増えたか",
+     "p_yes": 0.47,
+     "answer": false,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c3q3",
+     "q_ja": "（モック）テレビ広告の四半期、取引の数は増えたか",
+     "p_yes": 0.63,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    }
+   ]
+  },
+  {
+   "case_id": "c4",
+   "title_ja": "（モック）事例D: 動画配信",
+   "description_ja": "（モック）月額を上げた",
+   "recognized": false,
+   "questions": [
+    {
+     "q_id": "c4q1",
+     "q_ja": "（モック）値上げの四半期、会員は減ったか",
+     "p_yes": 0.42,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c4q2",
+     "q_ja": "（モック）値上げの翌年、売上は増えたか",
+     "p_yes": 0.7,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c4q3",
+     "q_ja": "（モック）値上げの翌四半期、会員は前年同期より多かったか",
+     "p_yes": 0.58,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    }
+   ]
+  },
+  {
+   "case_id": "c5",
+   "title_ja": "（モック）事例E: 婚活アプリ",
+   "description_ja": "（モック）地方へ広告を広げた",
+   "recognized": false,
+   "questions": [
+    {
+     "q_id": "c5q1",
+     "q_ja": "（モック）広げた四半期、会員は増えたか",
+     "p_yes": 0.67,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c5q2",
+     "q_ja": "（モック）広げた翌四半期、有料会員は増えたか",
+     "p_yes": 0.52,
+     "answer": false,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    }
+   ]
+  },
+  {
+   "case_id": "c6",
+   "title_ja": "（モック）事例F: 学習アプリ",
+   "description_ja": "（モック）大学生向けの割引を始めた",
+   "recognized": false,
+   "questions": [
+    {
+     "q_id": "c6q1",
+     "q_ja": "（モック）割引を始めた四半期、有料会員は増えたか",
+     "p_yes": 0.74,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c6q2",
+     "q_ja": "（モック）割引の翌年、売上は増えたか",
+     "p_yes": 0.49,
+     "answer": true,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    },
+    {
+     "q_id": "c6q3",
+     "q_ja": "（モック）割引の翌四半期、解約は減ったか",
+     "p_yes": 0.35,
+     "answer": false,
+     "source_ja": "（モック）決算説明資料",
+     "source_url": null
+    }
+   ]
+  }
+ ]
+}

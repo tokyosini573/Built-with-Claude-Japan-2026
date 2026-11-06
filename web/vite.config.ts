@@ -5,4 +5,6 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   base: process.env.VITE_BASE ?? "./",
   plugins: [react()],
+  // 根拠ページは ../data/DATA_SOURCES.md などをそのまま読み込む（数字を画面側で書き写さないため）
+  server: { fs: { allow: [".."] } },
 });

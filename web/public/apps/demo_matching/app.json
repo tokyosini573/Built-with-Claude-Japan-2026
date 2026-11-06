@@ -1,0 +1,48 @@
+{
+ "app_id": "demo_matching",
+ "name_ja": "ちかくに",
+ "description_ja": "20〜30代向けの恋愛マッチングアプリ。近くに住む・働く人をおすすめする（距離はおおよそで表示）。 全員に本人確認（運転免許証・マイナンバーカード・パスポートの写真と顔写真、審査は最大24時間）が必須で、 承認されるまでメッセージは送れない。女性は無料、男性はメッセージに月額3,980円の有料プランが必要。18歳以上（高校生不可）。",
+ "screens": [
+  {
+   "src": "screens/01.png",
+   "label_ja": "はじめの画面"
+  },
+  {
+   "src": "screens/02.png",
+   "label_ja": "プロフィール作成"
+  },
+  {
+   "src": "screens/03.png",
+   "label_ja": "本人確認"
+  },
+  {
+   "src": "screens/04.png",
+   "label_ja": "近くのおすすめ"
+  },
+  {
+   "src": "screens/05.png",
+   "label_ja": "有料プラン"
+  }
+ ],
+ "gates": [
+  {
+   "id": "id_verification",
+   "name_ja": "本人確認",
+   "docs_ja": "運転免許証・マイナンバーカード・パスポートのどれか1つの写真と、顔写真",
+   "review_hours": 24
+  }
+ ],
+ "pricing": {
+  "monthly_jpy": 3980,
+  "free_trial_days": 0,
+  "who_pays": "male"
+ },
+ "creatives": {
+  "a1": "ads/a1.png",
+  "a2": "ads/a2.png",
+  "a3": "ads/a3.png",
+  "b1": "ads/b1.png",
+  "b2": "ads/b2.png",
+  "b3": "ads/b3.png"
+ }
+}

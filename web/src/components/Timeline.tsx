@@ -107,7 +107,7 @@ export function Timeline({ playback, extrapolatedAfterDay, startDate }: Timeline
         </span>
         {extra !== null && day > extra && <span className="badge">推計の延長（{extra}日より後）</span>}
         <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <span className="small secondary">速度</span>
+          <span className="small secondary" style={{ whiteSpace: "nowrap" }}>速度</span>
           <span className="seg" role="group" aria-label="再生速度">
             {SPEEDS.map((s) => (
               <button key={s} type="button" aria-pressed={speed === s} onClick={() => setSpeed(s)}>

@@ -71,6 +71,8 @@ export interface ReplayMeta {
   is_mock?: boolean;
   /** モックのときだけの注記（任意項目） */
   note_ja?: string;
+  /** app.yaml の gates（v1 追補） */
+  gates?: { id: string; name_ja: string }[];
 }
 
 /** reached は v0 のリプレイにないので省略可 */
@@ -151,6 +153,19 @@ export interface Interview {
   qa: { q_ja: string; a_ja: string }[];
 }
 
+/**
+ * 一人ずつの Claude の判断（任意。Web からの提案）。decisions.json（契約 v2）のうち、
+ * 地図で選べる人の分だけをリプレイに入れてもらう想定。ないときは drop_reasons（グループの判断）で代用する。
+ */
+export interface PersonDecision {
+  plan: PlanId;
+  person_id: number;
+  step: string;
+  level: "higher" | "similar" | "lower";
+  reason_ja: string;
+  creative?: string | null;
+}
+
 export interface Replay {
   meta: ReplayMeta;
   plans: Partial<Record<PlanId, PlanResult>>;
@@ -159,6 +174,9 @@ export interface Replay {
   clusters: Cluster[];
   interviews: Interview[];
   report_ja: string;
+  /** 合成コマンドが一番外側に置く report.json のテーマ（plans.X.drop_themes がないとき使う） */
+  drop_themes?: DropTheme[];
+  person_decisions?: PersonDecision[];
   /** 読み込み時に見つけた、表示はできるが契約 v1 と違う点 */
   warnings: string[];
 }
@@ -332,6 +350,8 @@ export function validateReplay(data: unknown): Replay {
   if (!Array.isArray(data.clusters)) data.clusters = [];
   if (!Array.isArray(data.interviews)) data.interviews = [];
   if (typeof data.report_ja !== "string") data.report_ja = "";
+  if (!Array.isArray(data.drop_themes)) data.drop_themes = [];
+  if (!Array.isArray(data.person_decisions)) data.person_decisions = [];
 
   if (problems.length > 0) {
     throw new ReplayError(`リプレイの形が契約（§4・v1 追補）と合いません（${problems.length}件）。`, problems.slice(0, 20));

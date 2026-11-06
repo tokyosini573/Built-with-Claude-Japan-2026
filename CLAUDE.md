@@ -147,6 +147,9 @@ plans:
 - 代表人物のグループには `marital` も使う。
 - `daily.paying`（その日に払い続けている人数、既存の決済者を含む）と `totals.paying_end`。`daily.payers` / `totals.payers` は新規の決済のみ。
 - **判断の意味:** 「この人がその段階まで来たとき、カテゴリ平均のアプリと比べて進みやすいか」。地域・SNS利用・広告到達・密度はエンジンが計算するので判断の理由にしない。人単位の判断がある人には persona の `interest` 倍率を掛けない。
+- `initial_state` に任意で `monthly_churn`（成熟期の月次解約率。公開値があるとき）と `ever_installed`（累計設置者。無ければエンジンが推定）。`changes` に任意で `phase_in_days`（既存の決済者へ新価格を N 日かけて適用）。
+- リプレイに `person_decisions: [{plan, person_id, step, level, reason_ja}]`（`people` にいる人の分だけ、build_replay が decisions.json から入れる）。`daily_cumulative` に `core_actions` も入れる。
+- バックテストの表示用 `web/public/backtest.json` の形は `web/src/lib/backtest.ts` に従う（`teppuri/backtest` が書き出す）。
 - 区間集計は `teppuri/engine/window.py` の `interval_band`（回ごとに集計してから分位点）を使う。
 
 ## コマンド

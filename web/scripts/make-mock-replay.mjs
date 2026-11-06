@@ -301,9 +301,15 @@ for (const [id, plan] of Object.entries(PLANS)) {
     totals,
     sample_run: { events: sample.events },
     drop_reasons: [
-      { step: "gate:id_verification", cluster_id: 13, share: 0.22, reason_ja: "（モック）本人確認の書類を出すのが面倒" },
+      { step: "install", cluster_id: 40, share: 0.3, reason_ja: "（モック）広告を見ても自分向けだと思えなかった" },
       { step: "signup", cluster_id: 7, share: 0.15, reason_ja: "（モック）電話番号の登録に抵抗がある" },
+      { step: "gate:id_verification", cluster_id: 13, share: 0.22, reason_ja: "（モック）本人確認の書類を出すのが面倒" },
+      { step: "gate:id_verification", cluster_id: 19, share: 0.12, reason_ja: "（モック）審査の24時間が待てなかった" },
       { step: "core_action", cluster_id: 20, share: 0.12, reason_ja: "（モック）近くに相手が少なかった" },
+      { step: "core_action", cluster_id: 26, share: 0.09, reason_ja: "（モック）プロフィールを書くのが面倒だった" },
+      { step: "retention", cluster_id: 21, share: 0.18, reason_ja: "（モック）返事が来なくて開かなくなった" },
+      { step: "pay", cluster_id: 22, share: 0.25, reason_ja: "（モック）月3,900円は高いと感じた" },
+      { step: "pay", cluster_id: 28, share: 0.14, reason_ja: "（モック）無料の範囲で十分だった" },
     ],
     drop_themes: [
       { theme_ja: "（モック）登録の手間", plan: id, step: "gate:id_verification", drop_reason_ids: [`${id}.dr0`, `${id}.dr1`], summary_ja: "（モック）書類と電話番号の手間で離れる人が多い。" },
@@ -321,6 +327,56 @@ for (const key of COMPARISON) {
   comparison.p_B_better[key] = sig(diffs.reduce((s, d) => s + (d > 0 ? 1 : d === 0 ? 0.5 : 0), 0) / diffs.length);
 }
 
+// ---- インタビューと一人ずつの判断（モック） ----
+// 地図の点を押したときのパネル用。本物は判断担当の interviews.json と decisions.json（契約 v2）から来る
+const MOCK_REASONS = {
+  install: { higher: "（モック）写真が自然で、近くの人と会えそうだと感じた", similar: "（モック）よくあるアプリに見えた", lower: "（モック）広告がしつこく感じた" },
+  signup: { higher: "（モック）登録がすぐ終わりそうだった", similar: "（モック）普通の手間だった", lower: "（モック）電話番号を入れるのに抵抗がある" },
+  "gate:id_verification": { higher: "（モック）本人確認があるほうが安心できる", similar: "（モック）免許証の撮影は仕方ない", lower: "（モック）書類を出すのが面倒" },
+  core_action: { higher: "（モック）近くに年の近い人が多かった", similar: "（モック）何人かとやりとりできた", lower: "（モック）近くに相手が少なかった" },
+  pay: { higher: "（モック）続けて会いたい人がいた", similar: "（モック）様子を見てから決めたい", lower: "（モック）月3,900円は高い" },
+};
+const LEVELS = ["higher", "similar", "lower"];
+const interviews = [];
+const person_decisions = [];
+const pr = mulberry32(7);
+for (const id of ["A", "B"]) {
+  const evs = plansOut[id].sample_run.events;
+  const reached = new Map();
+  for (const [pid, , step] of evs) {
+    if (!reached.has(pid)) reached.set(pid, new Set());
+    reached.get(pid).add(step);
+  }
+  const ids = [...reached.keys()];
+  // 判断は進んだ段階 + 次の段階（離脱した段階）に付ける
+  for (const pid of ids.slice(0, 400)) {
+    const done = reached.get(pid);
+    for (const step of Object.keys(MOCK_REASONS)) {
+      const did = done.has(step === "pay" ? "pay" : step);
+      const level = did ? (pr() < 0.7 ? "higher" : "similar") : LEVELS[1 + Math.floor(pr() * 2)];
+      person_decisions.push({ plan: id, person_id: pid, step, level, reason_ja: MOCK_REASONS[step][level] });
+      if (!did) break;
+    }
+  }
+  // インタビューは進み方の違う3人
+  const pick = [
+    ids.find((pid) => reached.get(pid).has("pay")),
+    ids.find((pid) => reached.get(pid).has("core_action") && !reached.get(pid).has("pay")),
+    ids.find((pid) => !reached.get(pid).has("signup")),
+  ].filter((v) => v !== undefined);
+  for (const pid of pick) {
+    interviews.push({
+      person_id: pid,
+      plan: id,
+      qa: [
+        { q_ja: "（モック）このアプリを知ったきっかけは？", a_ja: id === "A" ? "（モック）インスタの広告で見ました。" : "（モック）YouTube の広告で見ました。" },
+        { q_ja: "（モック）本人確認はどう感じましたか？", a_ja: "（モック）少し面倒でしたが、安心感はありました。" },
+        { q_ja: "（モック）お金を払うとしたら、いくらまでなら？", a_ja: "（モック）月2,000円くらいまでなら考えます。" },
+      ],
+    });
+  }
+}
+
 const replay = {
   meta: {
     app_id: "mock",
@@ -332,22 +388,15 @@ const replay = {
     generated_at: "2026-11-06T00:00:00+09:00",
     extrapolated_after_day: EXTRAPOLATED_AFTER,
     is_mock: true,
+    gates: [{ id: "id_verification", name_ja: "本人確認" }],
     note_ja: "これは画面確認用のモックです。数字に根拠はありません（web/scripts/make-mock-replay.mjs）。",
   },
   plans: plansOut,
   comparison,
   people,
   clusters,
-  interviews: [
-    {
-      person_id: clusters[8].representative,
-      plan: "A",
-      qa: [
-        { q_ja: "（モック）なぜインストールしましたか？", a_ja: "（モック）友だちが使っていると聞いたからです。" },
-        { q_ja: "（モック）本人確認はどう感じましたか？", a_ja: "（モック）少し面倒でしたが、安心感はありました。" },
-      ],
-    },
-  ],
+  interviews,
+  person_decisions,
   report_ja: "（モック）A案は首都圏に絞ったため早く伸び、B案は全国で長く伸びました。数字はモックです。",
 };
 

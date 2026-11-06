@@ -17,9 +17,11 @@ export interface DailyChartProps {
   cursorDay?: number;
   height?: number;
   plans?: PlanId[];
+  /** 見出し行（凡例）を出さない（画面側で別に出すとき） */
+  hideHeader?: boolean;
 }
 
-const M = { top: 12, right: 12, bottom: 24, left: 52 };
+const M = { top: 16, right: 16, bottom: 32, left: 60 };
 
 function niceMax(v: number): number {
   if (v <= 0) return 1;
@@ -39,7 +41,7 @@ function seriesOf(plan: PlanResult, metric: DailyKey, cumulative: boolean): Band
   return plan.daily[metric];
 }
 
-export function DailyChart({ replay, metric, scale, cumulative = false, cursorDay = 0, height = 220, plans }: DailyChartProps) {
+export function DailyChart({ replay, metric, scale, cumulative = false, cursorDay = 0, height = 220, plans, hideHeader = false }: DailyChartProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [hoverDay, setHoverDay] = useState<number | null>(null);
@@ -98,7 +100,7 @@ export function DailyChart({ replay, metric, scale, cumulative = false, cursorDa
 
   return (
     <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
-      <div className="small secondary" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
+      {!hideHeader && <div className="small secondary" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
         <strong style={{ color: "var(--text-primary)" }}>{metricLabel(metric)}（{cum ? "累計" : "日別"}）</strong>
         {ids.map((id) => (
           <span key={id} style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
@@ -107,7 +109,7 @@ export function DailyChart({ replay, metric, scale, cumulative = false, cursorDa
           </span>
         ))}
         <span className="muted">線 = 中央値、帯 = 10〜90%（{scaleLabel(scale)}）</span>
-      </div>
+      </div>}
       {width > 0 && (
         <svg width={width} height={height} role="img" aria-label={`${metricLabel(metric)}の${cum ? "累計" : "日別"}推移`}>
           {/* 延長部分 */}
@@ -115,7 +117,7 @@ export function DailyChart({ replay, metric, scale, cumulative = false, cursorDa
             <g>
               <rect x={x(extraAfter)} y={M.top} width={x(geom.maxDay) - x(extraAfter)} height={ih} fill="var(--extrapolated)" />
               <line x1={x(extraAfter)} x2={x(extraAfter)} y1={M.top} y2={M.top + ih} stroke="var(--text-muted)" strokeDasharray="3 3" />
-              <text x={x(extraAfter) + 6} y={M.top + 12} fontSize={11} fill="var(--text-muted)">
+              <text x={x(extraAfter) + 6} y={M.top + 12} fontSize={14} fill="var(--text-muted)">
                 推計の延長
               </text>
             </g>
@@ -124,13 +126,13 @@ export function DailyChart({ replay, metric, scale, cumulative = false, cursorDa
           {ticks.map((t) => (
             <g key={t}>
               <line x1={M.left} x2={M.left + iw} y1={y(t)} y2={y(t)} stroke="var(--grid)" />
-              <text x={M.left - 6} y={y(t) + 4} fontSize={11} textAnchor="end" fill="var(--text-muted)" className="num">
+              <text x={M.left - 6} y={y(t) + 4} fontSize={14} textAnchor="end" fill="var(--text-muted)" className="num">
                 {formatCount(t)}
               </text>
             </g>
           ))}
           {xTicks.map((d) => (
-            <text key={d} x={x(d)} y={height - 6} fontSize={11} textAnchor="middle" fill="var(--text-muted)" className="num">
+            <text key={d} x={x(d)} y={height - 8} fontSize={14} textAnchor={d === geom.maxDay ? "end" : d === 1 ? "start" : "middle"} fill="var(--text-muted)" className="num">
               {d}日
             </text>
           ))}
@@ -178,7 +180,7 @@ export function DailyChart({ replay, metric, scale, cumulative = false, cursorDa
           className="small"
           style={{
             position: "absolute",
-            top: 28,
+            top: hideHeader ? 0 : 28,
             left: Math.min(Math.max(0, x(hoverDay!) + 10), Math.max(0, width - 240)),
             background: "var(--surface-1)",
             border: "1px solid var(--border)",
@@ -186,6 +188,7 @@ export function DailyChart({ replay, metric, scale, cumulative = false, cursorDa
             padding: "6px 8px",
             pointerEvents: "none",
             minWidth: 220,
+            fontSize: 15,
             whiteSpace: "nowrap",
             boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}

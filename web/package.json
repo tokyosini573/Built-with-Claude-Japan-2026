@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "mock": "node scripts/make-mock-replay.mjs",
-    "build-map": "node scripts/build-japan-map.mjs"
+    "build-map": "node scripts/build-japan-map.mjs",
+    "sync-apps": "node scripts/sync-apps.mjs"
   },
   "dependencies": {
     "react": "19.1.10",
