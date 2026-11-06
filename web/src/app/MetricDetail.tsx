@@ -6,6 +6,8 @@ import { scaleFactor, type Scale } from "../lib/format";
 import { metricName, stepName } from "../lib/labels";
 import { planIds, type DailyKey, type DropReason, type PlanId, type Replay, type TotalKey } from "../lib/replay";
 import { PLAN_VAR, PlanName, count } from "./ui";
+import { ORGANIC_VIDEO_NOTE_JA } from "../config";
+import { scaleLabel } from "../lib/format";
 
 /** 指標ごとに見る離脱の段階 */
 const RELATED_STEPS: Record<string, (step: string) => boolean> = {
@@ -38,6 +40,7 @@ export function MetricDetail({ replay, metric, scale, onClose }: { replay: Repla
           閉じる
         </button>
       </div>
+      {metric === "installs" && <VideoBlock replay={replay} scale={scale} />}
       <Funnel replay={replay} metric={metric} scale={scale} />
       <Trend replay={replay} metric={metric} scale={scale} />
       <Reasons replay={replay} metric={metric} />
@@ -55,13 +58,18 @@ function Funnel({ replay, metric, scale }: { replay: Replay; metric: string; sca
       <div style={{ display: "grid", gap: 4 }}>
         <h4 className="h3">どこで減ったか</h4>
         <p className="note">
-          インストールした人が、段階ごとに何人残ったか（中央値。上の棒が A案、下の棒が B案）。広告が届いた人は
-          {ids.map((id, i) => (
-            <span key={id}>
-              {i > 0 && "、"}
-              {id}案 <span className="num">{count((replay.plans[id]!.totals.reached?.p50 ?? NaN) * k)}</span>人
-            </span>
-          ))}
+          インストールした人が、段階ごとに何人残ったか（中央値。上の棒が A案、下の棒が B案）。届いた人は
+          {ids.map((id, i) => {
+            const t = replay.plans[id]!.totals;
+            const v = (t["video_reached" as TotalKey]?.p50 ?? 0) > 0;
+            const r = v ? t["video_reached" as TotalKey]!.p50 : (t.reached?.p50 ?? NaN);
+            return (
+              <span key={id}>
+                {i > 0 && "、"}
+                {id}案 {v ? "動画で" : "広告で"} <span className="num">{count(r * k)}</span>人
+              </span>
+            );
+          })}
           。
         </p>
       </div>
@@ -163,3 +171,53 @@ function Reasons({ replay, metric }: { replay: Replay; metric: string }) {
   );
 }
 
+
+const VIDEO_ROWS: [TotalKey, string, string][] = [
+  ["video_views" as TotalKey, "動画の再生数", "回"],
+  ["video_reached" as TotalKey, "動画が届いた人", "人"],
+  ["installs_video" as TotalKey, "動画からのインストール", "人"],
+];
+
+/** 動画の大量投稿の案（config.organic_video）の再生数・届いた人・インストール */
+function VideoBlock({ replay, scale }: { replay: Replay; scale: Scale }) {
+  const ids = planIds(replay).filter((id) => replay.plans[id]!.config.organic_video);
+  if (ids.length === 0) return null;
+  const k = scaleFactor(replay.meta, scale);
+  return (
+    <>
+      {ids.map((id) => {
+        const t = replay.plans[id]!.totals;
+        return (
+          <div key={id} style={{ display: "grid", gap: 12 }}>
+            <div style={{ display: "grid", gap: 4 }}>
+              <h4 className="h3">
+                <PlanName id={id} />の動画はどこまで届いたか
+              </h4>
+              <p className="note">{scaleLabel(scale)}。大きな数字は中央値、下は10〜90%の幅です。</p>
+            </div>
+            <div className="cards3">
+              {VIDEO_ROWS.map(([key, label, u]) => {
+                const b = t[key];
+                return (
+                  <div key={key} className="cost">
+                    <span className="note">{label}</span>
+                    <strong className="num" style={{ fontSize: 26, fontFamily: "var(--display)" }}>
+                      {b ? `${count(b.p50 * k)}${u}` : "—"}
+                    </strong>
+                    {b && (
+                      <span className="range num">
+                        幅 {count(b.p10 * k)}〜{count(b.p90 * k)}
+                        {u}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="caveat">{ORGANIC_VIDEO_NOTE_JA}</p>
+          </div>
+        );
+      })}
+    </>
+  );
+}

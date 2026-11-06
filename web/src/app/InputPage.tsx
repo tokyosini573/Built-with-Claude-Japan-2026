@@ -1,7 +1,7 @@
 // 入力: 1段目 = アプリ画面5枚と A案・B案の条件カード。2段目 = カードを押すと広告素材・関門・価格。
 
 import { useEffect, useState } from "react";
-import { APP_ASSET_DIR, DEFAULT_SCREENS, MOCK_ASSET_APP_ID } from "../config";
+import { APP_ASSET_DIR, DEFAULT_SCREENS, MOCK_ASSET_APP_ID, ORGANIC_VIDEO_NOTE_JA } from "../config";
 import { CHANNEL_JA, gateName, regionText, yen } from "../lib/labels";
 import { planIds, type PlanConfig, type PlanId, type Replay } from "../lib/replay";
 import { PLAN_VAR } from "./ui";
@@ -75,7 +75,7 @@ export function InputPage({ replay }: { replay: Replay }) {
           <h2 className="h2" id="plans-h">
             比べた2つの案
           </h2>
-          <p className="note">「広告・関門・価格を見る」で、くわしい条件が出ます。</p>
+          <p className="note">カードの下のボタンで、広告や動画の見本・関門・価格が出ます。</p>
         </div>
         <div className="cards2">
           {ids.map((id) => (
@@ -86,6 +86,17 @@ export function InputPage({ replay }: { replay: Replay }) {
     </>
   );
 }
+
+interface OrganicVideo {
+  platforms?: string[];
+  accounts?: number;
+  posts_per_account_per_day?: number;
+  days?: number;
+  cost_per_video_jpy?: number;
+  creative_ids?: string[];
+}
+
+const VIDEO_PLATFORM_JA: Record<string, string> = { tiktok: "TikTok", instagram: "Instagram リール", youtube: "YouTube ショート" };
 
 function totalSpend(c: PlanConfig): number {
   return Object.values(c.channels ?? {}).reduce((s, v) => s + (Number(v) || 0), 0);
@@ -119,6 +130,9 @@ function PlanCard({
   const pricing = (config.pricing ?? {}) as { monthly_jpy?: number; free_trial_days?: number; who_pays?: string };
   const gates = manifest.gates ?? replay.meta.gates ?? [];
   const creatives = config.creatives ?? [];
+  const video = (config.organic_video ?? null) as OrganicVideo | null;
+  const spendBand = replay.plans[id]!.totals.spend_jpy;
+  const spend = spendBand ? Math.round(spendBand.p50 * replay.meta.scale_to_japan) : null;
   const changes = Array.isArray(config.changes) ? (config.changes as { day: number; pricing?: Record<string, unknown>; channels?: Record<string, number> }[]) : [];
   const creativeSrc = (c: string) => base + (manifest.creatives?.[c] ?? (c.includes("/") ? c : `ads/${c}.png`));
 
@@ -130,19 +144,38 @@ function PlanCard({
       <dl className="kv">
         <dt>地域</dt>
         <dd>{regionText(config.regions)}</dd>
-        <dt>広告費</dt>
-        <dd>
-          <strong>{yen(totalSpend(config))}</strong>
-          {config.campaign_days ? `（${config.campaign_days}日間）` : ""}
-        </dd>
-        <dt>広告の場所</dt>
-        <dd>{Object.keys(config.channels ?? {}).map((ch) => CHANNEL_JA[ch] ?? ch).join("・") || "なし"}</dd>
+        {video ? (
+          <>
+            <dt>費用</dt>
+            <dd>
+              <strong>{spend !== null ? yen(spend) : "—"}</strong>（動画の制作費。広告費なし）
+            </dd>
+            <dt>動画の投稿</dt>
+            <dd>
+              {video.accounts ?? "—"}アカウント × 毎日{video.posts_per_account_per_day ?? 1}本 × {video.days ?? "—"}日
+              {video.cost_per_video_jpy ? `、1本 ${yen(video.cost_per_video_jpy)}` : ""}
+            </dd>
+            <dt>投稿先</dt>
+            <dd>{(video.platforms ?? []).map((p) => VIDEO_PLATFORM_JA[p] ?? p).join("・")}</dd>
+          </>
+        ) : (
+          <>
+            <dt>広告費</dt>
+            <dd>
+              <strong>{yen(spend ?? totalSpend(config))}</strong>
+              {config.campaign_days ? `（${config.campaign_days}日間）` : ""}
+            </dd>
+            <dt>広告の場所</dt>
+            <dd>{Object.keys(config.channels ?? {}).map((ch) => CHANNEL_JA[ch] ?? ch).join("・") || "なし"}</dd>
+          </>
+        )}
         <dt>届ける相手</dt>
         <dd>{targetText(config)}</dd>
       </dl>
 
       {open && (
         <div style={{ display: "grid", gap: 20, borderTop: "1px solid var(--line)", paddingTop: 20 }}>
+          {Object.keys(config.channels ?? {}).length > 0 && (
           <div style={{ display: "grid", gap: 8 }}>
             <h3 className="h3">広告費の内訳</h3>
             <dl className="kv">
@@ -154,6 +187,19 @@ function PlanCard({
               ))}
             </dl>
           </div>
+          )}
+          {video && (video.creative_ids ?? []).length > 0 && (
+            <div style={{ display: "grid", gap: 8 }}>
+              <h3 className="h3">動画の見本</h3>
+              <div className="creatives">
+                {(video.creative_ids ?? []).map((c) => (
+                  <Shot key={c} src={creativeSrc(c)} label={`${id}案の動画の見本 ${c}`} square />
+                ))}
+              </div>
+              <p className="note">アカウントごとに内容の違う動画を、アプリ公式・AI 生成と明示して投稿する前提です。</p>
+            </div>
+          )}
+          {video && <p className="caveat">{ORGANIC_VIDEO_NOTE_JA}</p>}
           {creatives.length > 0 && (
             <div style={{ display: "grid", gap: 8 }}>
               <h3 className="h3">広告の素材</h3>
@@ -212,7 +258,7 @@ function PlanCard({
         </div>
       )}
       <button type="button" className="btn" style={{ justifySelf: "start" }} aria-expanded={open} onClick={onToggle}>
-        {open ? "閉じる ▲" : "広告・関門・価格を見る ▼"}
+        {open ? "閉じる ▲" : video ? "動画の見本・関門・価格を見る ▼" : "広告・関門・価格を見る ▼"}
       </button>
     </div>
   );

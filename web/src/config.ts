@@ -47,3 +47,16 @@ export const REPO_URL = "";
 
 /** バックテストの結果ファイル（public からの相対パス） */
 export const BACKTEST_PATH = "backtest.json";
+
+/** 「はっきりしない」とみなす B案が良い確率の範囲（この間なら勝ち負けを言わない） */
+export const UNCLEAR_RANGE: [number, number] = [0.4, 0.6];
+
+/** 動画の案（plans.X.config.organic_video）のそばに出す注記 */
+export const ORGANIC_VIDEO_NOTE_JA =
+  "動画の案は、ルールを固定した後に追加した機能で、バックテストでは検証していません。値の多くは仮定です。外部の成功例を比例換算した目安より、再生数が多めに出ています。";
+
+/** backtest.json に findings_ja がないときに出す考察の要点（backtest/report.md「結果の読み方」から） */
+export const BACKTEST_FINDINGS_FALLBACK_JA = [
+  "テプリは17問中15問で「減る」と答えました。運営中のサービスでは、既存の利用者が離れる分を大きく見積もる偏りがありました。",
+  "今の版は、運営中のサービスの値上げや広告の増減の方向を当てる道具としては、まだ信頼できません。新しく発売する場面（デモの使い方）はこの点検の対象外です。",
+];

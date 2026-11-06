@@ -5,9 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { JapanMap } from "../components/JapanMap";
 import { Timeline, usePlayback } from "../components/Timeline";
 import { ScaleToggle } from "../components/Metrics";
-import { CARD_METRICS, HEADLINE_METRIC } from "../config";
+import { CARD_METRICS, HEADLINE_METRIC, ORGANIC_VIDEO_NOTE_JA, UNCLEAR_RANGE } from "../config";
 import { formatCount, scaleFactor, type Scale } from "../lib/format";
-import { metricName } from "../lib/labels";
+import { metricName, yen } from "../lib/labels";
 import { planIds, type Band, type PlanId, type Replay } from "../lib/replay";
 import { PersonState, statesOnDay } from "../lib/states";
 import { useStateTimeline } from "../lib/useReplay";
@@ -69,21 +69,75 @@ function Verdict({ replay }: { replay: Replay }) {
       ) : (
         <>
           <h1 className="claim" id="verdict-h">
-            <span className="ib">{name}が多いのは</span>{" "}
-            <span className="ib">
-              <PlanName id={p >= 0.5 ? "B" : "A"} /> の確率 <span className="num">{Math.round((p >= 0.5 ? p : 1 - p) * 100)}%</span>
-            </span>
+            {p >= UNCLEAR_RANGE[1] ? (
+              <>
+                <span className="ib">{name}は</span>{" "}
+                <span className="ib">
+                  <PlanName id="B" />のほうが多い確率 <span className="num">{Math.round(p * 100)}%</span>
+                </span>
+              </>
+            ) : p <= UNCLEAR_RANGE[0] ? (
+              <>
+                <span className="ib">{name}は</span>{" "}
+                <span className="ib">
+                  <PlanName id="A" />のほうが多い確率 <span className="num">{Math.round((1 - p) * 100)}%</span>
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="ib">{name}は、</span>
+                <span className="ib">どちらが多いか</span>{" "}
+                <span className="ib">はっきりしない</span>
+              </>
+            )}
           </h1>
-          <div className="pbar" role="img" aria-label={`A案 ${Math.round((1 - p) * 100)}%、B案 ${Math.round(p * 100)}%`}>
-            <span style={{ left: 0, width: `${(1 - p) * 100}%`, background: PLAN_VAR.A }} />
+          <div className="pbar" role="img" aria-label={`B案が上回った回 ${replay.meta.runs}回中${Math.round(p * replay.meta.runs)}回`}>
             <span style={{ right: 0, width: `${p * 100}%`, background: PLAN_VAR.B }} />
           </div>
           <p className="note">
-            同じ条件で{replay.meta.runs}回ずつ試し、{name}がもう一方より多かった回の割合です（A案 {Math.round((1 - p) * 100)}% ／ B案 {Math.round(p * 100)}%）。
+            同じ条件で{replay.meta.runs}回ずつ試し、<PlanName id="B" />の{name}が A案を上回ったのは {replay.meta.runs}回中
+            <strong className="num">{Math.round(p * replay.meta.runs)}回</strong>でした。
           </p>
         </>
       )}
+      <CostRow replay={replay} />
     </section>
+  );
+}
+
+// ---- 費用 ----
+
+/** 案ごとの費用（日本全体の実際の金額）と1インストールあたりの費用。数字はリプレイの totals から */
+function CostRow({ replay }: { replay: Replay }) {
+  const ids = planIds(replay);
+  if (!ids.some((id) => replay.plans[id]!.totals.spend_jpy)) return null;
+  const k = replay.meta.scale_to_japan;
+  return (
+    <div className="costs">
+      {ids.map((id) => {
+        const t = replay.plans[id]!.totals;
+        const video = !!replay.plans[id]!.config.organic_video;
+        return (
+          <div key={id} className="cost">
+            <span className="plan-tag" style={{ color: PLAN_VAR[id] }}>
+              {id}案
+            </span>
+            <span>
+              <span className="note">{video ? "動画の制作費" : "広告費"}</span>{" "}
+              <strong className="num" style={{ fontSize: 20 }}>{t.spend_jpy ? yen(Math.round(t.spend_jpy.p50 * k)) : "—"}</strong>
+            </span>
+            {t.cpi_jpy && (
+              <span>
+                <span className="note">1インストールあたり</span>{" "}
+                <strong className="num">{count(t.cpi_jpy.p50)}円</strong>
+                <span className="range num">（幅 {count(t.cpi_jpy.p10)}〜{count(t.cpi_jpy.p90)}円）</span>
+              </span>
+            )}
+            {video && <span className="caveat">{ORGANIC_VIDEO_NOTE_JA}</span>}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -122,10 +176,10 @@ function MetricCard({ replay, metric, scale, open, onToggle }: { replay: Replay;
       })}
       {p !== undefined && (
         <span style={{ display: "grid", gap: 0, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
-          <span className="note">多かった案</span>
-          <span style={{ fontSize: 18 }}>
-            <PlanName id={p >= 0.5 ? "B" : "A"} /> <strong className="num">{replay.meta.runs}回中{Math.round((p >= 0.5 ? p : 1 - p) * replay.meta.runs)}回</strong>
-          </span>
+          <span className="note">B案が上回った回</span>
+          <strong className="num" style={{ fontSize: 18 }}>
+            {replay.meta.runs}回中{Math.round(p * replay.meta.runs)}回
+          </strong>
         </span>
       )}
       <span className="more">{open ? "閉じる ▲" : "内訳を見る ▼"}</span>

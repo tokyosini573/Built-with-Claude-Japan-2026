@@ -1,6 +1,7 @@
 // 検証（白黒）: 1段目 = 「17問中◯問的中」と比較の基準。2段目 = 事例カード。3段目 = 質問ごとの予測確率と実際、出典。
 
 import { useEffect, useRef, useState } from "react";
+import { BACKTEST_FINDINGS_FALLBACK_JA } from "../config";
 import { judge, loadBacktest, summarize, type Backtest, type BacktestCase } from "../lib/backtest";
 
 export function VerifyPage() {
@@ -21,6 +22,7 @@ export function VerifyPage() {
 
   const s = summarize(bt);
   const openCase = bt.cases.find((c) => c.case_id === open) ?? null;
+  const findings = bt.findings_ja ?? (bt.is_mock ? [] : BACKTEST_FINDINGS_FALLBACK_JA);
   const rows = [{ id: "teppuri", name_ja: "テプリ", hits: s.hits, me: true }, ...bt.baselines.map((b) => ({ ...b, me: false }))];
 
   return (
@@ -31,6 +33,7 @@ export function VerifyPage() {
         <h1 className="score" id="score-h">
           {s.answered}問中 <span className="num">{s.hits}</span>問 的中
         </h1>
+        {rows.length > 1 && <p className="claim-sub">{versus(s.hits, bt.baselines)}</p>}
         <p className="lead">
           過去に条件を変えた日本のアプリについて、結果を知らない状態で「はい／いいえ」を予測し、あとから実際と比べました。
           {s.answered < s.total && ` 残り${s.total - s.answered}問は答え合わせ待ちです。`}
@@ -48,6 +51,13 @@ export function VerifyPage() {
             </div>
           ))}
         </div>
+        {findings.length > 0 && (
+          <ul className="findings">
+            {findings.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        )}
         <p className="note">
           {s.answered}問は方法の点検で、精度の測定ではありません。外れた問題も含めて全部出しています。
           {s.brier !== null && ` 確率のずれ（0に近いほど良い）: テプリ ${s.brier.toFixed(2)}`}
@@ -71,7 +81,7 @@ export function VerifyPage() {
                 <span className="h3" style={{ fontFamily: "var(--display)" }}>
                   {c.title_ja}
                 </span>
-                <span style={{ fontSize: 16, color: "var(--text-secondary)" }}>{c.description_ja}</span>
+                <span className="clamp3" style={{ fontSize: 16, color: "var(--text-secondary)" }}>{c.description_ja}</span>
                 <span style={{ fontSize: 18, fontWeight: 700 }} className="num">
                   {ans.length}問中 {ans.filter((q) => q.hit).length}問 的中
                 </span>
@@ -135,4 +145,12 @@ function CaseDetail({ c, onClose }: { c: BacktestCase; onClose: () => void }) {
       </ol>
     </div>
   );
+}
+
+/** 基準との比べ方を1行で（勝てなかったときもそのまま言う） */
+function versus(hits: number, baselines: { hits: number }[]): string {
+  const best = Math.max(...baselines.map((b) => b.hits));
+  if (hits > best) return `単純な基準より ${hits - best}問 多く当てました。`;
+  if (hits === best) return "単純な基準と同じ数で、基準に勝てませんでした。";
+  return `単純な基準より ${best - hits}問 少なく、基準に勝てませんでした。`;
 }

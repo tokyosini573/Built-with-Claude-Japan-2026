@@ -236,9 +236,9 @@ button.card:hover .more, button.card[aria-expanded="true"] .more { color: var(--
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; }
 .creatives { display: flex; gap: 12px; flex-wrap: wrap; }
-.creatives .shot { width: auto; }
-.creatives .frame { aspect-ratio: auto; height: 200px; border-radius: 12px; min-width: 112px; }
-.creatives img { width: auto; height: 100%; object-fit: contain; }
+.creatives .shot { width: auto; max-width: 100%; }
+.creatives .frame { aspect-ratio: auto; display: block; border-radius: 12px; min-width: 112px; min-height: 120px; }
+.creatives .frame img { width: auto; height: 200px; max-width: 100%; object-fit: contain; }
 
 /* ---- 検証（白黒） ---- */
 .mono { --c: var(--fg); }
@@ -296,3 +296,16 @@ dialog.sheet .detail { border: 0; border-radius: 0; min-height: 100%; }
 dialog.sheet .detail-head { position: sticky; top: -32px; background: var(--surface); padding-top: 8px; z-index: 1; }
 @media (max-width: 640px) { dialog.sheet .detail-head { top: -20px; } }
 dialog.sheet .person { grid-template-columns: 1fr; }
+/* 費用の行 */
+.costs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 8px; max-width: 880px; }
+@media (max-width: 640px) { .costs { grid-template-columns: 1fr; } }
+.cost { display: grid; gap: 2px; align-content: start; padding: 14px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.cost .plan-tag { font-size: 18px; }
+.caveat { font-size: 14px; color: var(--muted); line-height: 1.6; margin-top: 6px; }
+.claim-sub { font-family: var(--display); font-weight: 900; font-size: clamp(22px, 3.2vw, 28px); line-height: 1.4; }
+.findings { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; max-width: 44em; }
+.clamp3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width: 640px) {
+  .verdict .claim { font-size: 28px; }
+  .detail-head .h2 { font-size: 22px; }
+}

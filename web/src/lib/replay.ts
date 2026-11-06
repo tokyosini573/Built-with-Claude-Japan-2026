@@ -24,7 +24,7 @@ export const DAILY_KEYS = [
 export type DailyKey = (typeof DAILY_KEYS)[number];
 
 /** daily_cumulative に置く指標（回ごとに累計してから分位点を取ったもの） */
-export const CUMULATIVE_KEYS = ["installs", "payers", "revenue_jpy"] as const;
+export const CUMULATIVE_KEYS = ["installs", "payers", "revenue_jpy", "core_actions"] as const;
 export type CumulativeKey = (typeof CUMULATIVE_KEYS)[number];
 
 /**

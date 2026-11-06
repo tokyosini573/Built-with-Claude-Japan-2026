@@ -32,7 +32,7 @@ export function App() {
 function Site({ replayParam }: { replayParam: string | null }) {
   const route = useRoute();
   const status = useReplayAuto(replayParam);
-  const [scale, setScale] = useState<Scale>("sample");
+  const [scale, setScale] = useState<Scale>("japan");
   // 入口の「デモを再生」から来たときだけ自動で再生する
   const [autoplay, setAutoplay] = useState(false);
 

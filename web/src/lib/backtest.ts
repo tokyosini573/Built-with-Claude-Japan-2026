@@ -38,6 +38,8 @@ export interface Backtest {
   /** 予測を記録したコミット（後から答えを足した証拠） */
   prediction_commit?: string;
   baselines: BacktestBaseline[];
+  /** 考察の要点（1〜2行）。画面の1段目に出す */
+  findings_ja?: string[];
   cases: BacktestCase[];
 }
 
@@ -47,7 +49,8 @@ export interface QuestionResult extends BacktestQuestion {
 }
 
 export function judge(q: BacktestQuestion): QuestionResult {
-  const predicted = q.p_yes >= 0.5;
+  // 0.5 より大きければ「はい」と答えたとみなす（backtest/report.md と同じ）
+  const predicted = q.p_yes > 0.5;
   return { ...q, predicted, hit: q.answer === null ? null : predicted === q.answer };
 }
 
