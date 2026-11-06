@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "mock": "node scripts/make-mock-replay.mjs",
     "build-map": "node scripts/build-japan-map.mjs",
+    "build-hero": "node scripts/build-hero-people.mjs",
     "sync-apps": "node scripts/sync-apps.mjs",
     "build-live": "../.venv/bin/python scripts/build_live_bundle.py",
     "check-live": "../.venv/bin/python scripts/check_live_parity.py"

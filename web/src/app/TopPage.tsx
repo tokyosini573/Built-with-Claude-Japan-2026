@@ -69,13 +69,13 @@ function chunks(text: string) {
 // ---- 1. ヒーロー ----
 
 function Hero() {
+  // 1人が表す人数（契約 §1: weight の合計 96,806,585 ÷ 1万人）。図のデータを読んだらその値にする
+  const [scale, setScale] = useState({ population: 10000, perPerson: 96806585 / 10000 });
+  const total = scale.population * scale.perPerson;
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-in">
         <div className="hero-text">
-          <p className="eyebrow">
-            Built with Claude: Japan 2026 <span className="ib">応募作品</span>
-          </p>
           <h1 className="hero-title" id="hero-h">
             <span className="ib">アプリを出す前に、</span>
             <span className="ib">架空の日本で</span>
@@ -91,7 +91,7 @@ function Hero() {
           </div>
         </div>
         <figure className="hero-fig">
-          <HeroDots />
+          <HeroDots onPeople={(p) => setScale({ population: p.population, perPerson: p.scale_to_japan })} />
           <figcaption>
             <span className="hero-legend">
               {HERO_LEGEND.map((l) => (
@@ -101,7 +101,9 @@ function Hero() {
                 </span>
               ))}
             </span>
-            <span className="note">点1つが1人。1人は実際の日本の約9,681人を表します。図はイメージで、実際の結果ではありません。</span>
+            <span className="note">
+              点1つが架空の1人で、人の多い都道府県ほど点が密になります。1人は、似た属性を持つ実際の日本人 <span className="ib">約{Math.round(scale.perPerson).toLocaleString("ja-JP")}人</span>の代わりです（15〜79歳 <span className="ib">約{Math.round(total / 1e4).toLocaleString("ja-JP")}万人 ÷ {(scale.population / 1e4).toLocaleString("ja-JP")}万</span>）。色づき方はイメージで、実際の結果ではありません。
+            </span>
           </figcaption>
         </figure>
       </div>
@@ -127,7 +129,7 @@ function Problem() {
     },
   ];
   return (
-    <Sec id="problem" eyebrow="解決したいこと" title={<><span className="ib">「出してみないと分からない」を、</span><span className="ib">出す前に確かめる</span></>}>
+    <Sec id="problem" eyebrow="解決したいこと" title={<><span className="ib">「リリースして</span><span className="ib">みないと分からない」を、</span><span className="ib">リリース前に確かめる</span></>}>
       <ol className="points">
         {items.map((x, i) => (
           <li key={x.t}>
