@@ -49,8 +49,8 @@ RECOGNITION_SCHEMA = {
     "additionalProperties": False,
 }
 
-# 偏りの警告を出す目安（higher がこれを超えたら「甘すぎる」疑い）
-HIGHER_WARN_SHARE = 0.5
+# 偏りの警告を出す目安（higher か lower のどちらかがこれを超えたら偏りの疑い。対称）
+SKEW_WARN_SHARE = 0.5
 EST_OUTPUT_PER_STEP = 130  # 1段階あたりの出力トークン（実測で調整する）
 
 
@@ -103,13 +103,17 @@ def select_people(app: c.App, rows: dict[int, dict], sample: int | None, seed: i
 
 
 def _plan_text(plan: dict) -> dict:
+    return {"period": plan.get("period_days", "?")}
+
+
+def in_target(plan: dict, row: dict) -> bool:
+    """案のターゲット（年齢・性別）に入るか。測定用の絞り込みに使う（判断の理由には使わない）。"""
     t = plan.get("target") or {}
-    return {
-        "target": f"年齢 {t.get('age', 'any')} / 性別 {t.get('sex', 'any')}",
-        "channels": "、".join((plan.get("channels") or {}).keys()) or "なし",
-        "regions": ",".join(str(r) for r in plan.get("regions") or []) or "全国",
-        "period": plan.get("period_days", "?"),
-    }
+    age = t.get("age")
+    if isinstance(age, (list, tuple)) and len(age) == 2 and not (age[0] <= int(row["age"]) <= age[1]):
+        return False
+    sex = t.get("sex", "any")
+    return sex in (None, "any") or str(row.get("sex")) == str(sex)
 
 
 def _gates_text(app: c.App) -> str:
@@ -121,11 +125,13 @@ def _gates_text(app: c.App) -> str:
     return "".join(lines)
 
 
-def build_jobs(app: c.App, people: list[dict], personas: dict[str, dict]) -> list[c.Job]:
+def build_jobs(app: c.App, people: list[dict], personas: dict[str, dict],
+               plans: list[str] | None = None) -> list[c.Job]:
     system = c.load_prompt("decide_system.md")
     template = Template(c.load_prompt("decide_person.md"))
     schema = decision_schema(app)
-    prefix = c.app_context_blocks(app, cache="1h")
+    # 案の地域・ターゲット・チャネルは入れない（エンジンが別に計算するので判断の理由にさせない）
+    prefix = c.app_context_blocks(app, cache="1h", include_plans=False)
     gates = _gates_text(app)
     creatives_by_plan: dict[str, list[str]] = defaultdict(list)
     for plan_id, cid, _ in app.creatives():
@@ -134,12 +140,15 @@ def build_jobs(app: c.App, people: list[dict], personas: dict[str, dict]) -> lis
 
     jobs = []
     for plan_id, plan in sorted(app.plans().items()):
+        if plans and plan_id not in plans:
+            continue
         pt = _plan_text(plan)
         for row in people:
             cluster_id = row.get("cluster_id")
             p = personas.get(str(cluster_id), {}) if cluster_id not in (None, "") else {}
             tail = template.substitute(
-                person_id=row["person_id"], attrs=c.attrs_line_ja(row) or "（属性なし）",
+                person_id=row["person_id"],
+                attrs=c.attrs_line_ja(row, exclude=c.ENGINE_HANDLED_ATTRS) or "（属性なし）",
                 persona=p.get("persona_ja", "（なし。属性から考える）"),
                 interest=p.get("interest", p.get("category_interest", "不明")),
                 plan=plan_id, creatives="、".join(creatives_by_plan[plan_id]) or "なし", gates=gates, **pt,
@@ -217,8 +226,10 @@ def summarize(details: list[dict], expected_rows: int, skipped_people: int) -> d
         no_evidence += int(d["level"] != "similar" and d["evidence_kind"] == "none")
     n = sum(total.values()) or 1
     warnings = []
-    if total["higher"] / n > HIGHER_WARN_SHARE:
+    if total["higher"] / n > SKEW_WARN_SHARE:
         warnings.append("higher が半分を超えています。判断が甘く偏っている可能性があります。")
+    if total["lower"] / n > SKEW_WARN_SHARE:
+        warnings.append("lower が半分を超えています。判断が厳しく偏っている可能性があります。")
     if total["similar"] == n:
         warnings.append("すべて similar です。判断が情報を使えていない可能性があります。")
     if numeric:
@@ -238,9 +249,9 @@ def summarize(details: list[dict], expected_rows: int, skipped_people: int) -> d
 
 
 def build(app: c.App, people: list[dict], ctx: c.RunContext, skipped_people: int = 0,
-          limit: int | None = None) -> list[dict] | None:
+          limit: int | None = None, plans: list[str] | None = None) -> list[dict] | None:
     personas = load_personas(ctx.out_dir)
-    jobs = build_jobs(app, people, personas)
+    jobs = build_jobs(app, people, personas, plans)
     if limit:
         jobs = jobs[:limit]
     res = c.run_jobs(jobs, ctx)
@@ -308,6 +319,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--person-ids", default=None, help="カンマ区切りで人を指定")
     ap.add_argument("--sync", action="store_true", help="Batch API を使わず1件ずつ呼ぶ（少数の動作確認用）")
     ap.add_argument("--limit", type=int, default=None, help="先頭 N 回の呼び出しだけ（動作確認用）")
+    ap.add_argument("--plans", default=None, help="カンマ区切りで案を絞る（例: A）")
+    ap.add_argument("--target-of", default=None, metavar="PLAN",
+                    help="その案のターゲット（年齢・性別）に入る人だけを対象にする（測定用）")
     ap.add_argument("--recognition-check", type=int, default=0, metavar="N",
                     help="判断の代わりに「このアプリが何か分かるか」を N 回だけ聞く")
     args = ap.parse_args(argv)
@@ -320,10 +334,15 @@ def main(argv: list[str] | None = None) -> None:
     rows = c.load_population_rows(Path(args.population_dir))
     if not rows:
         raise c.JudgeError(f"人口ファイルがありません: {args.population_dir}/japan_10k.csv")
+    if args.target_of:
+        tplan = app.plans()[args.target_of]
+        rows = {k: r for k, r in rows.items() if in_target(tplan, r)}
     ids = [int(x) for x in args.person_ids.split(",")] if args.person_ids else None
     people, skipped = select_people(app, rows, args.sample, args.seed, ids)
-    print(f"対象: {len(people)} 人 × {len(app.plans())} 案（最低年齢未満・スマホなしで対象外: {skipped} 人）")
-    build(app, people, ctx, skipped, limit=args.limit)
+    plans = args.plans.split(",") if args.plans else None
+    n_plans = len(plans) if plans else len(app.plans())
+    print(f"対象: {len(people)} 人 × {n_plans} 案（最低年齢未満・スマホなしで対象外: {skipped} 人）")
+    build(app, people, ctx, skipped, limit=args.limit, plans=plans)
 
 
 if __name__ == "__main__":

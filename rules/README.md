@@ -68,21 +68,27 @@ signup:
 app.yaml の plan に任意で書けます。書かなければ結果は従来と完全に同じです。
 
 ```yaml
-initial_state: {active: 300000, payers: 30000, as_of_day_since_launch: 365}   # 日本全体の実人数
+initial_state: {active: 300000, payers: 30000, as_of_day_since_launch: 365,   # 日本全体の実人数
+                ever_installed: 5000000,   # 任意: 累計設置者（やめた人を含む）。無ければ推定
+                monthly_churn: 0.03}       # 任意: 既存の決済者の月次解約率（公開値があるとき）
 changes:
   - {day: 31, pricing: {monthly_jpy: 4900}, applies_to: all}   # all = 既存の決済者にも次の更新日から / new = 新規の決済だけ
+  - {day: 31, pricing: {monthly_jpy: 4900}, applies_to: all, phase_in_days: 90}   # 既存の決済者は90日かけて均等に新価格へ
+  - {day: 31, pricing: {order_jpy: 5000}}                       # shopping の1回の注文額
   - {day: 31, channels: {instagram: 0}}                         # その日から止める
   - {day: 60, channels: {tiktok: 3000000}, campaign_days: 30}    # 60日目から30日で300万円
 ```
 
-- **既存の利用者**: active を1万人基準にして、設置できる人（min_age・地域・スマホ）に、プリセットの属性の傾向（matching は `initial_affinity`: 既婚・離別の重み、assumption）× 判断の倍率（install・retention）× ペルソナの関心 に比例した確率で配ります。既存の利用者は広告・クチコミの対象から外れ、クチコミの発信源とマッチの相手側（プロフィール）になります。
-- **既存の利用者の継続**: 発売から as_of 日まで一定のペースで設置されてきたとみなし、残っている人の継続を `E(t) = Σ_{a=0..as_of} R(a+t) / Σ_{a=0..as_of} R(a)` で続けます。新規と同じ初期離脱は当てません（形の仮定）。
-- **既存の決済者**: 2か月目以降の継続率（`paying_retention` から計算）で減り、更新日は30日に均等に散らばるとします。
-- **値上げ**: 新規の決済判断は変更日からの価格で行います。`applies_to: all` のときは既存の決済者にも次の更新日から新しい価格を当て、その更新で `(新価格/旧価格)^(−弾力性)` の割合だけ続けます（値上げのときだけ。値下げで戻ってくる人は入れない）。
+- **過去に設置した人（ever_installed）**: やめた人を含む累計設置者を、設置できる人（min_age・地域・スマホ）に、プリセットの属性の傾向（matching は `initial_affinity`: 既婚・離別の重み、assumption）× 判断の倍率（install・retention）× ペルソナの関心 に比例した確率で配ります。このうち active の割合が今使っている人です。過去に設置した人は広告・クチコミで設置し直さず、クチコミの (M − N)/M の N に入ります（市場の飽和）。今使っている人はクチコミの発信源とマッチの相手側（プロフィール）になります。
+- **ever_installed の推定**（入力に無いとき）: 発売から as_of 日まで一定のペースで設置されてきたとみなし、1日の設置 = active ÷ Σ_{a=0..as_of} R(a)、ever_installed = 1日の設置 × (as_of + 1)。R はプリセットのリテンション曲線（D90 以降はべき乗の延長）。上限は設置できる人の数。例: matching で active 30万人・365日なら約500万人。
+- **今使っている人の継続**: 成熟期の曲線 `E(t) = R(as_of + t) / R(as_of)`（発売からの日数の位置から続ける）。新規と同じ初期離脱は当てません。matching で as_of = 365 日なら月に約3%減ります。
+- **既存の決済者**: 成熟期の月次解約率で減ります。`initial_state.monthly_churn` があればその値、無ければ `paying_retention.mature_monthly_churn`（2% / 4% / 7.6%、high は出典から計算した1年目の平均、low・mid は assumption）。新規の決済者も13か月目以降はこの率です。更新日は30日に均等に散らばるとします。
+- **値上げ**: 新規の決済判断は変更日からの価格で行います。`applies_to: all` のときは既存の決済者にも次の更新日から新しい価格を当て、その更新で `(新価格/旧価格)^(−弾力性)` の割合だけ続けます（値上げのときだけ。値下げで戻ってくる人は入れない）。`phase_in_days` があれば、既存の決済者はその日数をかけて均等に新価格へ移ります。
+- **shopping の値上げ**: `pricing.order_jpy` の途中変更で、初回購入の確率に `(新注文額/最初の注文額)^(−弾力性 × 価格感度)`、再購入の頻度に `(新注文額/最初の注文額)^(−弾力性)` を掛けます。
 - **予算の変更**: 書いたチャネルの予算をその日から置き換えます。合計を `campaign_days`（書かなければ元のキャンペーンの残り日数、終わっていれば30日）で等分します。
 - **daily.paying**: その日に払い続けている人数（既存の決済者を含む）。`totals.paying_end` は最終日の値です。`daily.payers` と `totals.payers` は新しく決済した人だけです。
 - **区間の集計**: `teppuri/engine/window.py`。`interval_band(daily_runs, 31, 120, "sum")` は回ごとに区間を集計してから分位点を取ります。リプレイ JSON しかないときは `interval_from_replay(replay, "A", "revenue_jpy", 31, 120)`（日ごとの分位点を集計する近似）。
-- 限界: 既存の利用者の過去の離脱者（もう使っていない設置済みの人）は入力にないので、未設置として扱います。そのぶん市場の残りを大きめに見ます。
+- 限界: ever_installed を推定するときの「一定のペースで獲得」と、今使っている人の成熟期の曲線は形の仮定です。公開値があれば ever_installed・monthly_churn を入力してください。
 
 ## 範囲の抽選（30回）
 

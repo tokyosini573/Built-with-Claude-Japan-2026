@@ -129,15 +129,18 @@ def load_app(path: str | Path) -> App:
     return App(p, data)
 
 
-def app_summary_ja(app: App) -> str:
-    """プロンプトに入れるアプリ情報（数字は app.yaml の入力そのもの）。キャッシュのため毎回同じ文字列になるよう sort_keys を使う。"""
+def app_summary_ja(app: App, include_plans: bool = True) -> str:
+    """プロンプトに入れるアプリ情報（数字は app.yaml の入力そのもの）。キャッシュのため毎回同じ文字列になるよう sort_keys を使う。
+
+    include_plans=False のときは案の条件（地域・ターゲット・チャネル）を入れない（判断ではエンジンが別に扱うため）。"""
     d = app.data
     keep = {k: d.get(k) for k in ("app_id", "name_ja", "preset", "min_age", "description_ja", "gates", "pricing")}
     plans = {}
     for plan_id, plan in sorted(app.plans().items()):
         plans[plan_id] = {k: plan.get(k) for k in ("regions", "period_days", "campaign_days", "target", "channels")}
         plans[plan_id]["creatives"] = [Path(c).stem for c in plan.get("creatives", []) or []]
-    keep["plans"] = plans
+    if include_plans:
+        keep["plans"] = plans
     return yaml.safe_dump(keep, allow_unicode=True, sort_keys=True)
 
 
@@ -185,10 +188,16 @@ ATTR_LABELS_JA = {
 }
 
 
-def attrs_line_ja(attrs: dict) -> str:
+# 判断（decide）に渡さない属性: 地域・都市規模（密度）・SNS 利用はエンジンが別に計算する
+ENGINE_HANDLED_ATTRS = ("pref_name", "city_size", "sns_line", "sns_x", "sns_instagram", "sns_tiktok", "sns_youtube")
+
+
+def attrs_line_ja(attrs: dict, exclude: tuple[str, ...] = ()) -> str:
     """属性を「年齢=27 / 性別=F / …」の一行にする（列の順は固定）。"""
     parts = []
     for key, label in ATTR_LABELS_JA.items():
+        if key in exclude:
+            continue
         if key in attrs and attrs[key] not in (None, ""):
             parts.append(f"{label}={attrs[key]}")
     return " / ".join(parts)
@@ -320,14 +329,18 @@ def image_size(path: Path) -> tuple[int, int] | None:
     return None
 
 
+# 実測の補正: デモアプリの画像11枚で、下の式の約2倍のトークンだった（2026-11-06、Haiku 5.5）
+IMAGE_TOKEN_FACTOR = 2.0
+
+
 def estimate_image_tokens(path: Path) -> int:
-    """長辺 1568px・約115万画素に縮小される前提で (幅×高さ)/750。読めなければ 1600。"""
+    """長辺 1568px・約115万画素に縮小される前提で (幅×高さ)/750 に実測の補正を掛ける。読めなければ 3200。"""
     size = image_size(Path(path)) if Path(path).exists() else None
     if not size:
-        return 1600
+        return 3200
     w, h = size
     scale = min(1.0, 1568 / max(w, h), (1_150_000 / (w * h)) ** 0.5)
-    return max(1, int((w * scale) * (h * scale) / 750))
+    return max(1, int((w * scale) * (h * scale) / 750 * IMAGE_TOKEN_FACTOR))
 
 
 def _block_tokens(block: dict) -> int:
@@ -690,9 +703,9 @@ def read_json(path: Path) -> Any:
 NUMERIC_IN_REASON = re.compile(r"[0-9０-９]+\s*(%|％|割|人|倍|パーセント)")
 
 
-def app_context_blocks(app: App, cache: str | None = "1h") -> list[dict]:
+def app_context_blocks(app: App, cache: str | None = "1h", include_plans: bool = True) -> list[dict]:
     """アプリ情報・画面・広告を並べた user コンテンツ。全呼び出しで同じ内容なので先頭に置き、最後にキャッシュ境界を付ける。"""
-    blocks: list[dict] = [text_block("## アプリの情報（app.yaml）\n" + app_summary_ja(app))]
+    blocks: list[dict] = [text_block("## アプリの情報（app.yaml）\n" + app_summary_ja(app, include_plans))]
     # 画像ファイルがまだ無い場合（デモの画面ができる前など）は、その旨を文字で書いて画像は送らない
     for i, path in enumerate(app.screens(), 1):
         if path.exists():

@@ -150,19 +150,23 @@ def budget_schedule(plan: dict, changes: list[dict], horizon: int) -> dict[str, 
     return sched
 
 
-def price_schedule(pricing: dict, changes: list[dict], horizon: int):
-    """(新規の決済に使う月額 (日,), 既存の決済者にも当てる変更 [(日の index, 新しい月額)])。"""
-    base = float(pricing.get("monthly_jpy") or 0)
+def price_schedule(pricing: dict, changes: list[dict], horizon: int, key: str = "monthly_jpy"):
+    """(新規の決済に使う価格 (日,), 既存の決済者にも当てる変更 [(日の index, 新しい価格, 移行日数)])。
+
+    key = monthly_jpy（サブスク型）または order_jpy（shopping の1回の注文額）。
+    applies_to: all（既定）は既存の決済者にも、phase_in_days 日かけて均等に新価格を当てる（0 なら次の更新日から）。
+    """
+    base = float(pricing.get(key) or 0)
     new_price = np.full(horizon, base)
     for_all = []
     for c in changes:
         pr = c.get("pricing") or {}
-        if "monthly_jpy" not in pr:
+        if key not in pr:
             continue
         d0 = int(c["day"]) - 1
-        new_price[d0:] = float(pr["monthly_jpy"])
+        new_price[d0:] = float(pr[key])
         if str(c.get("applies_to", "all")) == "all":
-            for_all.append((d0, float(pr["monthly_jpy"])))
+            for_all.append((d0, float(pr[key]), int(c.get("phase_in_days") or 0)))
     return new_price, for_all
 
 
@@ -376,6 +380,16 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
 
     # --- 決済（価格は changes で途中から変わる） -------------------------------
     price_new, price_all = price_schedule(pricing, changes, T)
+    order_new, _ = price_schedule(pricing, changes, T, "order_jpy")
+    order0 = float(order_new[0])
+    order_changes = preset_name == "shopping" and order0 > 0 and bool(np.any(order_new != order0))
+    order_cache: dict[float, np.ndarray] = {}
+
+    def order_factor(order: float) -> np.ndarray:
+        """shopping: 注文額が変わったときの初回購入の倍率 (注文額/最初の注文額)^(−弾力性 × 価格感度)。"""
+        if order not in order_cache:
+            order_cache[order] = (order / order0) ** (-eps[:, None] * t_price[None, :])
+        return order_cache[order]
     trial_days = int(pricing.get("free_trial_days") or 0)
     eps = draws.value("price_elasticity", rules.presets["price_elasticity"])
     PP = P["pay"]
@@ -456,9 +470,10 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
     active_x_prev = np.zeros(RR)         # 前日に使っていた X 利用者（実人数）
     ex0 = existing["x"] if existing else None    # 既存の利用者（人ごとの確率、1日目の時点）
     if ex0 is not None:
-        U = U - ex0
-        installed_local = (ex0 * w * local).sum(axis=1)
-        installed_x = (ex0 * w * x_user).sum(axis=1)
+        ever = existing["ever"]                   # 過去に設置した人（やめた人を含む）
+        U = U - ever
+        installed_local = (ever * w * local).sum(axis=1)
+        installed_x = (ever * w * x_user).sum(axis=1)
         active_x_prev = (ex0 * w * x_user).sum(axis=1)
     not_reached = np.ones((RR, N))       # まだ一度も広告が届いていない確率
     active_real_prev = np.zeros(RR) if ex0 is None else (ex0 * w).sum(axis=1)
@@ -523,7 +538,7 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         A *= decay
         active = inst + m_ret * A.sum(axis=0)
         A += alpha_k * inst
-        if ex0 is not None:   # 既存の利用者は「発売からの日数」に応じた曲線の位置から続ける
+        if ex0 is not None:   # 既存の利用者は成熟期の曲線（発売からの日数の位置）で続ける
             active = active + ex0 * existing["E"][:, t][:, None]
 
         # 3') 核心行動
@@ -550,6 +565,8 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
             Pn += alpha_k * (ready * (1.0 - hz))[None]
         else:
             core = ready * p_core
+            if order_changes:
+                core = np.minimum(core * order_factor(float(order_new[t])), ready)
 
         # 5) 決済（その日の新規向け価格で判断）
         if price_changes:
@@ -591,7 +608,7 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
     # --- 決済後: 継続課金と売上（集計値で計算） --------------------------------
     # daily の payers は「その日に新しく決済した人数」（契約 v1）
     paying, revenue = _revenue(preset_name, pricing, P, rules, draws, daily, curves, T,
-                               price_new, price_all, eps, existing)
+                               price_new, price_all, eps, existing, order_new)
     daily["payers"] = daily["new_payers"]
     daily["paying"] = paying          # その日に払い続けている人数（参考、リプレイには出さない）
     daily["revenue_jpy"] = revenue
@@ -653,14 +670,47 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
     return PlanResult(plan_key, daily, totals, person, sample)
 
 
+def _switch_groups(d0: int, phase: int, start: int):
+    """移行の開始日 d0 から phase 日かけて均等に新価格へ移るとき、更新日が start + 30k の人が
+    何回目の更新で切り替わるか → [(更新の経過日数, 割合)]。"""
+    ks = np.arange(max(phase, 1))
+    first = 30 * np.ceil((d0 + ks - start) / 30.0).astype(int)
+    first = np.maximum(first, 30)
+    vals, counts = np.unique(first, return_counts=True)
+    return list(zip(vals.tolist(), (counts / len(ks)).tolist()))
+
+
+def _split_segments(segments, d0, p, phase, start, n, eps_r):
+    """値上げで既存の決済者を分ける。segments = [(割合 (n,), 価格 (n,))]。切り替わった人は
+    その更新で (新価格/旧価格)^(−弾力性) の割合だけ続ける（値上げのときだけ）。"""
+    out = []
+    for weight, price in segments:
+        rest = weight.copy()
+        for first, share in _switch_groups(d0, phase, start):
+            if first >= n:
+                continue
+            prev = price[first]
+            f = min(1.0, (p / prev) ** (-eps_r)) if prev > 0 and p > 0 else 1.0
+            moved = np.zeros(n)
+            moved[first:] = weight[first:] * share
+            rest = rest - moved
+            new_price = price.copy()
+            new_price[first:] = p
+            out.append((moved * f, new_price))
+        out.append((rest, price))
+    return out
+
+
 def _revenue(preset_name, pricing, P, rules, draws, daily, curves, T,
-             price_new=None, price_all=(), eps=None, existing=None):
+             price_new=None, price_all=(), eps=None, existing=None, order_new=None):
     """新しい決済者の日別系列から、続けて払っている人数と売上を出す（1万人基準）。
 
-    価格の変更: 新規の決済は price_new（その日の価格）で始まる。applies_to: all の変更は、
-    既存の決済者にも次の更新日から新しい価格を当て、そのときに価格弾力性で一部が解約する
-    （値上げのときだけ。値下げで戻ってくる人は入れない）。
-    initial_state の既存の決済者は、2か月目以降の継続率で減り、更新日は30日に均等に散らばるとする。
+    - 決済後の継続: 初回更新 → 12か月目までは paying_retention、13か月目以降は成熟期の月次解約率。
+    - 価格の変更: 新規の決済は price_new（その日の価格）で始まる。applies_to: all の変更は、
+      既存の決済者にも phase_in_days 日かけて（0 なら次の更新日から）新しい価格を当て、切り替わる更新で
+      価格弾力性の分だけ解約する（値上げのときだけ。値下げで戻ってくる人は入れない）。
+    - initial_state の既存の決済者は成熟期の月次解約率で減り、更新日は30日に均等に散らばるとする。
+    - shopping: 1回の注文額が途中で変わると、再購入の頻度に価格弾力性を掛ける（初回購入は simulate 側）。
     """
     new = daily["new_payers"]
     RR = new.shape[0]
@@ -668,7 +718,8 @@ def _revenue(preset_name, pricing, P, rules, draws, daily, curves, T,
     revenue = np.zeros_like(new)
     a = np.arange(T)
     if preset_name == "shopping":
-        order = float(pricing.get("order_jpy") or 0)
+        order0 = float(pricing.get("order_jpy") or 0)
+        order_t = order_new if order_new is not None else np.full(T, order0)
         cycle = draws.value("shopping:cycle", P["pay"]["repurchase_cycle_days"])
         arpmau = draws.value("shopping:arpmau", P["pay"]["arpmau_jpy"])
         for r in range(RR):
@@ -678,9 +729,10 @@ def _revenue(preset_name, pricing, P, rules, draws, daily, curves, T,
             else:
                 act_buyers_ex = 0.0
             payers[r] = act_buyers + act_buyers_ex
-            if order > 0:
+            if order0 > 0:
                 repeat = act_buyers - new[r] + act_buyers_ex        # 初回購入の当日を除く
-                revenue[r] = order * new[r] + order / cycle[r] * repeat
+                elastic = (order_t / order0) ** (-eps[r]) if eps is not None else 1.0
+                revenue[r] = order_t * new[r] + order_t / cycle[r] * repeat * elastic
             else:
                 revenue[r] = daily["active"][r] * arpmau[r] / 30.0
         return payers, revenue
@@ -691,11 +743,13 @@ def _revenue(preset_name, pricing, P, rules, draws, daily, curves, T,
     pr = rules.presets["paying_retention"]
     fr = draws.value("paying:first_renewal", pr["first_renewal"])
     y1 = draws.value("paying:year1", pr["year1_monthly"])
+    mature = draws.value("paying:mature_churn", pr["mature_monthly_churn"])
     month = a // 30
     simple = not price_all and np.all(price_new == price_new[0])
     for r in range(RR):
         rate = (y1[r] / fr[r]) ** (1.0 / 11.0)
-        s = np.where(month == 0, 1.0, fr[r] * rate ** np.maximum(month - 1, 0))  # 支払いが続く割合
+        s = np.where(month == 0, 1.0, fr[r] * rate ** np.clip(month - 1, 0, 11))  # 支払いが続く割合
+        s = s * (1.0 - mature[r]) ** np.maximum(month - 12, 0)                     # 13か月目以降
         book = np.where(a % 30 == 0, s, 0.0)                                  # 30日ごとに課金
         if simple:
             payers[r] = np.convolve(new[r], s)[:T]
@@ -703,31 +757,34 @@ def _revenue(preset_name, pricing, P, rules, draws, daily, curves, T,
         else:
             for c in np.flatnonzero(new[r] > 0):
                 n = T - c
-                surv = s[:n].copy()
-                price = np.full(n, price_new[c])
-                for d0, p in price_all:
-                    if d0 <= c:
-                        continue
-                    first = 30 * int(math.ceil((d0 - c) / 30.0))   # 変更後の最初の更新（経過日数）
-                    if first >= n:
-                        continue
-                    prev = price[first]
-                    f = min(1.0, (p / prev) ** (-eps[r])) if prev > 0 and p > 0 else (0.0 if p > prev else 1.0)
-                    surv[first:] *= f
-                    price[first:] = p
-                payers[r, c:] += new[r, c] * surv
-                revenue[r, c:] += new[r, c] * surv * price * (a[:n] % 30 == 0)
+                segs = [(s[:n].copy(), np.full(n, price_new[c]))]
+                for d0, p, phase in price_all:
+                    if d0 > c:
+                        segs = _split_segments(segs, d0, p, phase, c, n, eps[r])
+                renew = (a[:n] % 30 == 0)
+                for weight, price in segs:
+                    payers[r, c:] += new[r, c] * weight
+                    revenue[r, c:] += new[r, c] * weight * price * renew
         if existing and existing["payers"][r] > 0:
-            p_ex = existing["payers"][r] * rate ** (a / 30.0)
-            price_ex = np.full(T, price0)
-            for d0, p in price_all:
-                prev = price_ex[d0] if d0 < T else price0
-                f = min(1.0, (p / prev) ** (-eps[r])) if prev > 0 and p > 0 else 1.0
-                frac = np.clip((a - d0 + 1) / 30.0, 0.0, 1.0)   # 更新日が来た人の割合
-                p_ex = p_ex * f ** frac
-                price_ex[d0:] = p
-            payers[r] += p_ex
-            revenue[r] += p_ex / 30.0 * price_ex
+            base = existing["payers"][r] * (1.0 - existing["churn"][r]) ** (a / 30.0)
+            weight = np.ones(T)
+            segs = [(weight, np.full(T, price0))]
+            for d0, p, phase in price_all:
+                out = []
+                ks = np.arange(max(phase, 1))
+                # 更新日は30日に均等。k 日目から切り替える人は、その後の最初の更新で新価格になる
+                frac = np.clip((a[None, :] - d0 - ks[:, None] + 1) / 30.0, 0.0, 1.0).mean(axis=0)
+                for wgt, price in segs:
+                    prev = price[min(d0, T - 1)]
+                    f = min(1.0, (p / prev) ** (-eps[r])) if prev > 0 and p > 0 else 1.0
+                    new_price = price.copy()
+                    new_price[:] = p
+                    out.append((wgt * frac * f, new_price))
+                    out.append((wgt * (1.0 - frac), price))
+                segs = out
+            for wgt, price in segs:
+                payers[r] += base * wgt
+                revenue[r] += base * wgt / 30.0 * price
     return payers, revenue
 
 
@@ -737,8 +794,12 @@ def initial_users(init: dict | None, app: dict, pop: Population, rules: Rules, d
 
     配る重み = 設置できる（min_age・地域・スマホ）× プリセットの属性の傾向（initial_affinity）
               × 判断の倍率（install・retention）× ペルソナの関心。
-    既存の利用者は、発売から as_of 日まで一定のペースで設置されてきたとみなし、その時点で残っている人の
-    継続を E(t) = Σ_{a=0..as_of} R(a+t) / Σ_{a=0..as_of} R(a) で続ける（新規と同じ初期離脱を当てない）。
+    - 過去に設置した人（ever_installed、やめた人を含む）をこの重みで配り、そのうち active の割合を
+      今使っている人とする。やめた人はもう一度は設置しない（クチコミの (M − N)/M の N に入る）。
+      ever_installed が無ければ「発売から as_of 日まで一定のペースで設置されてきた」とみなして推定する:
+      1日の設置 = active ÷ Σ_{a=0..as_of} R(a)、ever_installed = 1日の設置 × (as_of + 1)。
+    - 今使っている人の継続は成熟期の曲線 E(t) = R(as_of + t) / R(as_of)（発売からの日数の位置から続ける）。
+    - 既存の決済者は成熟期の月次解約率（monthly_churn、無ければ rules の mature_monthly_churn）で減る。
     """
     if not init:
         return None
@@ -757,19 +818,31 @@ def initial_users(init: dict | None, app: dict, pop: Population, rules: Rules, d
                 f[:, vals == level] = draws.value(f"initial_affinity:{col}:{level}", v)[:, None]
         aff = aff * f
     aff = aff * affinity_mult
-    target = float(init.get("active") or 0)
-    x = np.zeros((RR, N))
-    for r in range(RR):
-        x[r] = _allocate(aff[r], w, target)
+    active = float(init.get("active") or 0)
     a0 = int(init.get("as_of_day_since_launch") or 0)
+    cap = float(np.sum(w * eligible))
+    x = np.zeros((RR, N))
+    ever_x = np.zeros((RR, N))
     E = np.zeros((RR, T + 1))
+    ever_real = np.zeros(RR)
     for r in range(RR):
         R = fitted_curve(alpha[r], a0 + T + 2)
-        head = R[: a0 + 1].sum()
-        csum = np.concatenate([[0.0], np.cumsum(R)])
-        E[r] = (csum[np.arange(T + 1) + a0 + 1] - csum[np.arange(T + 1)]) / head
+        if init.get("ever_installed") is not None:
+            ever_real[r] = float(init["ever_installed"])
+        else:
+            ever_real[r] = active / R[: a0 + 1].sum() * (a0 + 1)
+        ever_real[r] = min(max(ever_real[r], active), cap)
+        ever_x[r] = _allocate(aff[r], w, ever_real[r])
+        got = float(np.sum(w * ever_x[r]))
+        x[r] = ever_x[r] * (active / got if got > 0 else 0.0)
+        E[r] = R[a0: a0 + T + 1] / R[a0]
     payers = np.full(RR, float(init.get("payers") or 0) / pop.scale)
-    return {"x": x, "E": E, "payers": payers, "as_of": a0}
+    if init.get("monthly_churn") is not None:
+        churn = np.full(RR, float(init["monthly_churn"]))
+    else:
+        churn = draws.value("paying:mature_churn", rules.presets["paying_retention"]["mature_monthly_churn"])
+    return {"x": x, "ever": ever_x, "ever_real": ever_real, "E": E, "payers": payers,
+            "churn": churn, "as_of": a0}
 
 
 def _allocate(aff: np.ndarray, w: np.ndarray, target: float) -> np.ndarray:

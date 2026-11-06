@@ -12,7 +12,7 @@ from .simulate import DecisionIndex, PlanResult
 # active と paying は「その日の人数」、ほかは「その日に新しく起きた数」（契約 v1、paying は v2 で追加）
 DAILY_KEYS = ["impressions", "reached", "installs", "installs_wom_local", "installs_wom_x", "signups",
               "core_actions", "active", "payers", "paying", "revenue_jpy"]
-CUMULATIVE_KEYS = ["installs", "payers", "revenue_jpy", "reached"]
+CUMULATIVE_KEYS = ["installs", "payers", "revenue_jpy", "reached", "core_actions"]
 COMPARISON_KEYS = ["installs", "payers", "revenue_jpy", "active_end", "core_actions"]
 EXTRAPOLATED_AFTER_DAY = 90
 NO_DECISION_REASON = "判断なし（カテゴリ平均どおりの離脱）"
@@ -68,6 +68,19 @@ def drop_reasons(result: PlanResult, pop: Population, gates: list[str], preset: 
             out.append({"step": step, "cluster_id": int(clusters[ci]),
                         "share": round(float(by_cluster[ci]), 4), "reason_ja": reason})
     return out
+
+
+def person_decision_rows(decisions: list[dict], person_ids) -> list[dict]:
+    """人単位の判断（person_id あり）のうち、people にいる人の分（契約 v2、Web 用）。"""
+    ids = {int(p) for p in person_ids}
+    rows = []
+    for d in decisions:
+        pid = d.get("person_id")
+        if pid is None or int(pid) not in ids:
+            continue
+        rows.append({"plan": str(d.get("plan")), "person_id": int(pid), "step": str(d.get("step")),
+                     "level": d.get("level", "similar"), "reason_ja": d.get("reason_ja", "")})
+    return rows
 
 
 def people_rows(pop: Population) -> list[list]:
@@ -141,6 +154,7 @@ def assemble_replay(app: dict, pop: Population, results: dict[str, PlanResult], 
         "plans": plans,
         "comparison": comparison(results, runs),
         "people": people_rows(pop),
+        "person_decisions": person_decision_rows(decisions, pop.person_id),
         "clusters": cluster_rows(pop),
         "interviews": [],
         "report_ja": "",

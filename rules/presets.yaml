@@ -252,6 +252,13 @@ paying_retention:
     source: "[RC25] グローバル 17.0% / [RC24] 日本 26%"
     note: 2か月目以降は一定の率で減り、12か月後にこの値になるとする（率 = (year1/first_renewal)^(1/11)）。デーティングにも同じ値を使う（サブスク全体の値）。
 
+  mature_monthly_churn:
+    low: 0.02
+    mid: 0.04
+    high: 0.076
+    source: "assumption（high は [RC24] 日本 初回更新 62% と [RC24]/[RC25] 1年継続 26% から計算した 2〜12か月目の平均月次解約 1 − (0.26/0.62)^(1/11) ≈ 7.6%）"
+    note: 成熟期（決済から13か月目以降、運営中のアプリの既存の決済者）の月次解約率。2年目以降の継続率の公開値は調査に見つからなかった。解約率は継続月数とともに下がる（初回更新で38%、2〜12か月目は平均7.6%）ので、1年目の平均を上限（high）に置き、mid・low はそれより低い仮定。initial_state.monthly_churn があればそちらを使う。
+
 # 関門（app.yaml の gates）。id が下の表にあればその値、なければ default。
 gates:
   id_verification:
@@ -291,8 +298,9 @@ price_elasticity:
   source: assumption
   note: 日本のアプリ課金の価格弾力性の公開値なし。基準価格は各プリセットの reference_monthly_jpy。
 
-# 運営中のアプリから始めるとき（initial_state）の既存の利用者の継続
-# 数値ではなく形の仮定: 発売から as_of_day_since_launch 日まで一定のペースで設置されてきたとみなし、
-# その時点で残っている人の継続を E(t) = Σ_{a=0..as_of} R(a+t) / Σ_{a=0..as_of} R(a) で続ける（R はプリセットの曲線）。
-# 既存の決済者は「2か月目以降の継続率」（paying_retention から計算）で減り、更新日は30日に均等に散らばるとする。
-# source: assumption（獲得ペースの履歴は入力にないため）。
+# 運営中のアプリから始めるとき（initial_state）の既存の利用者
+# 数値ではなく形の仮定（source: assumption、獲得の履歴は入力にないため）:
+# - ever_installed（累計設置者）が無ければ、発売から as_of_day_since_launch 日まで一定のペースで設置されてきたとみなして推定する:
+#   1日の設置 = active ÷ Σ_{a=0..as_of} R(a)、ever_installed = 1日の設置 × (as_of + 1)。
+# - 今使っている人の継続は成熟期の曲線 E(t) = R(as_of + t) / R(as_of)。
+# - 既存の決済者は paying_retention.mature_monthly_churn（または initial_state.monthly_churn）で減り、更新日は30日に均等に散らばる。

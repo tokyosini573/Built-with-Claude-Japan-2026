@@ -3,6 +3,7 @@
 runs/<app_id>/engine.json（エンジン）に、あれば判断担当の
   runs/<app_id>/interviews.json → interviews
   runs/<app_id>/report.json     → report_ja、drop_themes（report.json の themes）
+  runs/<app_id>/decisions.json  → person_decisions（people にいる人の人単位の判断）
 を入れて web/public/replays/<app_id>.json に書く（契約 v1）。無いものは空のまま。
 判断担当はリプレイに直接書かないので、エンジンを回し直してもインタビューとレポートは消えない。
 """
@@ -14,6 +15,7 @@ import json
 import sys
 from pathlib import Path
 
+from .replay import person_decision_rows
 from .rules import REPO_ROOT
 from .run import run_dir, write_json
 
@@ -42,6 +44,13 @@ def build(app_id: str, runs_root: Path | None = None, out: Path | None = None) -
         data = _read(report)
         replay["report_ja"] = data.get("report_ja", "")
         replay["drop_themes"] = data.get("themes", data.get("drop_themes", []))
+
+    decisions = rd / "decisions.json"
+    if decisions.exists():   # 判断を回し直したときも最新を入れる（数字はエンジンを回し直すまで変わらない）
+        data = _read(decisions)
+        data = data if isinstance(data, list) else data.get("decisions", [])
+        replay["person_decisions"] = person_decision_rows(data, [p[0] for p in replay.get("people", [])])
+    replay.setdefault("person_decisions", [])
 
     out = Path(out) if out else REPO_ROOT / "web" / "public" / "replays" / f"{app_id}.json"
     write_json(replay, out)

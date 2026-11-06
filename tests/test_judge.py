@@ -137,6 +137,18 @@ def test_prompt_guards_against_memory():
     assert "アプリ名・会社名" in text and "平均的なアプリ" in text
 
 
+def test_decide_does_not_feed_engine_handled_reasons():
+    # 地域・チャネル・ターゲットはエンジンが別に計算する。判断の入力に入れない（二重計算を避ける）
+    app = c.load_app(APP)
+    people, _ = people_for(app)
+    job = decide.build_jobs(app, people[:1], {})[0]
+    texts = "".join(b.get("text", "") for b in job.request["messages"][0]["content"])
+    assert "regions" not in texts and "channels" not in texts and "instagram" not in texts
+    assert "都道府県=" not in texts and "Instagram=" not in texts and "都市規模=" not in texts
+    system = job.request["system"]
+    assert "使ってはいけない理由" in system and "密度" in system and "条件付き" in system
+
+
 def test_recognition_check_mock(tmp_path):
     app = c.load_app(APP)
     out = decide.recognition_check(app, ctx_for(tmp_path), 3)
@@ -281,3 +293,20 @@ def test_report_retries_once_on_bad_output(tmp_path):
     res = report.build(rp, app, ctx_for(tmp_path, backend=backend))
     assert len(backend.calls) == 2
     assert "17%" not in res["report_ja"]
+
+
+def test_skew_warnings_are_symmetric():
+    def rows(level, n):
+        return [{"plan": "A", "step": "signup", "creative": None, "person_id": i, "level": level,
+                 "reason_ja": "理由", "evidence_kind": "attribute"} for i in range(n)]
+    hi = decide.summarize(rows("higher", 6) + rows("similar", 4), 10, 0)["warnings"]
+    lo = decide.summarize(rows("lower", 6) + rows("similar", 4), 10, 0)["warnings"]
+    ok = decide.summarize(rows("lower", 3) + rows("higher", 3) + rows("similar", 4), 10, 0)["warnings"]
+    assert any("higher が半分" in x for x in hi)
+    assert any("lower が半分" in x for x in lo)
+    assert ok == []
+
+
+def test_decide_rules_are_symmetric():
+    text = c.load_prompt("decide_system.md")
+    assert "同じ強さの根拠" in text and "higher も lower もしません" in text

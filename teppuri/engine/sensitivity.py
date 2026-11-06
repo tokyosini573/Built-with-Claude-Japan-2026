@@ -63,6 +63,8 @@ def variants(rules: Rules):
     yield "判断倍率", f"弱い（{weak}）", levels_weak
     yield "判断倍率", f"強い（{strong}）", levels_strong
     yield from path_param("価格弾力性", lambda r: r.presets["price_elasticity"])
+    yield from path_param("成熟期の月次解約率（既存の決済者）",
+                          lambda r: r.presets["paying_retention"]["mature_monthly_churn"])
     yield from path_param("既存利用者の配分 既婚の重み",
                           lambda r: r.presets["presets"]["matching"]["initial_affinity"]["marital"]["married"])
 
@@ -113,6 +115,17 @@ def main(argv: list[str] | None = None) -> int:
         r = copy.deepcopy(base_rules)
         apply(r)
         rows.append((label, desc, run(r)))
+    # 入力側の値: 累計設置者（ever_installed）。基準は active・発売からの日数・リテンション曲線からの推定
+    # （このアプリでは約500万人）。運営中モードの表だけが変わる。
+    running = scenarios["運営中モード（値上げ）"]
+    for ever in (1_000_000, 20_000_000):
+        a = copy.deepcopy(running[0])
+        for k in ("A", "B"):
+            a["plans"][k]["initial_state"]["ever_installed"] = ever
+        res = dict(rows[0][2])
+        res["運営中モード（値上げ）"] = summarize(run_app(a, pop, base_rules, [], runs=RUNS, seed=SEED),
+                                          pop.scale, running[2])
+        rows.append(("累計設置者 ever_installed（入力）", f"{ever:,} 人（推定 約500万人の代わり）", res))
     write_markdown(Path(args.out), rows, app, time.time() - t0)
     print(f"出力: {args.out}（{time.time() - t0:.0f}秒）")
     return 0
@@ -186,12 +199,13 @@ def conclusions(rows) -> list[str]:
         out.append(msg)
     out += [
         "- 判断倍率の行は、判断がない（全て similar）と結果が変わらない（倍率 1.0 のため）。"
-        "「既存利用者の配分」の行は、initial_state がない表では結果が変わらない。",
+        "「既存利用者の配分」「成熟期の月次解約率」「累計設置者」の行は、initial_state がない表では結果が変わらない"
+        "（累計設置者の行は、ほかの表に基準の値をそのまま写している）。",
         "- クリック→設置率は決済者の水準を最も大きく動かす。代理店相場（high）と計測会社の CPI（low・mid）の差が"
         "そのまま出ている。水準（何人）を言うときは、この幅を必ず添える。",
         "- X クチコミは全国の X 利用者に届くので、全国で出す案ほど設置に変わりやすい（出荷地域を絞った案では"
         "地域外に届いた分が無駄になる）。q_x を大きくすると全国展開の案が相対的に有利になる。",
-        "- 運営中モードでは既存の利用者がクチコミの発信源になるので、クチコミの強さ q が水準（払い続けている人数）を最も動かす（約2倍）。クチコミは出典のない仮定なので、バックテストでまず確かめる値。値上げ（B）の売上が上回る結論は、価格弾力性を high（1.0）にしても変わらない。",
+        "- 運営中モードでは既存の利用者がクチコミの発信源になるので、クチコミの強さ q が水準（払い続けている人数）を最も動かす（約2倍）。クチコミは出典のない仮定なので、バックテストでまず確かめる値。累計設置者（ever_installed）も水準を約1.6倍動かすので、公開値があれば入力する。値上げ（B）で売上が上回る結論は、価格弾力性を high（1.0）にすると逆転する（値上げの判断は弾力性しだい）。",
         "- 判断がある場合、A/B の優劣は判断倍率の大きさに強く依存する。バックテストで倍率を固定する前に、"
         "この表を見て倍率の幅を決める。",
         "",

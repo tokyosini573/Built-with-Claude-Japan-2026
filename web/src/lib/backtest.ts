@@ -54,7 +54,8 @@ export function judge(q: BacktestQuestion): QuestionResult {
 export function summarize(bt: Backtest) {
   const all = bt.cases.flatMap((c) => c.questions.map(judge));
   const answered = all.filter((q) => q.hit !== null);
-  const hits = answered.filter((q) => q.hit).length;
+  // report.md と同じ数え方: ちょうど 0.5 は 0.5 問の的中とする
+  const hits = answered.reduce((s, q) => s + (q.p_yes === 0.5 ? 0.5 : q.hit ? 1 : 0), 0);
   const brier = answered.length
     ? answered.reduce((s, q) => s + (q.p_yes - (q.answer ? 1 : 0)) ** 2, 0) / answered.length
     : null;

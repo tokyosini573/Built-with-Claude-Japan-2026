@@ -280,7 +280,8 @@ def test_replay_contract(app, pop, rules, tmp_path):
     assert main([str(FIX / "app.yaml"), "--runs", "5", "--out", str(out),
                  "--population", str(FIX / "population_small.csv"), "--decisions", str(dec)]) == 0
     r = json.loads(out.read_text(encoding="utf-8"))
-    assert set(r) == {"meta", "plans", "comparison", "people", "clusters", "interviews", "report_ja"}
+    assert set(r) == {"meta", "plans", "comparison", "people", "person_decisions", "clusters", "interviews",
+                      "report_ja"}
     m = r["meta"]
     assert m["runs"] == 5 and m["population"] == 10000 and m["period_days"] == 90
     assert m["scale_to_japan"] == pytest.approx(9680.6585)
@@ -299,7 +300,7 @@ def test_replay_contract(app, pop, rules, tmp_path):
         assert t["installs"]["p10"] <= t["installs"]["p50"] <= t["installs"]["p90"]
         assert 0 < t["reached"]["p50"] and t["installs"]["p50"] < t["reached"]["p50"]
         # 累計は回ごとに累計してから分位点。最終日の累計 = totals
-        for k in ["installs", "payers", "revenue_jpy", "reached"]:
+        for k in ["installs", "payers", "revenue_jpy", "reached", "core_actions"]:
             cum = p["daily_cumulative"][k]
             assert all(x <= y + 1e-9 for x, y in zip(cum["p50"], cum["p50"][1:]))
             assert cum["p50"][-1] == pytest.approx(t[k]["p50"], rel=1e-3)
@@ -601,3 +602,84 @@ def test_interest_not_applied_to_person_judged(app, pop, rules):
     dec_b = [{**d, "plan": "B"} for d in dec]
     other = simulate_plan(app, "A", pop, r, draws, dec_b, 90, personas)
     assert (other.person["installs"][m & reached] > plain.person["installs"][m & reached]).all()
+
+
+# ---------------------------------------------------------------------------
+# 運営中モードの修正: 成熟期の解約・市場の飽和・shopping の値上げ・段階的な移行
+# ---------------------------------------------------------------------------
+
+def _running(app, init=None):
+    plan = app["plans"]["A"]
+    plan["channels"] = {}
+    plan["initial_state"] = dict(init or INIT)
+    return app
+
+
+def test_mature_churn_is_smaller_than_new(app, pop, rules):
+    res = sim(_running(app), pop, _quiet(rules), horizon=120)
+    month = res.daily["paying"][:, 30] / res.daily["paying"][:, 0]
+    assert (month >= 1 - 0.076 - 1e-9).all()          # 1年目の平均月次解約（約7.6%）より小さい
+    act = res.daily["active"][:, 30] / res.daily["active"][:, 0]
+    assert (act > 0.8).all()                           # 成熟期の利用者は1か月で大きくは減らない
+
+
+def test_monthly_churn_input_overrides(app, pop, rules):
+    res = sim(_running(app, {**INIT, "monthly_churn": 0.10}), pop, _quiet(rules), horizon=60)
+    month = res.daily["paying"][:, 30] / res.daily["paying"][:, 0]
+    assert np.allclose(month, 0.9, atol=1e-6)
+
+
+def test_ever_installed_reduces_wom(app, pop, rules):
+    app["plans"]["A"]["initial_state"] = {**INIT, "ever_installed": 400000}
+    few = sim(app, pop, rules, horizon=90)
+    app["plans"]["A"]["initial_state"] = {**INIT, "ever_installed": 4000000}
+    many = sim(app, pop, rules, horizon=90)
+    assert (many.totals["installs_wom"] < few.totals["installs_wom"]).all()
+    # 推定値は active より大きい（やめた人を含む）
+    from teppuri.engine.simulate import initial_users
+    from teppuri.engine.rules import fit_exponentials, retention_curve
+    draws = Draws(seed=1, runs=2)
+    alpha = np.stack([fit_exponentials(retention_curve(0.26, 0.15, 0.09, 400))] * draws.n)
+    ex = initial_users(INIT, app, pop, rules, draws, alpha, np.ones(pop.n, bool), np.ones((draws.n, pop.n)), 30)
+    assert (ex["ever_real"] > INIT["active"]).all()
+    assert np.allclose((ex["x"] * pop.weight).sum(1), INIT["active"], rtol=1e-3)
+
+
+def test_shopping_price_increase_reduces_purchases(app, pop, rules):
+    app["preset"] = "shopping"
+    app["gates"] = []
+    app["min_age"] = 15
+    app["pricing"] = {"order_jpy": 4000}
+    base = sim(app, pop, rules)
+    app["plans"]["A"]["changes"] = [{"day": 11, "pricing": {"order_jpy": 6000}}]
+    up = sim(app, pop, rules)
+    assert np.allclose(base.daily["new_payers"][:, :10], up.daily["new_payers"][:, :10])
+    assert (up.daily["new_payers"][:, 10:].sum(1) < base.daily["new_payers"][:, 10:].sum(1)).all()
+
+
+def test_phase_in_spreads_price_change(app, pop, rules):
+    plan = _running(app)["plans"]["A"]
+    plan["changes"] = [{"day": 31, "pricing": {"monthly_jpy": 5900}, "applies_to": "all"}]
+    fast = sim(app, pop, _quiet(rules), horizon=180)
+    plan["changes"] = [{"day": 31, "pricing": {"monthly_jpy": 5900}, "applies_to": "all", "phase_in_days": 90}]
+    slow = sim(app, pop, _quiet(rules), horizon=180)
+    assert np.allclose(fast.daily["paying"][:, :30], slow.daily["paying"][:, :30])
+    assert (slow.daily["paying"][:, 60] > fast.daily["paying"][:, 60]).all()     # 移行の途中は解約が少ない
+    assert np.allclose(slow.daily["paying"][:, -1], fast.daily["paying"][:, -1], rtol=0.02)  # 移行後はそろう
+
+
+def test_person_decisions_in_replay(app, pop, rules, tmp_path):
+    from teppuri.engine.build_replay import build
+    from teppuri.engine.run import write_json
+    dec = [{"plan": "A", "step": "signup", "person_id": 3, "cluster_id": int(pop.cluster[3]), "level": "lower",
+            "reason_ja": "登録が面倒", "creative": None, "model": "m"},
+           {"plan": "A", "step": "signup", "person_id": 99999, "level": "lower", "reason_ja": "いない人"},
+           {"plan": "A", "step": "signup", "cluster_id": 1, "level": "higher", "reason_ja": "クラスター判断"}]
+    r = run_app(app, pop, rules, dec, runs=3)
+    assert r["person_decisions"] == [{"plan": "A", "person_id": 3, "step": "signup", "level": "lower",
+                                      "reason_ja": "登録が面倒"}]
+    rd = tmp_path / "runs" / "test_matching"
+    write_json(run_app(app, pop, rules, [], runs=3), rd / "engine.json")
+    (rd / "decisions.json").write_text(json.dumps(dec, ensure_ascii=False), encoding="utf-8")
+    out = json.loads(build("test_matching", tmp_path / "runs", tmp_path / "r.json").read_text(encoding="utf-8"))
+    assert [d["person_id"] for d in out["person_decisions"]] == [3]
