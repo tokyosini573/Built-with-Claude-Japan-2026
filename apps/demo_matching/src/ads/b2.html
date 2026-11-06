@@ -1,0 +1,37 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.ad { position: relative; overflow: hidden; }
+.mock { border-radius: 30px; border: 8px solid #1d2422; overflow: hidden; background: #1d2422; box-shadow: 0 18px 40px rgba(0,0,0,.25); }
+.mock img { display: block; width: 100%; }
+.fine { font-size: 11px; line-height: 1.6; }
+.store { display: inline-block; padding: 8px 14px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; }
+.qr { width: 88px; height: 88px; background: #fff; padding: 6px; display: grid; grid-template-columns: repeat(11, 1fr); gap: 0; }
+.qr i { background: #fff; } .qr i.k { background: #1d2422; }
+
+.ad { width: 960px; height: 540px; background: var(--green); color: #fff; }
+.mock { position: absolute; right: 70px; top: 40px; width: 230px; border-color: #0f1b18; }
+.copy { position: absolute; left: 64px; top: 56px; width: 560px; }
+.area { display: inline-block; background: var(--mustard); color: var(--ink); font-weight: 900; font-size: 18px; padding: 6px 14px; border-radius: 6px; }
+h2 { font-family: "Zen Maru Gothic"; font-weight: 900; font-size: 46px; line-height: 1.35; margin-top: 18px; }
+.steps { display: flex; gap: 12px; margin-top: 26px; }
+.steps div { flex: 1; background: rgba(255,255,255,.12); border-radius: 14px; padding: 12px 14px; font-size: 16px; font-weight: 700; line-height: 1.4; }
+.steps small { display: block; font-size: 13px; font-weight: 500; opacity: .85; margin-top: 2px; }
+.steps i { font-style: normal; color: var(--mustard); font-size: 22px; font-weight: 900; margin-right: 4px; }
+.foot { position: absolute; left: 64px; bottom: 40px; display: flex; align-items: center; gap: 24px; }
+.foot .logo-name { color: #fff; font-size: 38px; } .foot .logo-mark i:first-child { background: #fff; }
+.foot p { font-size: 14px; opacity: .9; line-height: 1.6; }
+</style></head><body><div class="ad">
+<div class="copy">
+  <span class="area">首都圏（1都3県）で配信スタート</span>
+  <h2>近くで、ちゃんと出会う。</h2>
+  <div class="steps">
+    <div><i>1</i>プロフィール作成<small>写真と自己紹介</small></div>
+    <div><i>2</i>本人確認<small>審査は最大<span data-brand="review_hours">24</span>時間</small></div>
+    <div><i>3</i>近くの人と話す<small>おおよその距離で表示</small></div>
+  </div>
+</div>
+<div class="mock"><img src="../../screens/04.png"></div>
+<div class="foot"><span class="logo"><span class="logo-mark"><i></i><i></i></span><span class="logo-name" data-brand="name_ja">ちかくに</span></span><p>女性無料／男性 月額<span data-brand="price_male_jpy">3,980</span>円<br>18歳以上（高校生不可）<br>ストアで「<span data-brand="name_ja">ちかくに</span>」と検索</p></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script><script>
+// 中づりなどの QR は見た目だけのダミー（読み取れない）
+document.querySelectorAll(".qr").forEach((q)=>{let s=7;for(let i=0;i<121;i++){s=(s*73+19)%101;const r=Math.floor(i/11),c=i%11;const f=(r<3&&c<3)||(r<3&&c>7)||(r>7&&c<3);const k=f?!(r%2===1&&c%2===1&&!(r===1&&c===1)&&!(r===1&&c===9)&&!(r===9&&c===1))||(r===1&&c===1)||(r===1&&c===9)||(r===9&&c===1):s%2===0;q.insertAdjacentHTML("beforeend",`<i class="${k?"k":""}"></i>`);}});
+</script></body></html>

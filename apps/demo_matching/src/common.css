@@ -1,0 +1,68 @@
+/* デモアプリ共通スタイル。色・ロゴは独自（実在アプリに似せない） */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=block");
+
+:root {
+  --green: #1f5f52;      /* 主色: 深い青緑 */
+  --green-2: #2f7d6c;
+  --green-soft: #e3efe9;
+  --mustard: #e3a83b;    /* 差し色: からし色 */
+  --mustard-soft: #fbefd6;
+  --cream: #faf6ee;      /* 背景: 生成り */
+  --ink: #23302c;
+  --ink-2: #5b6a65;
+  --line: #e4ddd0;
+  --white: #ffffff;
+  --danger: #b5523b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--cream); color: var(--ink);
+  font-family: "Noto Sans JP", sans-serif; -webkit-font-smoothing: antialiased; }
+.maru { font-family: "Zen Maru Gothic", "Noto Sans JP", sans-serif; }
+
+/* ロゴ: 2つの点が寄りそう印 + 名前 */
+.logo { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; flex: none; }
+.logo-mark { position: relative; width: 30px; height: 22px; }
+.logo-mark i { position: absolute; top: 4px; width: 14px; height: 14px; border-radius: 50%; }
+.logo-mark i:first-child { left: 2px; background: var(--green); }
+.logo-mark i:last-child { left: 13px; background: var(--mustard); mix-blend-mode: multiply; }
+.logo-name { font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; letter-spacing: .04em; color: var(--green); }
+
+/* スマホ画面（CSS 390×844、3倍で 1170×2532） */
+.phone { width: 390px; height: 844px; overflow: hidden; position: relative; background: var(--cream); }
+.status { height: 47px; display: flex; justify-content: space-between; align-items: center;
+  padding: 0 28px 0 34px; font-size: 15px; font-weight: 700; }
+.status .icons { display: flex; gap: 6px; align-items: center; }
+.status .bar { width: 17px; height: 11px; border-radius: 2px; background: currentColor; opacity: .85; }
+.status .bat { width: 25px; height: 12px; border-radius: 3px; border: 1.5px solid currentColor; position: relative; }
+.status .bat::after { content: ""; position: absolute; inset: 1.5px 5px 1.5px 1.5px; background: currentColor; border-radius: 1px; }
+.home-ind { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: var(--ink); opacity: .85; }
+
+.appbar { height: 52px; display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+.appbar h1 { font-size: 18px; font-weight: 700; flex: 1; text-align: center; }
+.appbar .back { width: 24px; font-size: 22px; color: var(--ink-2); }
+.appbar .sp { width: 24px; }
+
+.btn { display: block; width: 100%; height: 54px; border-radius: 27px; border: none; font-size: 17px; font-weight: 700;
+  font-family: inherit; text-align: center; line-height: 54px; }
+.btn-primary { background: var(--green); color: var(--white); }
+.btn-ghost { background: transparent; color: var(--green); border: 1.5px solid var(--green); line-height: 51px; }
+.btn-mustard { background: var(--mustard); color: var(--ink); }
+.btn-disabled { background: #d9d4c9; color: #8c8579; }
+
+.note { font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+.chip { display: inline-block; padding: 4px 10px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+.chip-green { background: var(--green-soft); color: var(--green); }
+.chip-mustard { background: var(--mustard-soft); color: #8a5d0c; }
+.chip-gray { background: #ece7dd; color: var(--ink-2); }
+
+/* タブバー */
+.tabbar { position: absolute; bottom: 0; left: 0; right: 0; height: 84px; background: var(--white);
+  border-top: 1px solid var(--line); display: flex; padding-top: 8px; }
+.tabbar div { flex: 1; text-align: center; font-size: 10px; color: var(--ink-2); font-weight: 500; }
+.tabbar div b { display: block; width: 26px; height: 26px; margin: 0 auto 3px; border-radius: 8px; background: #ddd6c8; }
+.tabbar div.on { color: var(--green); font-weight: 700; }
+.tabbar div.on b { background: var(--green); }
+
+/* イラストのアバター（parts.js が SVG を入れる） */
+.av { display: block; overflow: hidden; }
+.av svg { width: 100%; height: 100%; display: block; }

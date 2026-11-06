@@ -9,7 +9,7 @@ import numpy as np
 from .inputs import BASIS, Population
 from .simulate import DecisionIndex, PlanResult
 
-# active だけが「その日に使っている人数」、ほかは「その日に新しく起きた数」（契約 v1）
+# active と paying は「その日の人数」、ほかは「その日に新しく起きた数」（契約 v1、paying は v2 で追加）
 DAILY_KEYS = ["impressions", "reached", "installs", "installs_wom_local", "installs_wom_x", "signups",
               "core_actions", "active", "payers", "paying", "revenue_jpy"]
 CUMULATIVE_KEYS = ["installs", "payers", "revenue_jpy", "reached"]

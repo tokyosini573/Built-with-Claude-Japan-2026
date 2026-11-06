@@ -581,3 +581,23 @@ def test_interval_helpers(app, pop, rules):
     assert j["p50"] > 0
     with pytest.raises(ValueError):
         interval_runs(rev, 0, 10)
+
+
+def test_interest_not_applied_to_person_judged(app, pop, rules):
+    """person 判断がある人には関心の倍率を掛けない。cluster 判断・判断なしの人には掛ける。"""
+    draws = Draws(seed=1, runs=RUNS)
+    personas = {str(c): {"interest": "high"} for c in np.unique(pop.cluster)}
+    judged = pop.person_id[::2]
+    dec = [{"plan": "A", "step": "signup", "person_id": int(p), "cluster_id": None, "level": "similar",
+            "creative": None} for p in judged]
+    r = _quiet(rules)   # クチコミを止めて、広告からの設置だけを比べる
+    plain = simulate_plan(app, "A", pop, r, draws, dec, 90, None)
+    with_int = simulate_plan(app, "A", pop, r, draws, dec, 90, personas)
+    m = np.isin(pop.person_id, judged)
+    reached = with_int.person["reached"] > 0
+    assert np.allclose(with_int.person["installs"][m], plain.person["installs"][m])
+    assert (with_int.person["installs"][~m & reached] > plain.person["installs"][~m & reached]).all()
+    # 別の案の person 判断は関係しない
+    dec_b = [{**d, "plan": "B"} for d in dec]
+    other = simulate_plan(app, "A", pop, r, draws, dec_b, 90, personas)
+    assert (other.person["installs"][m & reached] > plain.person["installs"][m & reached]).all()

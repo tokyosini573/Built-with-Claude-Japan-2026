@@ -251,6 +251,10 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
     cti = draws.value("click_to_install:" + preset_name, C["click_to_install"][preset_name])
     # 判断の倍率 × 傾向 × ペルソナのカテゴリ関心（広告への反応だけに掛ける）
     interest = interest_factor(pop, rules, draws, personas)
+    # その人の判断（person_id）がある人には関心の倍率を掛けない（判断が本人に合うかを既に含むので二重になる）
+    judged = {pid for (pl, _, pid) in index.person if pl == plan_key}
+    if judged:
+        interest[:, np.isin(pop.person_id, list(judged))] = 1.0
     person_q = m_install * (t_ad * t_nov)[None, :] * interest
     commuter = np.isin(pop.employment, C["transit"]["commuter_employment"])
     rail = np.array([C["transit"]["rail_share_by_pref"]["values"].get(int(p), 0.0) for p in pop.pref])

@@ -145,6 +145,9 @@ plans:
   - `initial_state: {active: <人数>, payers: <人数>, as_of_day_since_launch: <日>}`（日本全体の実人数。エンジンが1万人基準に換算して、属性に合う人へ配る）
   - `changes: [{day: 31, pricing: {...}}, {day: 31, channels: {...}}]`（期間の途中で価格・広告予算を変える）
 - 代表人物のグループには `marital` も使う。
+- `daily.paying`（その日に払い続けている人数、既存の決済者を含む）と `totals.paying_end`。`daily.payers` / `totals.payers` は新規の決済のみ。
+- **判断の意味:** 「この人がその段階まで来たとき、カテゴリ平均のアプリと比べて進みやすいか」。地域・SNS利用・広告到達・密度はエンジンが計算するので判断の理由にしない。人単位の判断がある人には persona の `interest` 倍率を掛けない。
+- 区間集計は `teppuri/engine/window.py` の `interval_band`（回ごとに集計してから分位点）を使う。
 
 ## コマンド
 ```bash
