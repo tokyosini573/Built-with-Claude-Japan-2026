@@ -29,6 +29,6 @@ fi
 {
   echo "backtest/answers.yaml にはまだ書けません: backtest/predictions.json がコミットされていません。"
   echo "順番: ①ルール固定 ②入力 ③予測のコミット ④正解 ⑤レポート（/backtest-freeze）。"
-  echo "正解はそれまでリポジトリの外（03_조사/backtest_sealed/）に封印したままにします。"
+  echo "正解はそれまでリポジトリ外の封印フォルダ（非公開）に封印したままにします。"
 } >&2
 exit 2

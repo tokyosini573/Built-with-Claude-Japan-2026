@@ -16,3 +16,6 @@ runs/*/.judge_cache/
 backtest/runs/*/decisions.json
 backtest/runs/*/decisions_detail.json
 runs/*/engine.json
+
+# 採用しなかったレポートの下書き（記録として手元に残す）
+runs/demo_matching/report_rejected.json

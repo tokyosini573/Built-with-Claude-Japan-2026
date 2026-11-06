@@ -15,7 +15,7 @@
 | `../web/public/backtest.json` | 公開サイトの表示用（形は `web/src/lib/backtest.ts`） | `run.py export` |
 | `runs/<app_id>/` | 判断（`decisions.json` など）と API 応答のキャッシュ。リポジトリの `runs/` とは分ける | `run.py judge` / `predict` |
 
-入力の出どころはリポジトリ外の調査メモ（`03_조사/backtest/cases_inputs.md`、正解なし）です。正解は別の担当が調べ、リポジトリ外の別フォルダに封をしてあります。
+入力の出どころはリポジトリ外の調査メモ（非公開、正解なし）です。正解は別の担当が調べ、リポジトリ外の別フォルダに封をしてあります。
 
 ## コミットの順番（これが証拠）
 

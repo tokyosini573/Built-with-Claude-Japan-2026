@@ -7,7 +7,8 @@
   "population": "data/population/japan_10k.csv",
   "judge": "real",
   "rules_commit": "12d263a",
-  "note_ja": "p_yes = エンジンを runs 回まわして「はい」になった回の割合。値は1万人基準。baselines は 0/1 の基準（always_up = 常に増える、naive = 値上げ・広告減なら減る）。",
+  "code_commit": "59993f6",
+  "note_ja": "p_yes = エンジンを runs 回まわして「はい」になった回の割合。値は1万人基準。baselines は 0/1 の基準（always_up = 常に増える、naive = 値上げ・広告減なら減る）。ルールとプロンプトは 12d263a、実行したコードは 59993f6。organic_video を使わない入力の結果は同じことをテストで確認。",
   "cost_usd_total": 26.2978,
   "decision_rows_total": 223394
  },

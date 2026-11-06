@@ -274,7 +274,7 @@ function Player({ replay, scale, autoplay, onAutoplayDone, picked, onPick }: Pla
           />
         ))}
       </div>
-      <MapLegend />
+      <MapLegend replay={replay} />
       <InterviewChips replay={replay} picked={picked} onPick={onPick} />
       {picked && <PersonPanel replay={replay} row={picked.row} plan={picked.plan} onPlan={(plan) => onPick({ ...picked, plan })} onClose={() => onPick(null)} />}
     </section>
@@ -363,7 +363,10 @@ function PlanMap({
   );
 }
 
-function MapLegend() {
+function MapLegend({ replay }: { replay: Replay }) {
+  const configs = planIds(replay).map((id) => replay.plans[id]!.config);
+  const allNational = configs.every((c) => (c.regions ?? []).length === 0);
+  const hasVideo = configs.some((c) => !!c.organic_video);
   const items: [string, string, number][] = [
     ["まだ届いていない", "var(--dot-untouched)", 1],
     ["インストール", "linear-gradient(90deg, var(--a) 50%, var(--b) 50%)", 0.45],
@@ -379,7 +382,9 @@ function MapLegend() {
           {label}
         </span>
       ))}
-      <span className="note">色の濃い地域が、広告を出した地域です。</span>
+      <span className="note">
+        {allNational ? `全国に出稿${hasVideo ? "（動画は地域を絞れない）" : ""}` : "色の濃い地域が、広告を出した地域です。"}
+      </span>
     </div>
   );
 }

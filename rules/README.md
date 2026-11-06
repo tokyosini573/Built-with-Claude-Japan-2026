@@ -8,7 +8,7 @@
 | `presets.yaml` | アプリ種類4つ（matching / subscription / habit / shopping）のリテンション、登録率、核心行動、決済、特別規則。関門（本人確認など）、決済後の継続、価格の扱い |
 | `channels.yaml` | 広告チャネル7つ（instagram, x, tiktok, youtube, line, transit, offline）の単価・CTR・届く人、クリック→設置率 |
 | `multipliers.yaml` | Claude の判断（higher / similar / lower）の倍率、ペルソナの関心（interest）の倍率、人ごとの揺らぎ、傾向（trait_*）の係数、クチコミ（身近な人づて・X 上の拡散） |
-| `organic_video.yaml` | **12d263a の固定後に追加、バックテストでは未検証。** 動画の大量投稿チャネル（広告費を払わない短尺動画）の再生数の分布・フォロワーの増え方・1再生あたりの設置・飽き・重複のペナルティ。出典は `03_조사/08_오가닉영상.md` |
+| `organic_video.yaml` | **12d263a の固定後に追加、バックテストでは未検証。** 動画の大量投稿チャネル（広告費を払わない短尺動画）の再生数の分布・フォロワーの増え方・1再生あたりの設置・飽き・重複のペナルティ。出典は `data/DATA_SOURCES.md` 3-G |
 | `sensitivity.md` | 感度表。仮定を1つずつ low / high に振ったときの A/B の決済者と「B が良い確率」（`python -m teppuri.engine.sensitivity` で作り直す） |
 
 ## 出典の読み方
@@ -110,7 +110,7 @@ organic_video:
   creative_ids: [v1, v2]                    # 任意。判断（install）を引く creative の ID
 ```
 
-値の出典は `03_조사/08_오가닉영상.md` 末尾「エンジンに使うなら」の表（low / mid / high をそのまま）。どれも日本以外のデータで、`source` に信頼度（1次・3次・推計・仮定）を書いています。毎日、回ごとに:
+値の出典は `data/DATA_SOURCES.md` 3-G（値はリポジトリ外の調査メモ（非公開）末尾「エンジンに使うなら」の表）（low / mid / high をそのまま）。どれも日本以外のデータで、`source` に信頼度（1次・3次・推計・仮定）を書いています。毎日、回ごとに:
 
 1. **1投稿の再生数**（対数正規の本体 + パレートの裾）
    - 本体: `median_new_account` × 調整 × exp(`sigma_between_accounts` × z_アカウント + `sigma_within_account` × z_投稿)。z_アカウントはアカウント × プラットフォームごとに1回引いて期間中使う（アカウントの当たり外れ）。

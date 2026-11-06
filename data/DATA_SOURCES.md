@@ -11,7 +11,7 @@
 > **人口と数値はすべて公開統計・公開資料から。LLMは数値を作らない。**
 
 - 仮想人口 10,000人は、政府統計と公開調査の分布から一度だけ生成し、リポジトリに固定します。この生成に LLM は使いません。
-- Claude が担当するのは、代表人物がアプリの画面や広告を見たときの判断（「このカテゴリのアプリ平均より 高い／同程度／低い」）とその理由だけです。判断を数値に変えるのはエンジンで、下記のベンチマーク値に倍率を掛けます。倍率は統計ではなく設計上のパラメータで、ルールファイルに書いてバックテスト前に固定します。
+- Claude が担当するのは、仮想人口 10,000人の一人ひとりがアプリの画面や広告を見たときの判断（「このカテゴリのアプリ平均より 高い／同程度／低い」）とその理由だけです（1万人全員を判断します。ペルソナの要約はグループ単位）。判断を数値に変えるのはエンジンで、下記のベンチマーク値に倍率を掛けます。倍率は統計ではなく設計上のパラメータで、ルールファイルに書いてバックテスト前に固定します。
 - 出典がない値（例: D90 リテンション、アプリのインストール頻度）は「仮定」として扱い、画面と本書の「5. 限界」に明記します。
 
 ### 検証の方法と結果
@@ -369,6 +369,32 @@ K-factor・紹介転換率、オーガニック流入の登録率は公開資料
 
 **参考: 日本の広告費の構成**（電通「2025年 日本の広告費」、2026-03 発表、電通による推定値、https://kyodonewsprwire.jp/release/202603045005 ）: 総広告費 80,623億円、インターネット 40,459億円（50.2%）、交通広告 1,736億円。
 
+### 3-G. 短尺動画（固定後に追加、バックテスト未検証）
+
+`rules/organic_video.yaml`（動画の大量投稿チャネル）の値の出典です。このチャネルは 12d263a でルールを固定した後に追加したもので、バックテストでは検証していません。値はリポジトリ外の調査メモ（非公開）の表から入れ、数字はここに転記していません（値と信頼度は `rules/organic_video.yaml` の `source` 欄）。**どれも日本以外のデータ**で、日本のオーガニック動画の値は見つかりませんでした。下の表は V1〜V4 の独立検証の対象外です。
+
+| 略称 | 資料 | 発行者 | 年 | 信頼度 | URL |
+|---|---|---|---|---|---|
+| [VL26] | TikTok Benchmarks 2026: Views & Engagement Data | Viewlify（B. Benoudis） | 2026-10-08 公開、11-02 更新。動画 2025-11-01〜2026-10-31 | 1次（自社データ、非無作為） | https://viewlify.app/blog/tiktok-benchmarks-2026 |
+| [BF25T] | How Often Should You Post on TikTok（11.4M 投稿, 15万+アカウント） | Buffer（K. Lang / 分析 J. Winternheimer） | 2025-10-08 | 1次（自社データ、SMB 寄り） | https://buffer.com/resources/how-often-should-you-post-on-tiktok/ |
+| [VQ26] | YouTube first 10 videos study（Shorts コホート 367,243 チャンネル） | vidIQ | 2026-07-28 公開 / 07-30 版 | 1次（自社データ、非無作為） | https://vidiq.com/research/youtube-first-10-videos-study/ |
+| [BD20] | #TulsaFlop: A Case Study of Algorithmically-Influenced Collective Action on TikTok（FAccTRec '20） | J. Bandy, N. Diakopoulos（Northwestern大） | 2020 | 1次（学術、80,682本、非無作為） | https://arxiv.org/abs/2012.07716 （原本はリポジトリに入れない） |
+| [TT20] | How TikTok recommends videos #ForYou | TikTok Newsroom | 2020-06-18 | 1次（公式） | https://newsroom.tiktok.com/en-us/how-tiktok-recommends-videos-for-you |
+| [AT26] | Average App Conversion Rate per Category [2025] | AppTweak | 2026-05-18（米国 2025 年データ） | 1次（自社データ） | https://www.apptweak.com/en/aso-blog/average-app-conversion-rate-per-category |
+| [MA19] | App Store search & download benchmarks Japan（約2,500アプリ） | MobileAction | 2019-02-26 | 1次（自社データ、古い） | https://mobileaction.co/blog/app-store-search-download-benchmarks-japan |
+| [SOHO26] | ショート動画制作の費用相場 | @SOHO 編集部 | 2026-03-06（08-22 更新） | 3次（根拠データ非公開、自社サービス誘導あり） | https://atsoho.com/blog/short-video-production-cost |
+
+**略称なしで `source` に書いている資料**
+
+| 資料 | 使っている項目 | 信頼度 | URL |
+|---|---|---|---|
+| Runway / Pika / Google（Gemini API）の公式料金ページ（2026-11-06 取得） | `reference_cost_per_video_jpy.ai_video`（エンジンは使わない参考値） | 1次 | https://runway.com/pricing 、https://pika.art/pricing 、https://aistudio.google.com/docs/pricing |
+| Instagram のオリジナル優先の発表（Engadget の報道、2024-04） | `cross_account_duplicate_penalty`（定性。率は仮定） | 2次 | https://www.engadget.com/instagram-ranking-algorithm-original-content-200028046.html |
+| YouTube スパム・欺瞞行為・詐欺に関するポリシー | `cross_account_duplicate_penalty`（定性。率は仮定） | 1次 | https://support.google.com/youtube/answer/2801973 |
+| Flame の事例（創業者の自己申告、Starter Story 経由） | `view_to_install` の high（成功例の上限扱い） | 3次 | https://www.stork.ai/blog/the-20-account-tiktok-growth-machine |
+| Chae, Bruno & Feinberg (2019) *Journal of Marketing Research*（広告の wearout） | `viewer_fatigue_half_views` の参考（値は仮定） | 1次（学術、本文未閲覧） | — |
+| 消費者庁「ステルスマーケティングに関する景品表示法の規制」 | 注意書き（前提: アプリ公式と明示・AI 生成表示） | 1次 | https://www.caa.go.jp/policies/policy/representation/fair_labeling/stealth_marketing/ |
+
 ---
 
 ## 4. 利用条件と出典表記
@@ -382,7 +408,7 @@ K-factor・紹介転換率、オーガニック流入の登録率は公開資料
 | 総務省（通信利用動向調査の報告書PDF、情報通信メディア利用時間調査） | 公共データ利用規約（第1.0版）準拠 https://www.soumu.go.jp/menu_kyotsuu/policy/tyosaku.html | 可 | 可（PDF に第三者権利・転載禁止の表示なし） | 「出典：「令和7年通信利用動向調査」（総務省）（https://www.soumu.go.jp/menu_news/s-news/01tsushin02_02000183.html）」、「「令和7年度情報通信メディアの利用時間と情報行動に関する調査報告書」（総務省情報通信政策研究所）（https://www.soumu.go.jp/menu_news/s-news/01iicp01_02000130.html）を加工して作成」 |
 | 文部科学省 | 公共データ利用規約（第1.0版）準拠、CC BY 互換 https://www.mext.go.jp/b_menu/1351168.htm | 可 | 可 | 「「学校基本調査」（文部科学省）（https://www.mext.go.jp/b_menu/toukei/chousa01/kihon/1267995.htm）を加工して作成」 |
 | 厚生労働省 | 特記がない限り公共データ利用規約（第1.0版）準拠 https://www.mhlw.go.jp/chosakuken/index.html | 可 | 可 | 「出典：「2025年国民生活基礎調査」（厚生労働省）（URL）」を加工して作成 |
-| 国土交通省 | 権利表記がない限り公共データ利用規約（第1.0版）準拠 https://www.mlit.go.jp/link.html | 可 | 可 | 「「第13回大都市交通センサス調査（速報版）」「令和3年度全国都市交通特性調査」（国土交通省）を加工して作成」 |
+| 国土交通省 | 権利表記がない限り公共データ利用規約（第1.0版）準拠 https://www.mlit.go.jp/link.html | 可 | 可 | 「「第13回大都市交通センサス調査（速報版）」（国土交通省）を加工して作成」（「令和3年度全国都市交通特性調査」は方向確認のみでエンジンでは不使用のため、出典表記に入れない） |
 | 消費者庁 | 公共データ利用規約（第1.0版）準拠 https://www.caa.go.jp/terms_of_use/ 。出典と、加工の事実・加工主体の明記が必要 | 可 | 可（消費者意識基本調査の集計表・調査票・概要） | 「出典：消費者庁「消費者意識基本調査」（令和4・5・7年度）集計表を基にテプリが加工・作成」 |
 | こども家庭庁 | 公共データ利用規約（第1.0版）適用 https://www.cfa.go.jp/copyright-policy | 可 | 規約上は可。ただし PDF 内の第三者権利を確認していないため**リンクのみ**とする | 「出典：「令和6年度 若者のライフデザインや出会いに関する意識調査」（こども家庭庁）（URL）を加工して作成」 |
 | 国税庁 | 公共データ利用規約（第1.0版）に準拠 https://www.nta.go.jp/chuijiko/copy.htm | 可（平均値の照合のみに使用） | 保存していない | 「参考：国税庁「令和7年分 民間給与実態統計調査」（https://www.nta.go.jp/publication/statistics/kokuzeicho/minkan/gaiyou/2025.htm）」 |
@@ -406,7 +432,7 @@ K-factor・紹介転換率、オーガニック流入の登録率は公開資料
 出典：「令和7年度情報通信メディアの利用時間と情報行動に関する調査報告書」（総務省情報通信政策研究所）（https://www.soumu.go.jp/menu_news/s-news/01iicp01_02000130.html）を加工して作成
 出典：消費者庁「消費者意識基本調査」（令和4・5・7年度）集計表を基にテプリが加工・作成
 出典：「令和6年度 若者のライフデザインや出会いに関する意識調査」（こども家庭庁）を加工して作成
-出典：国土交通省「第13回大都市交通センサス調査（速報版）」「令和3年度全国都市交通特性調査」を加工して作成
+出典：国土交通省「第13回大都市交通センサス調査（速報版）」を加工して作成
 出典：NTTドコモ モバイル社会研究所ホームページ、同『モバイル社会白書2026-2027』
 参考：国税庁「令和7年分 民間給与実態統計調査」（https://www.nta.go.jp/publication/statistics/kokuzeicho/minkan/gaiyou/2025.htm）
 本シミュレーションの仮想人口は上記統計を基にテプリ開発チームが合成したものであり、国が作成したものではありません。

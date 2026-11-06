@@ -170,7 +170,7 @@ function PlanCard({
           </>
         )}
         <dt>届ける相手</dt>
-        <dd>{targetText(config)}</dd>
+        <dd>{video ? "指定なし（おすすめ次第）" : targetText(config)}</dd>
       </dl>
 
       {open && (

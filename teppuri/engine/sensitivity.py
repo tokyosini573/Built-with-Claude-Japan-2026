@@ -155,7 +155,7 @@ def video_main(path: Path, pop: Population) -> None:
         "## 固定後に追加した機能（バックテスト未検証）: 動画の大量投稿（organic_video）",
         "",
         "12d263a でルールを固定した後に追加したチャネルです。バックテストでは検証していません。"
-        "値は `rules/organic_video.yaml`（出典は `03_조사/08_오가닉영상.md`、日本以外のデータ。3次・推計・仮定を含む）。"
+        "値は `rules/organic_video.yaml`（出典は `data/DATA_SOURCES.md` 3-G、日本以外のデータ。3次・推計・仮定を含む）。"
         "上の表（固定前）には影響しません。",
         "",
         f"`python -m teppuri.engine.sensitivity --video` でこの節だけを作り直せます（{RUNS}回、シード {SEED}、"

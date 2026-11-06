@@ -83,6 +83,9 @@ def person_decision_rows(decisions: list[dict], person_ids) -> list[dict]:
             continue
         rows.append({"plan": str(d.get("plan")), "person_id": int(pid), "step": str(d.get("step")),
                      "level": d.get("level", "similar"), "reason_ja": d.get("reason_ja", "")})
+        if d.get("creative"):
+            # install の判断がどの広告・動画の見本についてかを画面で出すため（判断そのものは変えない）
+            rows[-1]["creative"] = str(d["creative"])
     return rows
 
 

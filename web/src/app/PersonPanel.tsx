@@ -32,6 +32,12 @@ function eventText(step: string, replay: Replay): string {
   )[step] ?? step;
 }
 
+/** install の判断がどの見本についてか（動画の案は「動画 v1」、広告は「広告 a1」） */
+function creativeLabel(creative: string, replay: Replay, plan: PlanId): string {
+  const video = replay.plans[plan]?.config.organic_video as { creative_ids?: string[] } | undefined;
+  return `${video?.creative_ids?.includes(creative) ? "動画" : "広告"} ${creative}`;
+}
+
 export function PersonPanel({ replay, row, plan, onPlan, onClose }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const person = replay.people[row];
@@ -127,7 +133,10 @@ export function PersonPanel({ replay, row, plan, onPlan, onClose }: Props) {
             <ul className="reasons">
               {decisions.map((d, i) => (
                 <li key={i} style={{ gridTemplateColumns: "6.5em minmax(0,1fr)" }}>
-                  <span style={{ fontWeight: 700 }}>{stepName(d.step, replay)}</span>
+                  <span style={{ fontWeight: 700 }}>
+                    {stepName(d.step, replay)}
+                    {d.creative && <span className="note" style={{ display: "block", fontWeight: 400 }}>{creativeLabel(d.creative, replay, plan)}</span>}
+                  </span>
                   <div style={{ display: "grid", gap: 2 }}>
                     <span>「{d.reason_ja}」</span>
                     <span className="note">{LEVEL_JA[d.level] ?? d.level}</span>

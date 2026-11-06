@@ -35,7 +35,7 @@ export function VerifyPage() {
         </h1>
         {rows.length > 1 && <p className="claim-sub">{versus(s.hits, bt.baselines)}</p>}
         <p className="lead">
-          過去に条件を変えた日本のアプリについて、結果を知らない状態で「はい／いいえ」を予測し、あとから実際と比べました。
+          過去に条件を変えた日本のアプリについて、正解をリポジトリに入れる前に「はい／いいえ」を予測し、あとから実際と比べました。
           {s.answered < s.total && ` 残り${s.total - s.answered}問は答え合わせ待ちです。`}
         </p>
         <div className="cmp" aria-label="比較の基準">
