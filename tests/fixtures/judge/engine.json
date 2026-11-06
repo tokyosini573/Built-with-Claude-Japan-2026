@@ -1,0 +1,251 @@
+{
+ "meta": {
+  "app_id": "test_matching",
+  "name_ja": "テストマッチ（架空）",
+  "period_days": 90,
+  "runs": 30,
+  "population": 10000,
+  "scale_to_japan": 9680.6585,
+  "generated_at": "2026-11-06T00:00:00Z",
+  "extrapolated_after_day": 90
+ },
+ "plans": {
+  "A": {
+   "daily": {},
+   "totals": {
+    "installs": {
+     "p10": 120,
+     "p50": 154,
+     "p90": 190
+    },
+    "signups": {
+     "p10": 80,
+     "p50": 101,
+     "p90": 125
+    },
+    "payers": {
+     "p10": 3.2,
+     "p50": 4.6,
+     "p90": 6.1
+    },
+    "revenue_jpy": {
+     "p10": 37440,
+     "p50": 53820,
+     "p90": 71370
+    },
+    "active_end": {
+     "p10": 30,
+     "p50": 41,
+     "p90": 55
+    }
+   },
+   "sample_run": {
+    "events": [
+     [
+      101,
+      1,
+      "install",
+      9680
+     ],
+     [
+      101,
+      1,
+      "signup",
+      9680
+     ],
+     [
+      101,
+      3,
+      "gate:id_verification",
+      9680
+     ],
+     [
+      101,
+      9,
+      "core_action",
+      9680
+     ],
+     [
+      202,
+      2,
+      "install",
+      9680
+     ],
+     [
+      202,
+      4,
+      "churn",
+      9680
+     ],
+     [
+      303,
+      5,
+      "install",
+      9680
+     ]
+    ]
+   },
+   "drop_reasons": [
+    {
+     "step": "gate:id_verification",
+     "cluster_id": 1,
+     "share": 0.18,
+     "reason_ja": "免許証を出すのは抵抗がある"
+    },
+    {
+     "step": "retention",
+     "cluster_id": 0,
+     "share": 0.07,
+     "reason_ja": "近くに相手が少ない"
+    }
+   ]
+  },
+  "B": {
+   "daily": {},
+   "totals": {
+    "installs": {
+     "p10": 140,
+     "p50": 171,
+     "p90": 205
+    },
+    "signups": {
+     "p10": 85,
+     "p50": 98,
+     "p90": 117
+    },
+    "payers": {
+     "p10": 2.9,
+     "p50": 4.1,
+     "p90": 5.8
+    },
+    "revenue_jpy": {
+     "p10": 33930,
+     "p50": 47970,
+     "p90": 67860
+    },
+    "active_end": {
+     "p10": 28,
+     "p50": 37,
+     "p90": 50
+    }
+   },
+   "sample_run": {
+    "events": [
+     [
+      505,
+      1,
+      "install",
+      9680
+     ],
+     [
+      505,
+      2,
+      "signup",
+      9680
+     ],
+     [
+      404,
+      6,
+      "install",
+      9680
+     ]
+    ]
+   },
+   "drop_reasons": [
+    {
+     "step": "signup",
+     "cluster_id": 3,
+     "share": 0.22,
+     "reason_ja": "登録の入力が多い"
+    }
+   ]
+  }
+ },
+ "people": [
+  [
+   101,
+   13,
+   "metro",
+   24,
+   "F",
+   0
+  ],
+  [
+   202,
+   14,
+   "metro",
+   31,
+   "M",
+   1
+  ],
+  [
+   303,
+   27,
+   "city",
+   45,
+   "F",
+   2
+  ],
+  [
+   404,
+   46,
+   "town",
+   67,
+   "M",
+   3
+  ],
+  [
+   505,
+   1,
+   "city",
+   19,
+   "M",
+   4
+  ]
+ ],
+ "clusters": [
+  {
+   "cluster_id": 0,
+   "label_ja": "…",
+   "representative": 101
+  },
+  {
+   "cluster_id": 1,
+   "label_ja": "…",
+   "representative": 202
+  },
+  {
+   "cluster_id": 2,
+   "label_ja": "…",
+   "representative": 303
+  },
+  {
+   "cluster_id": 3,
+   "label_ja": "…",
+   "representative": 404
+  },
+  {
+   "cluster_id": 4,
+   "label_ja": "…",
+   "representative": 505
+  }
+ ],
+ "comparison": {
+  "B_minus_A": {
+   "installs": {
+    "p10": -12,
+    "p50": 17,
+    "p90": 44
+   },
+   "payers": {
+    "p10": -2.1,
+    "p50": -0.5,
+    "p90": 1.2
+   }
+  },
+  "p_B_better": {
+   "installs": 0.78,
+   "payers": 0.36
+  }
+ }
+}

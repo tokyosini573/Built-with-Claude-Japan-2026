@@ -1,0 +1,118 @@
+/* 土台の色と文字。最終デザインは未定なので、役割ごとの変数だけ決めておく */
+:root {
+  color-scheme: light;
+  --surface-0: #f4f4f1;
+  --surface-1: #fcfcfb;
+  --border: #dddcd6;
+  --grid: #e8e7e2;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #85847f;
+  --map-land: #e6e5df;
+  --map-line: #fcfcfb;
+  --map-dim: #d2d1cb;
+  --dot-untouched: #a9a8a1;
+  --plan-a: #2a78d6;
+  --plan-b: #eb6834;
+  --extrapolated: rgba(133, 132, 127, 0.12);
+  --warn-bg: #fff4e0;
+  --warn-text: #7a4b00;
+  --error-bg: #fdecec;
+  --error-text: #8a1f1f;
+  --radius: 8px;
+  font-family: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  color: var(--text-primary);
+  background: var(--surface-0);
+  line-height: 1.6;
+  font-feature-settings: "palt";
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-0: #121211;
+    --surface-1: #1a1a19;
+    --border: #33322f;
+    --grid: #2a2a28;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #8d8c85;
+    --map-land: #2c2c2a;
+    --map-line: #1a1a19;
+    --map-dim: #232322;
+    --dot-untouched: #6b6a65;
+    --plan-a: #3987e5;
+    --plan-b: #d95926;
+    --extrapolated: rgba(195, 194, 183, 0.08);
+    --warn-bg: #3a2c10;
+    --warn-text: #f3cf86;
+    --error-bg: #3b1717;
+    --error-text: #f4b3b3;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #121211;
+  --surface-1: #1a1a19;
+  --border: #33322f;
+  --grid: #2a2a28;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #8d8c85;
+  --map-land: #2c2c2a;
+  --map-line: #1a1a19;
+  --map-dim: #232322;
+  --dot-untouched: #6b6a65;
+  --plan-a: #3987e5;
+  --plan-b: #d95926;
+  --extrapolated: rgba(195, 194, 183, 0.08);
+  --warn-bg: #3a2c10;
+  --warn-text: #f3cf86;
+  --error-bg: #3b1717;
+  --error-text: #f4b3b3;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-0); }
+button, input, select { font: inherit; color: inherit; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---- 部品で共通に使う小さなクラス ---- */
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  min-width: 0;
+}
+.panel-title { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+.muted { color: var(--text-muted); }
+.secondary { color: var(--text-secondary); }
+.small { font-size: 12px; }
+.badge {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 18px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  white-space: nowrap;
+}
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.seg button {
+  border: 0;
+  background: transparent;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--text-primary); color: var(--surface-1); }
+.btn {
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.btn:focus-visible, .seg button:focus-visible, input:focus-visible { outline: 2px solid var(--plan-a); outline-offset: 2px; }

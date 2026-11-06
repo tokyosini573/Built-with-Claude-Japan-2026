@@ -1,0 +1,119 @@
+# 判断の倍率・傾向の係数・クチコミ
+#
+# 判断の倍率と傾向の係数は統計ではなく設計上のパラメータ（DATA_SOURCES 0章「基本ルール」）。
+# すべて source: assumption。バックテスト前に固定する。
+
+version: 1
+
+# Claude の判断（このカテゴリの平均より 高い / 同じくらい / 低い）→ ベンチマークに掛ける倍率
+levels:
+  higher:
+    low: 1.15
+    mid: 1.3
+    high: 1.5
+    source: assumption
+    note: 設計 3-4 の初期値 1.3。範囲は抽選の幅。
+  similar:
+    low: 1.0
+    mid: 1.0
+    high: 1.0
+    source: assumption
+    note: 判断がないときもこの値（契約 §3）。
+  lower:
+    low: 0.5
+    mid: 0.7
+    high: 0.85
+    source: assumption
+    note: 設計 3-4 の初期値 0.7。
+
+# ペルソナのカテゴリ関心（runs/<app_id>/personas.json の interest / category_interest）→ 広告への反応の倍率
+# 広告の表示1回あたりの反応（オンラインはクリック率、電車広告・大学は見た・会った人の設置率）に掛ける（契約 v1）。
+# ペルソナがないときは全員 1.0。割り直しはしない（関心の高い人を狙った広告ほど効く、を表すため）。
+interest:
+  high:
+    low: 1.2
+    mid: 1.5
+    high: 2.0
+    source: assumption
+    note: カテゴリに関心が高い人ほど広告をクリックしやすい。日本のカテゴリ関心別の CTR の公開値はない。ベンチマークの CTR は関心の混ざった平均なので、mid の人を 1.0 とし、高い人・低い人を上下に置いた。
+  mid:
+    low: 1.0
+    mid: 1.0
+    high: 1.0
+    source: assumption
+    note: ベンチマークどおり。
+  low:
+    low: 0.3
+    mid: 0.5
+    high: 0.7
+    source: assumption
+    note: 関心の低い人はクリックしにくい。参考に、未婚の非利用者の 53.3% が「何があってもマッチングアプリは使いたくない」（[CFA24] PDF p.31）。
+
+# 人ごとの揺らぎ: 代表人物の判断を受け継ぐとき、倍率に対数正規の揺らぎを掛ける
+person_jitter_sd:
+  low: 0.1
+  mid: 0.1
+  high: 0.1
+  source: assumption
+  note: log(倍率) の標準偏差。設計 2章「少しの揺らぎを入れる」。同じ回の中では A と B で同じ揺らぎを使う。
+
+# 傾向（人口の trait_* 列）の係数。エンジンは人口全体の加重平均が 1 になるように割り直すので、
+# 平均はベンチマークのまま、人による差だけが生まれる。
+traits:
+  trait_ad_aversion:
+    applies_to: ad_install
+    factor: {low: 1.2, mid: 1.0, high: 0.8}
+    source: assumption
+    note: 広告への抵抗感（代理指標「表示・広告の内容は信用できる」の逆、DATA_SOURCES 5章-4）が高い人ほど広告から設置しにくい。
+  trait_novelty:
+    applies_to: install
+    factor: {low: 0.85, mid: 1.0, high: 1.15}
+    source: assumption
+    note: 新しもの好きほど、広告でもクチコミでも設置しやすい。
+  trait_wom:
+    applies_to: wom_install
+    factor: {low: 0.5, mid: 1.0, high: 1.5}
+    source: assumption
+    note: 設計 3-2-6「口コミ依存度が高い人ほどこの経路に反応する」。
+  trait_privacy:
+    applies_to: privacy_gate
+    factor: {low: 1.1, mid: 1.0, high: 0.85}
+    source: assumption
+    note: 個人情報への不安（近い代理指標）が高い人ほど、本人確認など privacy_sensitive の関門で離れる。
+  trait_price:
+    applies_to: price_elasticity
+    factor: {low: 0.5, mid: 1.0, high: 1.5}
+    source: assumption
+    note: 価格感度（代理指標「お金はなるべく使わないようにしている」）が高い人ほど価格弾力性が大きい。この係数は弾力性に掛ける（割り直さない）。
+
+# クチコミ（word of mouth）— (b) 身近な人づて（LINE・対面）。地域内だけで起きる。
+# 1日のクチコミ設置数 = q × A × (M − N) / M
+#   A = その日アクティブな利用者（実人数）
+#   M = 市場の大きさ（出荷地域・min_age 以上・スマホ保有の実人数）
+#   N = これまでに設置した実人数
+# (M − N)/M があるので、設置者が市場に近づくほどクチコミは減り、M を超えることはない（Bass モデルの模倣項）。
+# 人ごとには、まだ設置していない人の中で trait_wom・trait_novelty の係数と install の判断倍率に比例して配る。
+wom:
+  q_per_active_day:
+    low: 0.005
+    mid: 0.015
+    high: 0.03
+    source: assumption
+    note: アクティブ利用者1人が1日に生む新規設置（市場が空いているとき）。K-factor・紹介転換率の公開値はない（DATA_SOURCES 3-E）。利用者1人の生涯のアクティブ日数（リテンション曲線の和、数日〜十数日）を掛けると、生涯で 0.05〜0.4 件の紹介になる。参考に「アプリを知ったきっかけ SNS広告・動画広告 39.1%」（3-E、2次）。
+
+# クチコミ — (a) X 上の拡散（ポスト・リポスト）
+# 1日に X で届く量 = q_x × A_x × (M_x − N_x) / M_x
+#   A_x = 前日に使っていた利用者のうち sns_x が true の人（実人数）
+#   M_x = 全国の X 利用者（sns_x、スマホ、min_age 以上）。地域に縛られない
+#   N_x = これまでに設置した X 利用者
+# 受け手は全国の未設置の X 利用者で、trait_wom・trait_novelty の係数と install の判断倍率に比例して配る。
+# 出荷地域（plans.<案>.regions）の外の人にも届くが、地域外ではアプリを使えないので設置にはならない
+# （届いた分は無駄になる）。plans.<案>.available_outside_regions: true のときは regions を広告の出稿地域とみなし、
+# 地域外の X 利用者も設置できる。
+wom_x:
+  q_per_active_x_user_day:
+    low: 0.002
+    mid: 0.01
+    high: 0.04
+    source: assumption
+    note: X を使っている利用者1人が1日に X 上の拡散で生む新規設置（市場が空いているとき）。X 経由の認知・設置の割合は調査（03_조사 の 03・07、DATA_SOURCES 3-E）に見つからなかった。3-E にあるのは「アプリを知ったきっかけ SNS広告・動画広告 39.1%」（広告で、クチコミではない）と「ストア内の指名検索 54.3%」だけで、K-factor・紹介転換率もない。そのため身近な人づて（q 0.005〜0.03）と同じくらいの大きさを mid に置き、範囲は20倍と広めにとった。X 利用者は人口の約45%（人口の sns_x、DATA_SOURCES 2-8）。

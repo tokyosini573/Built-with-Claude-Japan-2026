@@ -1,0 +1,28 @@
+# テスト用の仮アプリ（架空）
+app_id: test_matching
+name_ja: テストマッチ（架空）
+preset: matching
+min_age: 18
+description_ja: 趣味でつながる架空のマッチングアプリ（テスト用）
+screens: [screens/01.png, screens/02.png]
+gates:
+  - id: id_verification
+    name_ja: 本人確認
+    docs_ja: 運転免許証など
+    review_hours: 24
+pricing: {monthly_jpy: 3900, free_trial_days: 0, who_pays: male}
+plans:
+  A:
+    regions: [13, 14]
+    period_days: 90
+    campaign_days: 30
+    target: {age: [20, 34], sex: any}
+    channels: {instagram: 3000000}
+    creatives: [ads/a1.png]
+  B:
+    regions: []
+    period_days: 90
+    campaign_days: 30
+    target: {age: [25, 39], sex: any}
+    channels: {tiktok: 2000000}
+    creatives: [ads/b1.png]

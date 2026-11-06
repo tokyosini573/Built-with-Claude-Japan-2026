@@ -1,0 +1,6 @@
+person_id,age,sex,pref_code,pref_name,city_size,marital,household,employment,income_band,has_smartphone,os,sns_line,sns_x,sns_instagram,sns_tiktok,sns_youtube,trait_price,trait_novelty,trait_privacy,trait_wom,trait_ad_aversion,weight,cluster_id
+101,24,F,13,東京都,metro,unmarried,single,regular,mid,true,ios,true,true,true,true,true,mid,high,mid,high,low,9680.66,0
+202,31,M,14,神奈川県,metro,unmarried,single,regular,mid,true,android,true,true,false,false,true,high,mid,high,mid,high,9680.66,1
+303,45,F,27,大阪府,city,married,couple_child,part_time,low,true,ios,true,false,true,false,true,high,low,high,high,mid,9680.66,2
+404,67,M,46,鹿児島県,town,married,couple,not_working,low,true,android,true,false,false,false,true,high,low,high,mid,high,9680.66,3
+505,19,M,1,北海道,city,unmarried,with_parents,student,low,true,ios,true,true,true,true,true,high,high,low,high,low,9680.66,4
