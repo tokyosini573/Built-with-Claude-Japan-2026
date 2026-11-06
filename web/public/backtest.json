@@ -1,205 +1,199 @@
 {
- "is_mock": true,
- "note_ja": "これは画面確認用のモックです。事例・質問・確率はすべて架空で、本物のバックテストではありません。",
- "prediction_commit": null,
+ "is_mock": false,
+ "note_ja": "実在の日本のサービス6事例・17問の方向の点検（名前は伏せています）。テプリの値はエンジン30回のうち「はい」になった割合。問題数が少ないので、方法の点検であって精度の測定ではありません。",
+ "prediction_commit": "5286315",
  "baselines": [
   {
-   "id": "always_yes",
-   "name_ja": "いつも「伸びる」と答える",
-   "hits": 11,
-   "brier": 0.25
+   "id": "always_up",
+   "name_ja": "いつも「増える」と答える",
+   "hits": 9.0,
+   "brier": 0.47058823529411764
   },
   {
-   "id": "bigger_budget",
-   "name_ja": "予算が大きいほうが勝つと答える",
-   "hits": 9,
-   "brier": 0.27
+   "id": "naive",
+   "name_ja": "値上げ・広告減なら「減る」、それ以外は「増える」と答える",
+   "hits": 9.0,
+   "brier": 0.47058823529411764
   }
  ],
  "cases": [
   {
-   "case_id": "c1",
-   "title_ja": "（モック）事例A: 恋活アプリ",
-   "description_ja": "（モック）値上げのあと、有料会員は増えたか",
-   "recognized": false,
+   "case_id": "case_01",
+   "title_ja": "完全栄養食の定期購入 D2C（自社 EC・アプリ）",
+   "description_ja": "パン・クッキー・パスタなどの「完全栄養食」を、自社の EC サイトとアプリで定期購入（継続コース）として売る食品の通販。 会員登録して決済するだけで使える。商品は常温・冷凍で全国に配送する。",
    "questions": [
     {
-     "q_id": "c1q1",
-     "q_ja": "（モック）値上げのあと2四半期で、有料会員は増えたか",
-     "p_yes": 0.38,
+     "q_id": "case_01_Q1",
+     "q_ja": "値上げ後の最初の四半期（2024年9〜11月）の自社 EC 売上は、直前の四半期（2024年6〜8月）より多いか",
+     "p_yes": 0.0,
+     "answer": true,
+     "source_ja": "上場企業の決算説明資料・発表資料（p.4・p.7 / p.7）",
+     "source_url": "https://www2.jpx.co.jp/disc/29360/140120250114550169.pdf"
+    },
+    {
+     "q_id": "case_01_Q2",
+     "q_ja": "2024年11月末の定期購入者数は、2024年8月末より多いか",
+     "p_yes": 0.0,
      "answer": false,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.7 / p.4）",
+     "source_url": "https://www2.jpx.co.jp/disc/29360/140120241015597844.pdf"
     },
     {
-     "q_id": "c1q2",
-     "q_ja": "（モック）値上げの次の四半期、新規の登録は前の四半期より多かったか",
-     "p_yes": 0.44,
+     "q_id": "case_01_Q3",
+     "q_ja": "値上げ後2つ目の四半期（2024年12月〜2025年2月）の自社 EC 売上は、値上げ前の四半期（2024年3〜5月）より多いか",
+     "p_yes": 0.0,
      "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.7）"
     },
     {
-     "q_id": "c1q3",
-     "q_ja": "（モック）1年後、有料会員は値上げ前より多かったか",
-     "p_yes": 0.61,
-     "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "q_id": "case_01_Q4",
+     "q_ja": "2024年12月〜2025年2月の自社 EC 売上は、直前の四半期（2024年9〜11月）より多いか",
+     "p_yes": 0.0,
+     "answer": false,
+     "source_ja": "上場企業の決算説明資料・発表資料（該当箇所）"
     }
-   ]
+   ],
+   "recognized": false
   },
   {
-   "case_id": "c2",
-   "title_ja": "（モック）事例B: 家計簿アプリ",
-   "description_ja": "（モック）無料体験を7日から30日に延ばした",
-   "recognized": false,
+   "case_id": "case_02",
+   "title_ja": "家計簿・資産管理アプリのプレミアム会員",
+   "description_ja": "銀行口座・クレジットカードを自動で連携して、家計簿と資産の管理ができるアプリ。基本無料で、 月額のプレミアム会員になると連携できる数や過去データの閲覧などが広がる。",
    "questions": [
     {
-     "q_id": "c2q1",
-     "q_ja": "（モック）延ばした四半期、有料会員は増えたか",
-     "p_yes": 0.72,
-     "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
-    },
-    {
-     "q_id": "c2q2",
-     "q_ja": "（モック）翌四半期の解約は前より増えたか",
-     "p_yes": 0.55,
+     "q_id": "case_02_Q1",
+     "q_ja": "料金改定を含む四半期の末（2025年8月末）のプレミアム課金ユーザー数は、改定前（2025年5月末）より多いか",
+     "p_yes": 0.0,
      "answer": false,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.44 / p.36）",
+     "source_url": "https://www2.jpx.co.jp/disc/39940/140120251015573969.pdf"
     },
     {
-     "q_id": "c2q3",
-     "q_ja": "（モック）1年後、有料会員は延ばす前より多かったか",
-     "p_yes": 0.66,
+     "q_id": "case_02_Q2",
+     "q_ja": "改定後最初の完全な四半期の末（2025年11月末）のプレミアム課金ユーザー数は、改定前（2025年5月末）より多いか",
+     "p_yes": 0.0,
      "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.67）",
+     "source_url": "https://www2.jpx.co.jp/disc/39940/140120260114533742.pdf"
+    },
+    {
+     "q_id": "case_02_Q3",
+     "q_ja": "2025年9〜11月のプレミアム課金収入は、改定前の2025年3〜5月より多いか",
+     "p_yes": 0.06666666666666667,
+     "answer": true,
+     "source_ja": "上場企業の決算説明資料・発表資料（p.66）"
     }
-   ]
+   ],
+   "recognized": true
   },
   {
-   "case_id": "c3",
-   "title_ja": "（モック）事例C: フリマアプリ",
-   "description_ja": "（モック）テレビ広告を出した四半期",
-   "recognized": true,
+   "case_id": "case_03",
+   "title_ja": "オンライン英会話（個人向けサブスク）",
+   "description_ja": "海外の講師と1対1で話す、月額定額制のオンライン英会話。アプリと Web で毎日25分のレッスンを受けられる。 事前学習の教材、日本人講師のカウンセリング、レッスン録音の機能がある。",
    "questions": [
     {
-     "q_id": "c3q1",
-     "q_ja": "（モック）テレビ広告の四半期、新規の利用者は前の四半期より多かったか",
-     "p_yes": 0.81,
-     "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
-    },
-    {
-     "q_id": "c3q2",
-     "q_ja": "（モック）次の四半期も新規の利用者は増えたか",
-     "p_yes": 0.47,
+     "q_id": "case_03_Q1",
+     "q_ja": "値上げを始めた四半期（2022年10〜12月）の個人向け売上は、直前の四半期（2022年7〜9月）より多いか",
+     "p_yes": 0.0,
      "answer": false,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.11）",
+     "source_url": "https://www2.jpx.co.jp/disc/60960/140120230510564593.pdf"
     },
     {
-     "q_id": "c3q3",
-     "q_ja": "（モック）テレビ広告の四半期、取引の数は増えたか",
-     "p_yes": 0.63,
+     "q_id": "case_03_Q2",
+     "q_ja": "既存会員の移行が進んだ2023年1〜3月の個人向け売上は、値上げ前の2022年7〜9月より多いか",
+     "p_yes": 0.0,
+     "answer": false,
+     "source_ja": "上場企業の決算説明資料・発表資料（該当箇所）"
+    },
+    {
+     "q_id": "case_03_Q3",
+     "q_ja": "2023年7月の個人向け会員1人あたり月額単価は、2022年7月より高いか",
+     "p_yes": 1.0,
      "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.24）",
+     "source_url": "https://www2.jpx.co.jp/disc/60960/140120230810541378.pdf"
     }
-   ]
+   ],
+   "recognized": true
   },
   {
-   "case_id": "c4",
-   "title_ja": "（モック）事例D: 動画配信",
-   "description_ja": "（モック）月額を上げた",
-   "recognized": false,
+   "case_id": "case_04",
+   "title_ja": "月額制ファッションレンタル（女性向け）",
+   "description_ja": "スタイリストが選んだ服が毎月届く、働く女性向けの月額制ファッションレンタル。アプリで好みを登録し、 届いた服を返却・交換して使う。",
    "questions": [
     {
-     "q_id": "c4q1",
-     "q_ja": "（モック）値上げの四半期、会員は減ったか",
-     "p_yes": 0.42,
+     "q_id": "case_04_Q1",
+     "q_ja": "改定を含む四半期の末（2024年9月末）の月額会員数は、2024年6月末より多いか",
+     "p_yes": 0.0,
      "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.17 / p.19）",
+     "source_url": "https://www2.jpx.co.jp/disc/95570/140120241114523151.pdf"
     },
     {
-     "q_id": "c4q2",
-     "q_ja": "（モック）値上げの翌年、売上は増えたか",
-     "p_yes": 0.7,
+     "q_id": "case_04_Q2",
+     "q_ja": "2024年12月末の月額会員数は、2024年6月末より多いか",
+     "p_yes": 0.0,
      "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
-    },
-    {
-     "q_id": "c4q3",
-     "q_ja": "（モック）値上げの翌四半期、会員は前年同期より多かったか",
-     "p_yes": 0.58,
-     "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.18）",
+     "source_url": "https://www2.jpx.co.jp/disc/95570/140120250212571601.pdf"
     }
-   ]
+   ],
+   "recognized": true
   },
   {
-   "case_id": "c5",
-   "title_ja": "（モック）事例E: 婚活アプリ",
-   "description_ja": "（モック）地方へ広告を広げた",
-   "recognized": false,
+   "case_id": "case_05",
+   "title_ja": "動画コミュニティサービスのプレミアム会員",
+   "description_ja": "動画を投稿し、再生中の画面にコメントを流しながら一緒に見る動画コミュニティサービス。基本無料で、 月額のプレミアム会員になると高画質・優先視聴などが使える。",
    "questions": [
     {
-     "q_id": "c5q1",
-     "q_ja": "（モック）広げた四半期、会員は増えたか",
-     "p_yes": 0.67,
-     "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "q_id": "case_05_Q1",
+     "q_ja": "料金改定月を含む四半期の末（2024年3月末）のプレミアム会員数は、2023年12月末より多いか",
+     "p_yes": 0.0,
+     "answer": false,
+     "source_ja": "上場企業の決算説明資料・発表資料（該当箇所）",
+     "source_url": "https://group.kadokawa.co.jp/information/media-download/1289/74d684607ca1d582"
     },
     {
-     "q_id": "c5q2",
-     "q_ja": "（モック）広げた翌四半期、有料会員は増えたか",
-     "p_yes": 0.52,
-     "answer": false,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "q_id": "case_05_Q2",
+     "q_ja": "2024年1〜3月のプレミアム会員の純減数は、直前の四半期（2023年10〜12月）の純減数より大きいか",
+     "p_yes": 1.0,
+     "answer": true,
+     "source_ja": "上場企業の決算説明資料・発表資料（該当箇所）",
+     "source_url": "https://group.kadokawa.co.jp/information/media-download/1182/a20948c4cb27ac91"
     }
-   ]
+   ],
+   "recognized": true
   },
   {
-   "case_id": "c6",
-   "title_ja": "（モック）事例F: 学習アプリ",
-   "description_ja": "（モック）大学生向けの割引を始めた",
-   "recognized": false,
+   "case_id": "case_06",
+   "title_ja": "マンガアプリ（無料話＋コイン課金＋広告）",
+   "description_ja": "毎日一定の話数を無料で読めて、続きをコインで買って読むマンガアプリ。アプリ内広告もある。",
    "questions": [
     {
-     "q_id": "c6q1",
-     "q_ja": "（モック）割引を始めた四半期、有料会員は増えたか",
-     "p_yes": 0.74,
+     "q_id": "case_06_Q1",
+     "q_ja": "広告宣伝費を前四半期の約1.45倍に増やした2021年4〜6月の売上は、1〜3月より多いか",
+     "p_yes": 0.03333333333333333,
      "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.36）",
+     "source_url": "https://www2.jpx.co.jp/disc/44240/140120221109561181.pdf"
     },
     {
-     "q_id": "c6q2",
-     "q_ja": "（モック）割引の翌年、売上は増えたか",
-     "p_yes": 0.49,
-     "answer": true,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
-    },
-    {
-     "q_id": "c6q3",
-     "q_ja": "（モック）割引の翌四半期、解約は減ったか",
-     "p_yes": 0.35,
+     "q_id": "case_06_Q2",
+     "q_ja": "広告宣伝費を前四半期から約37%減らした2021年10〜12月の売上は、7〜9月より多いか",
+     "p_yes": 0.0,
      "answer": false,
-     "source_ja": "（モック）決算説明資料",
-     "source_url": null
+     "source_ja": "上場企業の決算説明資料・発表資料（p.36）"
+    },
+    {
+     "q_id": "case_06_Q3",
+     "q_ja": "広告宣伝費を前四半期から約34%減らした2022年7〜9月の売上は、4〜6月より多いか",
+     "p_yes": 0.0,
+     "answer": true,
+     "source_ja": "上場企業の決算説明資料・発表資料（p.36 / p.12）"
     }
-   ]
+   ],
+   "recognized": false
   }
  ]
 }
