@@ -24,6 +24,10 @@ const JOBS = [
   ["src/ads/b1.html", "ads/b1.png", 728, 515, 2],   // 中づり B3横 → 1456×1030
   ["src/ads/b2.html", "ads/b2.png", 960, 540, 2],   // 車内ビジョン 16:9 → 1920×1080
   ["src/ads/b3.html", "ads/b3.png", 540, 675, 2],   // Instagram フィード 4:5 → 1080×1350
+  // 短尺動画の見本（絵コンテ1枚、オーガニック投稿用）
+  ["src/ads/v1.html", "ads/v1.png", 540, 960, 2],
+  ["src/ads/v2.html", "ads/v2.png", 540, 960, 2],
+  ["src/ads/v3.html", "ads/v3.png", 540, 960, 2],
 ];
 
 const only = process.argv.slice(2);

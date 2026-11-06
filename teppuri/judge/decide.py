@@ -125,6 +125,18 @@ def _gates_text(app: c.App) -> str:
     return "".join(lines)
 
 
+# 素材の種類ごとの install の前提（固定済みの system プロンプトは変えず、入力側で一文だけ渡す）
+ORGANIC_PREMISE = "（短尺動画。この人がふだん使う短尺動画アプリ（TikTok・リール・ショート）のおすすめで、この動画を見た前提で判断する）"
+
+
+def creatives_text(plan_id: str, ids: list[str], kinds: dict[tuple[str, str], str]) -> str:
+    """広告だけの案は従来どおり「a1、a2、a3」（固定時と同じ入力）。オーガニック動画には前提の一文を付ける。"""
+    parts = []
+    for cid in ids:
+        parts.append(cid + ORGANIC_PREMISE if kinds.get((plan_id, cid)) == "organic_video" else cid)
+    return "、".join(parts) or "なし"
+
+
 def build_jobs(app: c.App, people: list[dict], personas: dict[str, dict],
                plans: list[str] | None = None) -> list[c.Job]:
     system = c.load_prompt("decide_system.md")
@@ -134,8 +146,10 @@ def build_jobs(app: c.App, people: list[dict], personas: dict[str, dict],
     prefix = c.app_context_blocks(app, cache="1h", include_plans=False)
     gates = _gates_text(app)
     creatives_by_plan: dict[str, list[str]] = defaultdict(list)
-    for plan_id, cid, _ in app.creatives():
+    kinds: dict[tuple[str, str], str] = {}
+    for plan_id, cid, _, kind in app.creative_items():
         creatives_by_plan[plan_id].append(cid)
+        kinds[(plan_id, cid)] = kind
     n_steps_by_plan = {pid: len(creatives_by_plan[pid]) + len(app.steps()) for pid in app.plans()}
 
     jobs = []
@@ -151,7 +165,8 @@ def build_jobs(app: c.App, people: list[dict], personas: dict[str, dict],
                 attrs=c.attrs_line_ja(row, exclude=c.ENGINE_HANDLED_ATTRS) or "（属性なし）",
                 persona=p.get("persona_ja", "（なし。属性から考える）"),
                 interest=p.get("interest", p.get("category_interest", "不明")),
-                plan=plan_id, creatives="、".join(creatives_by_plan[plan_id]) or "なし", gates=gates, **pt,
+                plan=plan_id, creatives=creatives_text(plan_id, creatives_by_plan[plan_id], kinds),
+                gates=gates, **pt,
             )
             request = {
                 "model": c.MODEL_DECIDE,
@@ -249,7 +264,8 @@ def summarize(details: list[dict], expected_rows: int, skipped_people: int) -> d
 
 
 def build(app: c.App, people: list[dict], ctx: c.RunContext, skipped_people: int = 0,
-          limit: int | None = None, plans: list[str] | None = None) -> list[dict] | None:
+          limit: int | None = None, plans: list[str] | None = None, merge: bool = False) -> list[dict] | None:
+    """merge=True のときは既存の decisions_detail.json を読み、今回実行した案の行だけ置き換える（他の案は残す）。"""
     personas = load_personas(ctx.out_dir)
     jobs = build_jobs(app, people, personas, plans)
     if limit:
@@ -264,6 +280,17 @@ def build(app: c.App, people: list[dict], ctx: c.RunContext, skipped_people: int
         r = res.get(j.key)
         if r:
             details.extend(flatten(j, r["output"], r["model"], app))
+    if merge:
+        run_plans = set(plans) if plans else set(app.plans())
+        prev_path = ctx.out_dir / "decisions_detail.json"
+        if prev_path.exists():
+            kept = [d for d in c.read_json(prev_path) if d["plan"] not in run_plans]
+            print(f"merge: 既存の {len(kept)} 行（{sorted({d['plan'] for d in kept})}案）を残し、"
+                  f"{sorted(run_plans)}案を置き換えます")
+            details.extend(kept)
+            expected += len(kept)
+        else:
+            print("merge: 既存の decisions_detail.json がないので、今回の結果だけを書きます")
     details.sort(key=step_sort_key)
     decisions = [{k: d[k] for k in CONTRACT_KEYS} for d in details]
     summary = summarize(details, expected, skipped_people)
@@ -322,6 +349,8 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--plans", default=None, help="カンマ区切りで案を絞る（例: A）")
     ap.add_argument("--target-of", default=None, metavar="PLAN",
                     help="その案のターゲット（年齢・性別）に入る人だけを対象にする（測定用）")
+    ap.add_argument("--merge", action="store_true",
+                    help="既存の decisions*.json の他の案の行を残し、今回の案だけ置き換える")
     ap.add_argument("--recognition-check", type=int, default=0, metavar="N",
                     help="判断の代わりに「このアプリが何か分かるか」を N 回だけ聞く")
     args = ap.parse_args(argv)
@@ -342,7 +371,7 @@ def main(argv: list[str] | None = None) -> None:
     plans = args.plans.split(",") if args.plans else None
     n_plans = len(plans) if plans else len(app.plans())
     print(f"対象: {len(people)} 人 × {n_plans} 案（最低年齢未満・スマホなしで対象外: {skipped} 人）")
-    build(app, people, ctx, skipped, limit=args.limit, plans=plans)
+    build(app, people, ctx, skipped, limit=args.limit, plans=plans, merge=args.merge)
 
 
 if __name__ == "__main__":

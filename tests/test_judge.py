@@ -310,3 +310,64 @@ def test_skew_warnings_are_symmetric():
 def test_decide_rules_are_symmetric():
     text = c.load_prompt("decide_system.md")
     assert "同じ強さの根拠" in text and "higher も lower もしません" in text
+
+
+def organic_app(tmp_path) -> c.App:
+    """B案を「広告なし・オーガニック動画 v1, v2」に変えた仮アプリ。"""
+    import yaml
+    data = yaml.safe_load(APP.read_text(encoding="utf-8"))
+    data["plans"]["B"]["creatives"] = []
+    data["plans"]["B"]["channels"] = {}
+    data["plans"]["B"]["organic_video"] = {"creative_ids": ["v1", "v2"]}
+    d = tmp_path / "app"
+    shutil.copytree(APP.parent, d)
+    shutil.copy(FIX / "app" / "ads" / "b1.png", d / "ads" / "v1.png")  # v2 は画像なし
+    (d / "app.yaml").write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    return c.load_app(d / "app.yaml")
+
+
+def test_organic_video_creatives_are_judged_for_install(tmp_path):
+    app = organic_app(tmp_path)
+    assert [(p, cid, k) for p, cid, _, k in app.creative_items()] == [
+        ("A", "a1", "ad"), ("B", "v1", "organic_video"), ("B", "v2", "organic_video")]
+    people, skipped = people_for(app)
+    ctx = ctx_for(tmp_path)
+    data = decide.build(app, people, ctx, skipped)
+    b_install = {d["creative"] for d in data if d["plan"] == "B" and d["step"] == "install"}
+    assert b_install == {"v1", "v2"}
+    jobs = decide.build_jobs(app, people[:1], {})
+    tail_b = next(j for j in jobs if j.meta["plan"] == "B").request["messages"][0]["content"][-1]["text"]
+    tail_a = next(j for j in jobs if j.meta["plan"] == "A").request["messages"][0]["content"][-1]["text"]
+    assert "短尺動画アプリ" in tail_b and "短尺動画アプリ" not in tail_a
+    prefix = "".join(b.get("text", "") for b in jobs[0].request["messages"][0]["content"][:-1])
+    assert "短尺動画 v1" in prefix and "短尺動画 v2（B案のオーガニック投稿。動画の絵コンテ見本）: 画像なし" in prefix
+    assert set(decide.decision_schema(app)["properties"]["install"]["items"]["properties"]["creative"]["enum"]) == {"a1", "v1", "v2"}
+
+
+def test_ad_only_plan_input_is_unchanged():
+    # 広告だけの案の入力は固定時と同じ（オーガニック対応で A案のリクエストが変わらない）
+    app = c.load_app(APP)
+    assert decide.creatives_text("A", ["a1", "a2"], {("A", "a1"): "ad", ("A", "a2"): "ad"}) == "a1、a2"
+
+
+def test_merge_replaces_only_the_plans_run(tmp_path):
+    app = c.load_app(APP)
+    people, skipped = people_for(app)
+    ctx = ctx_for(tmp_path)
+    decide.build(app, people, ctx, skipped, plans=["A"])
+    a_rows = json.loads((ctx.out_dir / "decisions_detail.json").read_text(encoding="utf-8"))
+    assert {d["plan"] for d in a_rows} == {"A"}
+    decide.build(app, people, ctx, skipped, plans=["B"], merge=True)
+    rows = json.loads((ctx.out_dir / "decisions.json").read_text(encoding="utf-8"))
+    detail = json.loads((ctx.out_dir / "decisions_detail.json").read_text(encoding="utf-8"))
+    assert {d["plan"] for d in rows} == {"A", "B"}
+    assert [d for d in detail if d["plan"] == "A"] == a_rows  # A案はそのまま残る
+    summary = json.loads((ctx.out_dir / "decisions_summary.json").read_text(encoding="utf-8"))
+    assert summary["rows"] == len(rows) and any(k.startswith("A|") for k in summary["by_group"])
+    assert any(k.startswith("B|") for k in summary["by_group"])
+    # B案をもう一度 merge しても行は増えない（置き換え）
+    decide.build(app, people, ctx, skipped, plans=["B"], merge=True)
+    assert len(json.loads((ctx.out_dir / "decisions.json").read_text(encoding="utf-8"))) == len(rows)
+    # merge なしで B案だけ回すと A案は消える（従来どおり）
+    decide.build(app, people, ctx, skipped, plans=["B"])
+    assert {d["plan"] for d in json.loads((ctx.out_dir / "decisions.json").read_text(encoding="utf-8"))} == {"B"}

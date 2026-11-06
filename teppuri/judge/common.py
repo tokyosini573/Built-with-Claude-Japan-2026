@@ -106,11 +106,25 @@ class App:
         return self.data.get("plans", {})
 
     def creatives(self) -> list[tuple[str, str, Path]]:
-        """(plan, creative_id, path) の一覧。creative_id はファイル名の拡張子なし（契約 §3 の例 "a1"）。"""
+        """(plan, creative_id, path) の一覧。creative_id はファイル名の拡張子なし（契約 §3 の例 "a1"）。
+
+        広告（plan.creatives）に加え、オーガニック動画（plan.organic_video.creative_ids）も含む。
+        動画の見本画像は organic_video.images があればそれ、なければ ads/<id>.png。
+        """
+        return [(p, cid, path) for p, cid, path, _ in self.creative_items()]
+
+    def creative_items(self) -> list[tuple[str, str, Path, str]]:
+        """(plan, creative_id, path, kind)。kind は "ad"（広告）か "organic_video"（オーガニックの短尺動画）。"""
         out = []
         for plan_id, plan in self.plans().items():
             for c in plan.get("creatives", []) or []:
-                out.append((plan_id, Path(c).stem, self.base_dir / c))
+                out.append((plan_id, Path(c).stem, self.base_dir / c, "ad"))
+            ov = plan.get("organic_video") or {}
+            ids = ov.get("creative_ids", []) or []
+            images = ov.get("images", []) or []
+            for i, cid in enumerate(ids):
+                img = images[i] if i < len(images) else f"ads/{cid}.png"
+                out.append((plan_id, str(cid), self.base_dir / img, "organic_video"))
         return out
 
     def steps(self) -> list[str]:
@@ -713,12 +727,14 @@ def app_context_blocks(app: App, cache: str | None = "1h", include_plans: bool =
             blocks.append(image_block(path))
         else:
             blocks.append(text_block(f"画面 {i:02d}（{path.name}）: 画像なし"))
-    for plan_id, cid, path in app.creatives():
+    for plan_id, cid, path, kind in app.creative_items():
+        label = (f"広告 {cid}（{plan_id}案の広告素材）" if kind == "ad"
+                 else f"短尺動画 {cid}（{plan_id}案のオーガニック投稿。動画の絵コンテ見本）")
         if path.exists():
-            blocks.append(text_block(f"広告 {cid}（{plan_id}案の広告素材）"))
+            blocks.append(text_block(label))
             blocks.append(image_block(path))
         else:
-            blocks.append(text_block(f"広告 {cid}（{plan_id}案の広告素材）: 画像なし。アプリの説明と案の条件から想像する"))
+            blocks.append(text_block(f"{label}: 画像なし。アプリの説明と案の条件から想像する"))
     if cache:
         last = blocks[-1]
         last["cache_control"] = {"type": "ephemeral", "ttl": "1h"} if cache == "1h" else {"type": "ephemeral"}

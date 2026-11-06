@@ -35,13 +35,20 @@ plans:
       x: 1000000          # 拡散の起点として補助的に。CTR が低めなので少なめ
     creatives: [ads/a1.png, ads/a2.png, ads/a3.png]   # a1: TikTok 縦 / a2: Instagram ストーリーズ / a3: X 縦
   B:
-    # 首都圏（東京・神奈川・埼玉・千葉）に絞り、電車広告を軸にする案
-    regions: [13, 14, 11, 12]
+    # 広告費を払わず、AI 動画生成で短尺動画を作り、自社アカウントから毎日投稿する案（2026-11-06 ユーザー決定）
+    # 12d263a のルール固定の後に追加したチャネル。バックテストでは未検証。値は rules/organic_video.yaml
+    regions: []                     # 全国（動画は地域を絞れない）
     period_days: 90
-    campaign_days: 30
-    target: {age: [20, 34], sex: any}
-    channels:
-      transit: 2500000    # 首都圏は鉄道の通勤・通学が多く、毎日同じ路線で繰り返し見てもらえる。年齢では絞れない
-      instagram: 1500000  # 電車で見た人がSNSでも見かけるように、同じ地域の20〜34歳へ
-      x: 1000000          # 首都圏内の拡散の起点として
-    creatives: [ads/b1.png, ads/b2.png, ads/b3.png]   # b1: 中づり / b2: 車内ビジョン / b3: Instagram フィード
+    campaign_days: 50
+    target: {age: [20, 34], sex: any}   # 広告のターゲット指定は無い。比較のため A と同じ表記
+    channels: {}
+    creatives: []
+    organic_video:
+      platforms: [tiktok, instagram, youtube]   # TikTok・リール・ショート
+      accounts: 10
+      posts_per_account_per_day: 1
+      start_day: 1
+      days: 50
+      unique_videos_per_account: true           # アカウントごとに別の動画（規約上、同じ動画の使い回しは推薦されにくい）
+      cost_per_video_jpy: 1050                  # 調査の AI 動画 1本の mid（$7、1ドル=150円）。10 × 50 = 500本 = 52.5万円
+      creative_ids: [v1, v2, v3]                # 動画の見本（絵コンテ）: ads/v1〜v3.png
