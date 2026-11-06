@@ -1,0 +1,43 @@
+# バックテスト case_04: 月額制ファッションレンタル（女性向け）
+# 入力の出どころ: 03_조사/backtest/cases_inputs.md の case_04 だけ。変化後の結果は使っていない。
+# シミュレーションの日: 1日目 = 2024-07-01、184日目 = 2024-12-31（backtest/questions.yaml の cases.case_04）。
+app_id: bt_case_04
+name_ja: 事例04（匿名）
+title_ja: 月額制ファッションレンタル（女性向け）   # 画面に出す匿名の事例名（エンジン・判断は読まない）
+preset: subscription        # cases_inputs case_04「プリセット subscription」確認済み
+min_age: 18                 # 推定、根拠: cases_inputs case_04 に記載なし。月額契約とクレジットカード登録のため
+description_ja: >-
+  スタイリストが選んだ服が毎月届く、働く女性向けの月額制ファッションレンタル。アプリで好みを登録し、
+  届いた服を返却・交換して使う。
+screens: []
+gates:
+  # 推定、根拠: cases_inputs case_04「関門 会員登録時にスタイル診断（質問回答）と決済登録（推定）」
+  - id: style_quiz
+    name_ja: スタイル診断と決済登録
+    docs_ja: 好みの質問への回答とクレジットカード
+    review_hours: 0
+pricing:
+  # cases_inputs case_04「ライト 7,800円 / レギュラー 10,800円 / ライトプラス 13,800円」（確認済み）。
+  # エンジンは1つの価格なので中間のレギュラーを使う（推定、根拠: 3プランの中央）
+  monthly_jpy: 10800
+  free_trial_days: 0        # cases_inputs case_04「無料体験 なし」
+plans:
+  A:
+    regions: []             # 全国（確認済み）
+    period_days: 184
+    target: {age: [20, 49], sex: female}   # cases_inputs case_04「20〜40代の働く女性」確認済み
+    # 広告費: cases_inputs case_04「全社広告宣伝費 7〜9月 1.62億円 → 10〜12月 1.98億円」（確認済み）。
+    # 全社の費用をすべてこのサービスに使ったとみなす（推定、根拠: 内訳の公開なし）。配分は全事例共通の既定。
+    #   根拠: cases_inputs case_04「Instagram などの SNS 広告、Web 広告、提携企業経由、体験店舗（推定）」
+    campaign_days: 92
+    channels: {instagram: 48600000, youtube: 48600000, x: 32400000, line: 32400000}
+    initial_state:
+      payers: 37802         # cases_inputs case_04「月額会員数 2024年6月末 37,802人」確認済み
+      active: 37802         # 推定、根拠: 有料のみのサービス → 全事例共通の規則 active = payers
+      as_of_day_since_launch: 1825   # 推定、根拠: 開始日の記載なし → 全事例共通の既定 1,825日
+    changes:
+      # 新規だけの値上げ: cases_inputs case_04「2024年9月2日以降の新規登録者: レギュラー 10,980円。既存会員は旧料金のまま」→ 64日目
+      - {day: 64, pricing: {monthly_jpy: 10980}, applies_to: new}
+      # 10〜12月（93〜184日目）: 1.98億円（確認済み）
+      - {day: 93, campaign_days: 92, channels: {instagram: 59400000, youtube: 59400000, x: 39600000, line: 39600000}}
+# エンジン外: 季節性（春が需要期）、期間限定の体験店舗（2024年秋、東京）、初月割引キャンペーン

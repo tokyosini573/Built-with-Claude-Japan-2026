@@ -1,0 +1,41 @@
+# バックテスト case_05: 動画コミュニティサービスのプレミアム会員
+# 入力の出どころ: 03_조사/backtest/cases_inputs.md の case_05 だけ。変化後の結果は使っていない。
+# シミュレーションの日: 1日目 = 2023-10-01、183日目 = 2024-03-31（backtest/questions.yaml の cases.case_05）。
+app_id: bt_case_05
+name_ja: 事例05（匿名）
+title_ja: 動画コミュニティサービスのプレミアム会員   # 画面に出す匿名の事例名（エンジン・判断は読まない）
+preset: subscription        # cases_inputs case_05「プリセット subscription（動画）」確認済み
+min_age: 15                 # 推定、根拠: cases_inputs case_05「10〜30代中心」。人口の下限 15歳
+description_ja: >-
+  動画を投稿し、再生中の画面にコメントを流しながら一緒に見る動画コミュニティサービス。基本無料で、
+  月額のプレミアム会員になると高画質・優先視聴などが使える。
+screens: []
+gates: []                   # cases_inputs case_05「関門 なし」確認済み
+pricing:
+  # cases_inputs case_05「Web 決済 月額 550円 / アプリ内課金 月額 720円」（確認済み）。
+  # エンジンは1つの価格なので Web 決済の価格を使う（推定、根拠: 料金改定の対象が Web・アプリの両方で、内訳の公開なし。Web を代表とした）
+  monthly_jpy: 550
+  free_trial_days: 0        # cases_inputs case_05「無料体験 なし（推定）」
+plans:
+  A:
+    regions: []             # 全国（確認済み）
+    period_days: 183
+    target: {age: [15, 39], sex: any}   # 推定、根拠: cases_inputs case_05「10〜30代中心（推定）」
+    # 広告費: 公開なし。期間中ずっと同じ水準とする。
+    # 推定、根拠: 全事例共通の規則「変化前の四半期売上の10%を毎四半期」。四半期売上は公開なし →
+    #   決済者 128万人 × 550円 × 3か月 = 21.12億円 → 10% = 2.112億円/四半期。183日分 ≒ 2.112億円 × 183 / 91.25 ≒ 4.236億円。
+    # 配分は推定、根拠: cases_inputs case_05「自然流入・SNS（X 中心）、自社イベント」→ x 50% / youtube 25% / instagram 25%
+    campaign_days: 183
+    channels: {x: 211800000, youtube: 105900000, instagram: 105900000}
+    initial_state:
+      payers: 1280000       # cases_inputs case_05「プレミアム会員数 2023年9月末 128万人」確認済み
+      # 推定、根拠: 無料会員を含む利用者数の公開なし → 全事例共通の規則「基本無料で active 非公開なら決済者の3倍」
+      active: 3840000
+      # 推定、根拠: cases_inputs case_05「2007年の有料プラン導入以来」→ 2023年10月まで約16年 ≒ 5,900日
+      as_of_day_since_launch: 5900
+    changes:
+      # 値上げ: cases_inputs case_05「2024年3月1日から Web 決済 月額 790円 / 年額 7,900円」（確認済み）→ 153日目。
+      # 既存会員にも適用（applies_to: all。エンジンは次の更新日から当てる）
+      - {day: 153, pricing: {monthly_jpy: 790}, applies_to: all}
+# エンジン外: アプリ内課金の新規 990円（2024年1月31日から）、2024年2〜4月の毎月 200ポイント配布、
+#   2023年12月4日の改定発表、2023年6月末 130万人 → 9月末 128万人 という変化前の減少傾向（1日目の状態だけを入れている）

@@ -1,0 +1,51 @@
+# バックテスト case_06: マンガアプリ（無料話＋コイン課金＋広告）
+# 入力の出どころ: 03_조사/backtest/cases_inputs.md の case_06 だけ。変化後の結果は使っていない。
+# シミュレーションの日: 1日目 = 2021-01-01、638日目 = 2022-09-30（backtest/questions.yaml の cases.case_06）。
+app_id: bt_case_06
+name_ja: 事例06（匿名）
+title_ja: マンガアプリ（無料話＋コイン課金＋広告）   # 画面に出す匿名の事例名（エンジン・判断は読まない）
+# cases_inputs case_06「subscription（コンテンツ。課金は月額ではなくコイン都度課金。最も近いプリセットとして選ぶ）」
+# 注意: コインの都度課金を「月額の継続課金」として近似する。決済後の継続はサブスクの継続率になる
+preset: subscription
+min_age: 15                 # 推定、根拠: cases_inputs case_06 に記載なし。人口の下限 15歳
+description_ja: >-
+  毎日一定の話数を無料で読めて、続きをコインで買って読むマンガアプリ。アプリ内広告もある。
+screens: []
+gates: []                   # cases_inputs case_06「関門 なし」確認済み
+pricing:
+  # 推定、根拠: cases_inputs case_06「コイン都度課金（単価は不明）」。課金者1人あたり月 1,500円とした（公開値なし）。
+  # 価格は期間中変わらないので、この値は売上の水準と価格弾力性の基準との比にだけ効く
+  monthly_jpy: 1500
+  free_trial_days: 0        # 「毎日一定話数が無料」は無料体験ではなく常時無料なので 0
+plans:
+  A:
+    regions: []             # 全国（確認済み）
+    period_days: 638
+    target: {age: [20, 49], sex: any}   # 推定、根拠: cases_inputs case_06「20〜40代男女（推定）」
+    # 広告費: cases_inputs case_06 の四半期の広告宣伝費（確認済み）。
+    # 配分は推定、根拠: cases_inputs case_06「アプリ広告（Instagram・X・TikTok・YouTube・アドネットワーク）」→ 4つに均等 25%。
+    #   アドネットワークはエンジンにないので4つで代用
+    # 2021年1〜3月（1〜90日目）: 3.69億円
+    campaign_days: 90
+    channels: {instagram: 92250000, x: 92250000, tiktok: 92250000, youtube: 92250000}
+    initial_state:
+      # 推定、根拠: 決済者数の公開なし。2021年1〜3月の売上 17.56億円（確認済み）÷ 3か月 ÷ 1,500円 ≒ 39.0万人。
+      #   売上にはアプリ内広告の収益も含まれるので多めの見積もり
+      payers: 390000
+      # 推定、根拠: 全事例共通の規則「基本無料で active 非公開なら決済者の3倍」
+      active: 1170000
+      as_of_day_since_launch: 1825   # 推定、根拠: 開始日の記載なし → 全事例共通の既定 1,825日
+    changes:
+      # 2021年4〜6月（91〜181日目）: 5.35億円
+      - {day: 91, campaign_days: 91, channels: {instagram: 133750000, x: 133750000, tiktok: 133750000, youtube: 133750000}}
+      # 2021年7〜9月（182〜273日目）: 7.60億円
+      - {day: 182, campaign_days: 92, channels: {instagram: 190000000, x: 190000000, tiktok: 190000000, youtube: 190000000}}
+      # 2021年10〜12月（274〜365日目）: 4.81億円
+      - {day: 274, campaign_days: 92, channels: {instagram: 120250000, x: 120250000, tiktok: 120250000, youtube: 120250000}}
+      # 2022年1〜3月（366〜455日目）: 5.41億円
+      - {day: 366, campaign_days: 90, channels: {instagram: 135250000, x: 135250000, tiktok: 135250000, youtube: 135250000}}
+      # 2022年4〜6月（456〜546日目）: 4.56億円
+      - {day: 456, campaign_days: 91, channels: {instagram: 114000000, x: 114000000, tiktok: 114000000, youtube: 114000000}}
+      # 2022年7〜9月（547〜638日目）: 2.99億円
+      - {day: 547, campaign_days: 92, channels: {instagram: 74750000, x: 74750000, tiktok: 74750000, youtube: 74750000}}
+# エンジン外: アプリ内広告の収益、海賊版サイトの拡大、競合の増加、2022年のインフレ、「獲得効率重視」への方針変更（2022年7〜9月）

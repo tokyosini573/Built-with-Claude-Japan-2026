@@ -1,0 +1,194 @@
+# バックテストの質問（機械可読）。文は 03_조사/backtest/cases_inputs.md の質問をそのまま写した。
+#
+# 判定: 回ごとに「区間 B の値」と「区間 A の値」を比べ、direction が greater なら B > A（厳密）、less なら B < A のとき「はい」。
+#       30回のうち「はい」になった回の割合を、その質問の「はい」の確率とする。
+# metric:
+#   revenue_jpy  … daily.revenue_jpy（その日の売上）
+#   paying       … daily.paying（その日に払い続けている人数 = 有料会員数・定期購入者数。daily.payers は新規だけなので使わない）
+#   active       … daily.active（その日に使っている人数）
+#   arpu         … 区間の売上合計 ÷ 区間の paying の平均（月の区間なら「1人あたり月額単価」）
+# how:
+#   sum   … 区間の合計（四半期の売上）
+#   last  … 区間の最終日の値（期末の会員数。1日だけの区間 [d, d] で書く）
+#   delta … 区間の最終日の値 − 区間の開始の前日の値（純増減。開始が1日目なら1日目の値を前日の代わりに使う）
+#   ratio … arpu 専用
+# 日は 1 始まりで両端を含む。dates は確認用で、run.py が cases.<id>.day1 から日を計算して days と一致するか検査する。
+# change_between: 区間 A から区間 B までの間に入った運営側の変化（素朴な基準が使う）。price_up / ad_down / ad_up。
+#
+# 「6月末」「9月末」のような期末は、その日の paying で表す。シミュレーションの開始前日（1日目の前）の期末は
+# 1日目の値で代用する（initial_state の決済者は1日目にそのまま入っている）。
+
+cases:
+  case_01: {day1: "2024-03-01", horizon: 365}
+  case_02: {day1: "2025-03-01", horizon: 275}
+  case_03: {day1: "2022-07-01", horizon: 396}
+  case_04: {day1: "2024-07-01", horizon: 184}
+  case_05: {day1: "2023-10-01", horizon: 183}
+  case_06: {day1: "2021-01-01", horizon: 638}
+
+questions:
+  # --- case_01 完全栄養食の定期購入 D2C -------------------------------------
+  - id: case_01_Q1
+    case: case_01
+    text_ja: 値上げ後の最初の四半期（2024年9〜11月）の自社 EC 売上は、直前の四半期（2024年6〜8月）より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [93, 184], dates: ["2024-06-01", "2024-08-31"]}
+    b: {days: [185, 275], dates: ["2024-09-01", "2024-11-30"]}
+    direction: greater
+    change_between: [price_up, ad_down]
+  - id: case_01_Q2
+    case: case_01
+    text_ja: 2024年11月末の定期購入者数は、2024年8月末より多いか
+    metric: paying
+    how: last
+    a: {days: [184, 184], dates: ["2024-08-31", "2024-08-31"]}
+    b: {days: [275, 275], dates: ["2024-11-30", "2024-11-30"]}
+    direction: greater
+    change_between: [price_up, ad_down]   # 値上げは8月上旬で区間 A の前だが、既存の定期顧客への適用と広告減は A〜B の間
+  - id: case_01_Q3
+    case: case_01
+    text_ja: 値上げ後2つ目の四半期（2024年12月〜2025年2月）の自社 EC 売上は、値上げ前の四半期（2024年3〜5月）より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [1, 92], dates: ["2024-03-01", "2024-05-31"]}
+    b: {days: [276, 365], dates: ["2024-12-01", "2025-02-28"]}
+    direction: greater
+    change_between: [price_up, ad_down]
+  - id: case_01_Q4
+    case: case_01
+    text_ja: 2024年12月〜2025年2月の自社 EC 売上は、直前の四半期（2024年9〜11月）より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [185, 275], dates: ["2024-09-01", "2024-11-30"]}
+    b: {days: [276, 365], dates: ["2024-12-01", "2025-02-28"]}
+    direction: greater
+    change_between: []   # 12〜2月の広告費は公開なし。入力では 9〜11月と同じとした（推定）ので変化なし
+
+  # --- case_02 家計簿・資産管理アプリ -------------------------------------
+  - id: case_02_Q1
+    case: case_02
+    text_ja: 料金改定を含む四半期の末（2025年8月末）のプレミアム課金ユーザー数は、改定前（2025年5月末）より多いか
+    metric: paying
+    how: last
+    a: {days: [92, 92], dates: ["2025-05-31", "2025-05-31"]}
+    b: {days: [184, 184], dates: ["2025-08-31", "2025-08-31"]}
+    direction: greater
+    change_between: [price_up]
+  - id: case_02_Q2
+    case: case_02
+    text_ja: 改定後最初の完全な四半期の末（2025年11月末）のプレミアム課金ユーザー数は、改定前（2025年5月末）より多いか
+    metric: paying
+    how: last
+    a: {days: [92, 92], dates: ["2025-05-31", "2025-05-31"]}
+    b: {days: [275, 275], dates: ["2025-11-30", "2025-11-30"]}
+    direction: greater
+    change_between: [price_up]
+  - id: case_02_Q3
+    case: case_02
+    text_ja: 2025年9〜11月のプレミアム課金収入は、改定前の2025年3〜5月より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [1, 92], dates: ["2025-03-01", "2025-05-31"]}
+    b: {days: [185, 275], dates: ["2025-09-01", "2025-11-30"]}
+    direction: greater
+    change_between: [price_up]
+
+  # --- case_03 オンライン英会話 -------------------------------------------
+  - id: case_03_Q1
+    case: case_03
+    text_ja: 値上げを始めた四半期（2022年10〜12月）の個人向け売上は、直前の四半期（2022年7〜9月）より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [1, 92], dates: ["2022-07-01", "2022-09-30"]}
+    b: {days: [93, 184], dates: ["2022-10-01", "2022-12-31"]}
+    direction: greater
+    change_between: [price_up]
+  - id: case_03_Q2
+    case: case_03
+    text_ja: 既存会員の移行が進んだ2023年1〜3月の個人向け売上は、値上げ前の2022年7〜9月より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [1, 92], dates: ["2022-07-01", "2022-09-30"]}
+    b: {days: [185, 274], dates: ["2023-01-01", "2023-03-31"]}
+    direction: greater
+    change_between: [price_up]
+  - id: case_03_Q3
+    case: case_03
+    text_ja: 2023年7月の個人向け会員1人あたり月額単価は、2022年7月より高いか
+    metric: arpu
+    how: ratio
+    a: {days: [1, 31], dates: ["2022-07-01", "2022-07-31"]}
+    b: {days: [366, 396], dates: ["2023-07-01", "2023-07-31"]}
+    direction: greater
+    change_between: [price_up]
+
+  # --- case_04 月額制ファッションレンタル ---------------------------------
+  - id: case_04_Q1
+    case: case_04
+    text_ja: 改定を含む四半期の末（2024年9月末）の月額会員数は、2024年6月末より多いか
+    metric: paying         # 「月額会員数」= 月額を払っている人数
+    how: last
+    a: {days: [1, 1], dates: ["2024-07-01", "2024-07-01"]}     # 6月末 → 1日目で代用
+    b: {days: [92, 92], dates: ["2024-09-30", "2024-09-30"]}
+    direction: greater
+    change_between: [price_up, ad_down]   # 広告費 4〜6月 2.33億円 → 7〜9月 1.62億円（cases_inputs、確認済み）
+  - id: case_04_Q2
+    case: case_04
+    text_ja: 2024年12月末の月額会員数は、2024年6月末より多いか
+    metric: paying
+    how: last
+    a: {days: [1, 1], dates: ["2024-07-01", "2024-07-01"]}
+    b: {days: [184, 184], dates: ["2024-12-31", "2024-12-31"]}
+    direction: greater
+    change_between: [price_up, ad_down]   # 7〜12月の四半期平均 1.80億円 < 4〜6月 2.33億円
+
+  # --- case_05 動画コミュニティのプレミアム会員 ---------------------------
+  - id: case_05_Q1
+    case: case_05
+    text_ja: 料金改定月を含む四半期の末（2024年3月末）のプレミアム会員数は、2023年12月末より多いか
+    metric: paying
+    how: last
+    a: {days: [92, 92], dates: ["2023-12-31", "2023-12-31"]}
+    b: {days: [183, 183], dates: ["2024-03-31", "2024-03-31"]}
+    direction: greater
+    change_between: [price_up]
+  - id: case_05_Q2
+    case: case_05
+    text_ja: 2024年1〜3月のプレミアム会員の純減数は、直前の四半期（2023年10〜12月）の純減数より大きいか
+    # 純減数 = −(純増減)。「B の純減 > A の純減」⇔「B の純増減 < A の純増減」なので direction: less
+    metric: paying
+    how: delta
+    a: {days: [1, 92], dates: ["2023-10-01", "2023-12-31"]}
+    b: {days: [93, 183], dates: ["2024-01-01", "2024-03-31"]}
+    direction: less
+    change_between: [price_up]
+
+  # --- case_06 マンガアプリ ------------------------------------------------
+  - id: case_06_Q1
+    case: case_06
+    text_ja: 広告宣伝費を前四半期の約1.45倍に増やした2021年4〜6月の売上は、1〜3月より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [1, 90], dates: ["2021-01-01", "2021-03-31"]}
+    b: {days: [91, 181], dates: ["2021-04-01", "2021-06-30"]}
+    direction: greater
+    change_between: [ad_up]
+  - id: case_06_Q2
+    case: case_06
+    text_ja: 広告宣伝費を前四半期から約37%減らした2021年10〜12月の売上は、7〜9月より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [182, 273], dates: ["2021-07-01", "2021-09-30"]}
+    b: {days: [274, 365], dates: ["2021-10-01", "2021-12-31"]}
+    direction: greater
+    change_between: [ad_down]
+  - id: case_06_Q3
+    case: case_06
+    text_ja: 広告宣伝費を前四半期から約34%減らした2022年7〜9月の売上は、4〜6月より多いか
+    metric: revenue_jpy
+    how: sum
+    a: {days: [456, 546], dates: ["2022-04-01", "2022-06-30"]}
+    b: {days: [547, 638], dates: ["2022-07-01", "2022-09-30"]}
+    direction: greater
+    change_between: [ad_down]

@@ -1,0 +1,50 @@
+# バックテスト case_01: 完全栄養食の定期購入 D2C（自社 EC・アプリ）
+# 入力の出どころ: 03_조사/backtest/cases_inputs.md の case_01 だけ。変化後の結果は使っていない。
+# シミュレーションの日: 1日目 = 2024-03-01、365日目 = 2025-02-28（backtest/questions.yaml の cases.case_01）。
+# 「推定」と書いた値は公開値がなく、ここで決めたもの。根拠を必ず併記する。
+app_id: bt_case_01
+name_ja: 事例01（匿名）
+title_ja: 完全栄養食の定期購入 D2C（自社 EC・アプリ）   # 画面に出す匿名の事例名（エンジン・判断は読まない）
+preset: shopping            # cases_inputs case_01「プリセット shopping（確認済み、業態）」
+min_age: 18                 # 推定、根拠: cases_inputs case_01 に年齢制限の記載なし。EC の会員登録の一般的な下限
+description_ja: >-
+  パン・クッキー・パスタなどの「完全栄養食」を、自社の EC サイトとアプリで定期購入（継続コース）として売る食品の通販。
+  会員登録して決済するだけで使える。商品は常温・冷凍で全国に配送する。
+screens: []
+gates: []                   # cases_inputs case_01「関門 なし（会員登録と決済のみ）」確認済み
+pricing:
+  # 推定、根拠: cases_inputs case_01「定期顧客の月間平均購買額 3〜5月 約5,300円」と「再購入周期は月1回前後」から、
+  # 1回の注文額 = 月間平均購買額とした（エンジンの再購入周期は rules の値を使うので、売上の水準だけが変わる。方向には効かない）
+  order_jpy: 5300
+  free_trial_days: 0        # cases_inputs case_01「無料体験 なし（推定）」
+plans:
+  A:
+    regions: []             # 全国（cases_inputs case_01「地域 全国（配送）」確認済み）
+    period_days: 365
+    target: {age: [20, 49], sex: any}   # 推定、根拠: cases_inputs case_01「20〜40代中心の健康志向の会社員（推定）」
+    # 広告費（日本全体、円）。cases_inputs case_01 の「広告宣伝費・販売促進費 6〜8月 8.5億円 → 9〜11月 7.7億円」。
+    # 会社全体の費用を自社 EC の集客にすべて使ったとみなす（推定、根拠: 卸の費用内訳が公開されていない）。
+    # チャネルの配分は推定（全事例共通の既定配分 instagram 30% / youtube 30% / x 20% / line 20%）。
+    #   根拠: cases_inputs case_01「Instagram などの SNS 広告、Web 広告」。エンジンに「Web 広告」がないので youtube・line で代用。
+    # 3〜5月（1〜92日目）の広告費は公開なし → 推定、根拠: 直後の6〜8月と同じ 8.5億円とした
+    campaign_days: 92
+    channels: {instagram: 255000000, youtube: 255000000, x: 170000000, line: 170000000}
+    # 運営中のアプリから始める（日本全体の実人数）
+    initial_state:
+      # cases_inputs case_01「定期購入者数 2024年5月末 21.7万人」（確認済み）。5月末の値を1日目（3月1日）にも使う（推定）
+      payers: 217000
+      # 推定、根拠: 定期購入の EC で、使っている人 ≒ 定期購入者とした（全事例共通の規則: 有料のみのサービスは active = payers）
+      active: 217000
+      # 推定、根拠: cases_inputs に開始日の記載なし。上場企業の主力サービスで数年以上運営 → 全事例共通の既定 1,825日（5年）
+      as_of_day_since_launch: 1825
+    changes:
+      # 6〜8月（93〜184日目）: 8.5億円（確認済み）
+      - {day: 93, campaign_days: 92, channels: {instagram: 255000000, youtube: 255000000, x: 170000000, line: 170000000}}
+      # 値上げ: cases_inputs case_01「2024年8月上旬から主要商品を約10%値上げ。新規・既存の区別なく適用」
+      # 日付は推定、根拠: 「8月上旬」→ 8月1日（154日目）とした。5,300円 × 1.10 = 5,830円
+      - {day: 154, pricing: {order_jpy: 5830}, applies_to: all}
+      # 9〜11月（185〜275日目）: 7.7億円（確認済み）
+      - {day: 185, campaign_days: 91, channels: {instagram: 231000000, youtube: 231000000, x: 154000000, line: 154000000}}
+      # 12〜2月（276〜365日目）: 公開なし → 推定、根拠: 「段階的に減らした」ので 9〜11月と同じ 7.7億円のまま続けた
+      - {day: 276, campaign_days: 90, channels: {instagram: 231000000, youtube: 231000000, x: 154000000, line: 154000000}}
+# エンジン外（入力にできない）: 公式 EC の最低購入金額 2,600円、送料、新商品3種（9〜11月）、ポイント制度の刷新（8月）、店頭（卸）からの流入
