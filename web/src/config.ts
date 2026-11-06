@@ -43,7 +43,7 @@ export const METRIC_NAMES: Record<string, string> = {
 };
 
 /** 公開リポジトリ（DATA_SOURCES などへのリンク）。空なら画面内の全文表示だけ */
-export const REPO_URL = "";
+export const REPO_URL = "https://github.com/tokyosini573/Built-with-Claude-Japan-2026";
 
 /** バックテストの結果ファイル（public からの相対パス） */
 export const BACKTEST_PATH = "backtest.json";
