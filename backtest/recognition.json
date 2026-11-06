@@ -1,0 +1,189 @@
+{
+ "generated_at": "2026-11-06T16:29:39",
+ "trials": 3,
+ "model": "claude-haiku-5-5",
+ "rule_ja": "1回でも recognized: true と答えた事例を「分かった」とする",
+ "cases": {
+  "case_01": {
+   "app_id": "bt_case_01",
+   "recognized_any": false,
+   "trials": [
+    {
+     "trial": 1,
+     "recognized": false,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "説明文は「完全栄養食（パン・クッキー・パスタ）を自社ECとアプリで定期購入として販売する食品通販」という一般的な業態のみで、特定のブランド名・サービス名を示す情報がありません。app_idや名称も匿名化されており、実在のアプリを特定できる手がかりは見当たりません。対象年齢(20〜49歳)や媒体配分(Instagram・LINE・X・YouTube)、定期購入・全国配送といった要素は同種の食品通販に共通するもので、これだけでは特定のサービスとは結びつけられません。",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 2,
+     "recognized": false,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "提供された情報は、パン・クッキー・パスタなどの完全栄養食を定期購入で販売する食品通販という一般的な説明と、匿名化された事例名、年齢・予算・チャネル配分の設定のみです。特定の実在アプリや企業を示す固有名詞、ブランド名、画面、広告クリエイティブは含まれていないため、実在サービスと特定できる根拠はありません。",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 3,
+     "recognized": false,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "説明文はパン・クッキー・パスタなどの完全栄養食を自社ECとアプリで定期購入させる食品通販という一般的な内容で、特定の実在サービス名を示す固有の手がかりがありません。名称は匿名化され、ギャツ・デザインやクリエイティブも空のため、どの実在アプリかを特定できる根拠はありません。",
+     "model": "claude-haiku-5-5"
+    }
+   ]
+  },
+  "case_02": {
+   "app_id": "bt_case_02",
+   "recognized_any": true,
+   "trials": [
+    {
+     "trial": 1,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 2,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 3,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    }
+   ]
+  },
+  "case_03": {
+   "app_id": "bt_case_03",
+   "recognized_any": true,
+   "trials": [
+    {
+     "trial": 1,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 2,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 3,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    }
+   ]
+  },
+  "case_04": {
+   "app_id": "bt_case_04",
+   "recognized_any": true,
+   "trials": [
+    {
+     "trial": 1,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 2,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 3,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    }
+   ]
+  },
+  "case_05": {
+   "app_id": "bt_case_05",
+   "recognized_any": true,
+   "trials": [
+    {
+     "trial": 1,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 2,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "mid",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 3,
+     "recognized": true,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "high",
+     "clues_ja": "（実在のサービス名を含むため伏せた。原文は作者の手元に保存）",
+     "model": "claude-haiku-5-5"
+    }
+   ]
+  },
+  "case_06": {
+   "app_id": "bt_case_06",
+   "recognized_any": false,
+   "trials": [
+    {
+     "trial": 1,
+     "recognized": false,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "説明文は「毎日一定の話数を無料で読め、続きをコインで買うマンガアプリ、アプリ内広告あり」という一般的な特徴のみで、固有の名称や画面情報がない。このため特定の実在アプリを同定する手がかりは不足している。また課金形態の記載（月額1500円のサブスク、無料トライアルなし）は、この説明文から特定のサービスを絞り込める情報ではないと判断した。",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 2,
+     "recognized": false,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "説明文は『毎日一定の話数を無料で読め、続きをコインで買うマンガアプリ・アプリ内広告あり』という一般的なビジネスモデルの記述のみで、固有のサービス名や画面・デザインの情報がないため、特定の実在アプリとは判断できません。月額1500円のサブスク preset や4媒体への広告配信計画も、特定アプリを示す手がかりにはなりませんでした。",
+     "model": "claude-haiku-5-5"
+    },
+    {
+     "trial": 3,
+     "recognized": false,
+     "guess_ja": "（実在のサービス名のため伏せた）",
+     "confidence": "low",
+     "clues_ja": "提示された情報は「毎日一定話数を無料で読めて、続きをコインで買うマンガアプリ、アプリ内広告あり、月額1500円、名前は匿名」という一般的な特徴だけで、特定の実在アプリを示す固有の名称・画面・ロゴ・キャッチコピーがありません。同種のマンガアプリは多数存在するため、一つに絞れる根拠はなく、推測は控えます。",
+     "model": "claude-haiku-5-5"
+    }
+   ]
+  }
+ },
+ "note_ja": "guess_ja と、言い当てた試行の clues_ja は実在のサービス名を含むため公開版では伏せた。"
+}

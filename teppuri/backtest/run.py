@@ -271,6 +271,39 @@ def estimate_judgments(case_ids: list[str], sample: int | None, seed: int,
     return total
 
 
+def judge_cost_usd(case_runs_dir: Path) -> dict:
+    """API 応答のキャッシュ（usage）から実際の費用を足し上げる。Haiku は Batch（半額）、Opus・Sonnet は同期とみなす
+    （記憶チェックの Haiku は同期だが数セントなので Batch 扱いの誤差は小さい）。"""
+    from teppuri.judge import common as c
+
+    by_model: dict[str, float] = defaultdict(float)
+    calls: Counter = Counter()
+    root = Path(case_runs_dir) / ".judge_cache" / "real"
+    for f in root.glob("*/*.json"):
+        try:
+            v = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        model = str(v.get("model", ""))
+        try:
+            by_model[model] += c.actual_cost(model, v.get("usage", {}), batch="haiku" in model)
+        except KeyError:
+            continue
+        calls[model] += 1
+    return {"usd": round(sum(by_model.values()), 4), "by_model": {k: round(x, 4) for k, x in by_model.items()},
+            "calls": dict(calls)}
+
+
+def level_distribution(decisions: list[dict]) -> dict:
+    """段階ごとの higher / similar / lower の件数（人の判断だけ）。"""
+    out: dict[str, Counter] = defaultdict(Counter)
+    for d in decisions:
+        if d.get("person_id") is not None:
+            out[d["step"]][d["level"]] += 1
+            out["all"][d["level"]] += 1
+    return {k: dict(v) for k, v in out.items()}
+
+
 def load_case_decisions(app_id: str, runs_dir: Path) -> list[dict] | None:
     p = runs_dir / app_id / "decisions.json"
     if not p.exists():
@@ -288,7 +321,7 @@ def predict(cases_dir: Path = CASES_DIR, questions_path: Path = QUESTIONS, out_p
             population: Path = DEFAULT_POPULATION, rules_dir: Path = RULES_DIR, runs: int = 30,
             seed: int = DEFAULT_SEED, judge: str = "none", sample: int | None = None,
             yes: bool = False, runs_dir: Path = JUDGE_RUNS, only: list[str] | None = None,
-            log=None) -> dict | None:
+            log=None, rules_commit: str | None = None) -> dict | None:
     log = log or sys.stderr
     cases, questions = load_questions(questions_path)
     case_ids = [c for c in cases if not only or c in only]
@@ -328,6 +361,7 @@ def predict(cases_dir: Path = CASES_DIR, questions_path: Path = QUESTIONS, out_p
             "runs": runs, "seed": seed, "plan": PLAN,
             "population": str(Path(population).relative_to(REPO_ROOT)) if Path(population).is_relative_to(REPO_ROOT) else str(population),
             "judge": judge,
+            "rules_commit": rules_commit,
             "note_ja": "p_yes = エンジンを runs 回まわして「はい」になった回の割合。値は1万人基準。"
                        "baselines は 0/1 の基準（always_up = 常に増える、naive = 値上げ・広告減なら減る）。",
         },
@@ -354,6 +388,10 @@ def predict(cases_dir: Path = CASES_DIR, questions_path: Path = QUESTIONS, out_p
             "sampled": info.get("sampled", None),
             "personas": len(personas),
         }
+        if decs:
+            result["cases"][cid]["levels"] = level_distribution(decs)
+        if judge == "real":
+            result["cases"][cid]["cost"] = judge_cost_usd(runs_dir / app["app_id"])
         print(f"[{cid}] エンジン {runs}回（判断 {len(decs)}行・{len(persons)}人）", file=log)
         for q in qs_by_case.get(cid, []):
             ans = answer_question(daily, q)
@@ -365,6 +403,10 @@ def predict(cases_dir: Path = CASES_DIR, questions_path: Path = QUESTIONS, out_p
             print(f"  {q['id']}: はいの確率 {ans['p_yes']:.2f}（B/A−1 の中央値 {ans['b_vs_a_change']['p50']:+.3f}）",
                   file=log)
 
+    if judge == "real":
+        result["meta"]["cost_usd_total"] = round(sum(c.get("cost", {}).get("usd", 0.0)
+                                                     for c in result["cases"].values()), 4)
+        result["meta"]["decision_rows_total"] = sum(c["decision_rows"] for c in result["cases"].values())
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=1)
@@ -673,6 +715,7 @@ def main(argv: list[str] | None = None) -> int:
     pp.add_argument("--only", nargs="*", default=None)
     pp.add_argument("--yes", action="store_true", help="判断がない事例は実際に API を呼んで取る")
     pp.add_argument("--dry-run", action="store_true", help="判断の呼び出し数と費用の見積もりだけを出して終わる")
+    pp.add_argument("--rules-commit", default=None, help="固定したルールのコミット（predictions.json に記録する）")
 
     ps = sub.add_parser("score", help="answers.yaml と比べて report.md を書く")
     ps.add_argument("--predictions", default=str(PREDICTIONS))
@@ -710,7 +753,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "predict":
         res = predict(Path(args.cases_dir), Path(args.questions), Path(args.out), Path(args.population),
                       Path(args.rules), args.runs, args.seed, args.judge, args.sample, args.yes,
-                      Path(args.runs_dir), args.only)
+                      Path(args.runs_dir), args.only, rules_commit=args.rules_commit)
         return 0 if res is not None else 1
     if args.cmd == "score":
         score(Path(args.predictions), Path(args.answers), Path(args.recognition), Path(args.out))
