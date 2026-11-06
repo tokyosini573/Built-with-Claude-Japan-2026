@@ -1,0 +1,162 @@
+# 動画の大量投稿（organic_video）— 広告費を払わない短尺動画（TikTok・Instagram リール・YouTube ショート）
+#
+# ※ 12d263a でルールを固定した後に追加したチャネルです。バックテストでは検証していません。
+#   既存のファイル（presets / channels / multipliers）の値は一切変えていません。
+#   app.yaml の plan に organic_video を書かなければ、エンジンの結果は固定時と完全に同じです。
+# ※ 規約と法令の注意: 各アカウントがアプリ公式または広告と明示し、AI 生成表示をつけ、アカウントごとに内容の
+#   異なる動画を投稿する前提です。同じ動画の使い回しや一般人を装う運用は、各社規約の違反（推薦外・停止）と
+#   景品表示法のステルスマーケティング規制（2023-10-01 施行）に当たるおそれがあります（リポジトリ外の調査メモ（非公開） 6章、DATA_SOURCES 3-G）。
+#
+# 出典: data/DATA_SOURCES.md 3-G（略称 [VL26] [BF25T] [VQ26] [BD20] [AT26] [MA19] [SOHO26] [TT20] の題名・発行者・URL・年・信頼度）。
+#   値はリポジトリ外の調査メモ（非公開）末尾「エンジンに使うなら」の表の low / mid / high をそのまま使う。
+#   下の source / note の「08」は、この調査メモ（08. オーガニック短尺動画）を指す。
+#   source の書き方: 出典と表・節 / 信頼度（1次・3次・推計・仮定）。出典のない値は source: assumption（理由は note）。
+#   どの値も日本以外のデータ（日本のオーガニック動画の値は見つからなかった）。
+#
+# 仕組み（1日ごと、回ごと。式の詳細は teppuri/engine/organic_video.py と rules/README.md）:
+#   1投稿の再生数（本体）= 中央値 × 調整 × exp(σ_between × z_アカウント + σ_within × z_投稿)
+#   1投稿の再生数（裾）  = 確率 q で 10,000 × パレート(α) × 調整。q は「1万回以上の投稿の割合」p_post_over_10k に合うように決める
+#   調整 = (max(1, フォロワー / 基準フォロワー))^k × 投稿頻度の上積み × 同じアカウントの飽き × 重複のペナルティ
+#   フォロワー += 再生数 × follow_per_view
+#   人口に届く再生 = 再生数 × japan_view_share を、その SNS の利用者（sns_* 列）に weight に比例して配る（全国）
+#   1再生あたり設置確率 = view_to_install × 判断（install）× 傾向（trait_ad_aversion × trait_novelty）× 関心
+#                        × exp(−λ × これまでに見た回数)、λ = ln2 / viewer_fatigue_half_views
+
+version: 2
+
+# 人口のどの列がそのプラットフォームの利用者か（instagram = リール、youtube = ショート）
+platforms:
+  tiktok: {name_ja: TikTok, sns_column: sns_tiktok}
+  instagram: {name_ja: Instagram リール, sns_column: sns_instagram}
+  youtube: {name_ja: YouTube ショート, sns_column: sns_youtube}
+
+# --- 1投稿の再生数の分布（対数正規の本体 + パレートの裾） ---------------------------------
+median_new_account:
+  low: 300
+  mid: 500
+  high: 1400
+  source: "[VL26] 表 Median views per video by follower tier（1,000未満 394）/ [BF25T] 表 Median views per post（459〜506）/ [VQ26] 新規チャンネルの最初の Short 30日中央値 約1,362 / 1次（自社データ・非無作為・日本以外）"
+  note: 新しいアカウントの1投稿の再生数の中央値。3つのプラットフォームに共通（Instagram リールの新規アカウントの値は見つからなかった）。low は TikTok 小アカウント、mid は TikTok 中小事業者全体、high は Shorts 新規。
+
+sigma_within_account:
+  low: 0.9
+  mid: 1.2
+  high: 1.6
+  source: "[VL26] 自分の中央値の3倍以上 12% → 0.94 / [BF25T] p90 ÷ 中央値 7.6倍 → 1.58（08 が1次から推計）/ 推計"
+  note: 同じアカウントの中での1投稿ごとの対数のばらつき。
+
+sigma_between_accounts:
+  low: 0.5
+  mid: 1.0
+  high: 1.5
+  source: "assumption"
+  note: 同じ運営者が同時に始めた新しいアカウントどうしの当たり外れ（アカウント × プラットフォームごとに1回引いて期間中ずっと使う）。出典なし。[VQ26] から 08 が推計した 1.5〜2.4 は「いろいろなクリエイター全体」のばらつきで、フォロワー数・ジャンル・腕の差を既に含む。テプリはフォロワーの成長を別の仕組みで計算するので、その値をそのまま使うと二重に数える（最初の版で 10アカウント × 50日の再生 p50 が1.4億回、成功例の自己申告を大きく超えた）。同じ運営者の似た AI 動画なら差は小さいとして、08 の値より小さく置いた。範囲は広め。
+
+p_post_over_10k:
+  low: 0.05
+  mid: 0.12
+  high: 0.21
+  source: "[VQ26] 1本の Short が1万回以上 20.9%（上振れ）/ [VL26] 小アカで自分の中央値の3倍以上 12% から逆算 / 1次（日本以外）"
+  note: 新しいアカウントの投稿のうち1万回以上になる割合。パレートの裾の出現確率 q を、本体の対数正規だけでの割合との差で決める（q = (この値 − 本体の割合) / (1 − 本体の割合)、本体だけで超えていれば q = 0）。
+
+viral_tail_alpha:
+  low: 1.0
+  mid: 1.2
+  high: 1.5
+  source: "assumption"
+  note: "パレートの裾の指数（小さいほど大当たりが大きい）。08 の表は low α=1.5 / mid 1.2 / high 1.0 と「裾の重さ」の順で並べているが、ここでは数値の小さい順に low に置いた（low = 最も重い裾）。形（対数正規より重い裾、[BD20] 上位1%の動画が全再生の76%）は1次、値自体は仮定（08 表 viral_tail）。裾の出現確率は p_post_over_10k から決めるので、08 の表の出現確率 0.5〜2% は使わない。"
+
+viral_tail_min_views:
+  low: 10000
+  mid: 10000
+  high: 10000
+  source: "assumption"
+  note: パレートの裾の始まり（p_post_over_10k の境目に合わせた。計算上の定義）。
+
+max_views_per_post:
+  low: 1000000
+  mid: 5000000
+  high: 20000000
+  source: "assumption"
+  note: 1投稿の再生数の上限（α ≤ 1 のパレートは平均が発散するため切る）。参考に [VL26] 全体分布（活発で伸びているアカウントに偏った標本）の 99パーセンタイルは 1,640万回。
+
+# --- アカウントの成長 ------------------------------------------------------------
+follow_per_view:
+  low: 0.001
+  mid: 0.003
+  high: 0.01
+  source: "assumption"
+  note: 1再生あたりの新規フォロー。08 2章で「見つからない」。08 の表の仮定値をそのまま使う。
+
+followers_exponent:
+  low: 0.4
+  mid: 0.6
+  high: 0.85
+  source: "[VL26] 層別中央値 394→767→8,530→39,975（層の代表値 500 / 3千 / 3万 / 30万で、小さい層の間 約0.37、3千→30万 約0.86、08 が計算）/ [BD20] 4章 ρ=0.48 / 推計"
+  note: 再生 ∝ フォロワー^k。基準フォロワー（下の値）より少ないうちは中央値どおり。
+
+followers_reference:
+  low: 500
+  mid: 500
+  high: 500
+  source: "[VL26] フォロワー1,000未満の層の代表値 500（08 表 views_growth_with_followers の計算で使った値）/ 推計"
+  note: median_new_account が当てはまるフォロワー数。これを超えると (フォロワー / 500)^k 倍。
+
+freq_uplift_daily:
+  low: 0.0
+  mid: 0.15
+  high: 0.34
+  source: "[BF25T] 1投稿あたり再生の上積み（週1本比、固定効果）2〜5本 +17%、6〜10本 +29%、11本以上 +34%（ただし中央値は −6%）/ 1次（日本以外）"
+  note: 毎日投稿（週7本以上）での1投稿あたり再生の上積み。週1本で0、週7本で全量、その間は直線で補う。
+
+# --- 飽き -----------------------------------------------------------------------
+same_account_decay_per_post:
+  low: 0.0
+  mid: 0.005
+  high: 0.02
+  source: "[VQ26] 最初の10本では1本あたり再生の低下なし（1次）。11本目以降と AI の似た動画の値は仮定 / 1次＋仮定"
+  note: 同じアカウントの11本目以降、1本ごとに再生が (1 − この値) 倍になる（プラットフォーム側の飽き）。
+
+cross_account_duplicate_penalty:
+  low: 0.3
+  mid: 0.7
+  high: 1.0
+  source: "TikTok [TT20]・Instagram（Engadget 2024-04）・YouTube スパム規約の「重複は推薦しない」（08 5章・6章、規約は1次・定性）。率は仮定"
+  note: unique_videos_per_account が false（同じ動画を複数アカウントで投稿）のとき、最初のアカウント以外の再生を (1 − この値) 倍にする（原本だけが推薦される）。1.0 = 推薦外。
+
+viewer_fatigue_half_views:
+  low: 2
+  mid: 4
+  high: 8
+  source: "assumption"
+  note: 同じ人が同じアプリの動画を何本見ると、1再生あたりの反応が半分になるか（見る側の飽き）。08 5章で「同じ人が似た AI 動画を何度も見たときの反応低下の率」は見つからない。参考に広告の反復露出で約24%のユーザー群に wearout（Chae ほか 2019、本文未閲覧）。
+
+# --- 再生 → 設置 ------------------------------------------------------------------
+japan_view_share:
+  low: 0.5
+  mid: 0.8
+  high: 0.95
+  source: "assumption"
+  note: 再生のうち、人口（日本の15〜79歳）からの再生の割合。残り（海外・15歳未満・80歳以上）は1万人の誰にも届かない分として捨てる。日本語の動画を想定。出典なし、範囲は広め。
+
+view_to_install:
+  low: 0.0001
+  mid: 0.0005
+  high: 0.004
+  source: "3次の積 再生→プロフィール 1〜5% × プロフィール→リンク 3〜20% × ストアの商品ページ→設置 8.6〜23%（[AT26] 米国 8.56% / [MA19] 日本 19〜23%、1次）≈ 0.02〜0.1% / 事例 Flame 約0.43%（創業者の自己申告、上限扱い）/ 3次"
+  note: 1再生あたりの設置（初めて見たとき、判断・傾向・関心が平均の人）。08 表 organic.view_to_install（0.01% / 0.05% / 0.4%）。high はうまくいった事例の自己申告（生存バイアス）。
+
+# --- 制作費の目安（エンジンは使わない。app.yaml の cost_per_video_jpy を選ぶときの参考） --------
+reference_cost_per_video_jpy:
+  ai_video:
+    low: 225
+    mid: 1050
+    high: 2700
+    source: "Runway / Pika / Google 公式料金（08 4-1、1次）× 撮り直し 2〜3倍（仮定）。$1.5 / $7 / $18 を 1ドル = 150円（仮定）で換算"
+    note: 15秒・撮り直し込みの AI 生成。台本・編集・投稿の人件費は含まない。ツールの月額は別に $10 / $35 / $95（08 表 cost.ai_tool_subscription_usd_per_month）。
+  human_video:
+    low: 3000
+    mid: 10000
+    high: 100000
+    source: "[SOHO26] / 3次"
+    note: 人が作る場合（比較用）。

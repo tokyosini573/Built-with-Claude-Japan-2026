@@ -1,0 +1,110 @@
+{
+ "app_id": "demo_matching",
+ "name_ja": "ちかくに",
+ "version": "5b7896374f04b5bf",
+ "files": [
+  "teppuri/engine/__init__.py",
+  "teppuri/engine/build_replay.py",
+  "teppuri/engine/inputs.py",
+  "teppuri/engine/live.py",
+  "teppuri/engine/organic_video.py",
+  "teppuri/engine/replay.py",
+  "teppuri/engine/rules.py",
+  "teppuri/engine/run.py",
+  "teppuri/engine/sample.py",
+  "teppuri/engine/sensitivity.py",
+  "teppuri/engine/simulate.py",
+  "teppuri/engine/window.py",
+  "teppuri/__init__.py",
+  "rules/channels.yaml",
+  "rules/multipliers.yaml",
+  "rules/organic_video.yaml",
+  "rules/presets.yaml",
+  "data/population/japan_10k.csv",
+  "data/population/representatives.csv",
+  "apps/demo_matching/app.yaml",
+  "runs/demo_matching/decisions_levels.json",
+  "runs/demo_matching/personas_interest.json"
+ ],
+ "sizes": {
+  "teppuri/engine/__init__.py": 0,
+  "teppuri/engine/build_replay.py": 3830,
+  "teppuri/engine/inputs.py": 4242,
+  "teppuri/engine/live.py": 13213,
+  "teppuri/engine/organic_video.py": 11321,
+  "teppuri/engine/replay.py": 7655,
+  "teppuri/engine/rules.py": 6821,
+  "teppuri/engine/run.py": 5095,
+  "teppuri/engine/sample.py": 4621,
+  "teppuri/engine/sensitivity.py": 19079,
+  "teppuri/engine/simulate.py": 46411,
+  "teppuri/engine/window.py": 2438,
+  "teppuri/__init__.py": 0,
+  "rules/channels.yaml": 7807,
+  "rules/multipliers.yaml": 6695,
+  "rules/organic_video.yaml": 11058,
+  "rules/presets.yaml": 14117,
+  "data/population/japan_10k.csv": 1495588,
+  "data/population/representatives.csv": 37718,
+  "apps/demo_matching/app.yaml": 3235,
+  "runs/demo_matching/decisions_levels.json": 210377,
+  "runs/demo_matching/personas_interest.json": 10146
+ },
+ "total_bytes": 1921467,
+ "total_gzip_bytes": 258967,
+ "defaults": {
+  "period_days": 90,
+  "runs": 10,
+  "plans": {
+   "A": {
+    "campaign_days": 30,
+    "regions": [],
+    "channels": {
+     "tiktok": 2000000.0,
+     "instagram": 2000000.0,
+     "x": 1000000.0
+    },
+    "monthly_jpy": 3980.0,
+    "free_trial_days": 0,
+    "organic_video": null,
+    "creatives": [
+     "a1",
+     "a2",
+     "a3"
+    ],
+    "video_creatives": []
+   },
+   "B": {
+    "campaign_days": 50,
+    "regions": [],
+    "channels": {},
+    "monthly_jpy": 3980.0,
+    "free_trial_days": 0,
+    "organic_video": {
+     "accounts": 10,
+     "posts_per_account_per_day": 1,
+     "days": 50,
+     "cost_per_video_jpy": 1050,
+     "unique_videos_per_account": true
+    },
+    "creatives": [],
+    "video_creatives": [
+     "v1",
+     "v2",
+     "v3"
+    ]
+   }
+  },
+  "video_template": {
+   "accounts": 10,
+   "posts_per_account_per_day": 1,
+   "days": 50,
+   "cost_per_video_jpy": 1050,
+   "unique_videos_per_account": true
+  }
+ },
+ "decisions": {
+  "rows": 135824,
+  "people": 8489
+ }
+}

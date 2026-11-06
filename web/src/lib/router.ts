@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-export type Route = "home" | "result" | "input" | "verify" | "sources" | "sources-full";
+export type Route = "home" | "result" | "input" | "verify" | "sources" | "sources-full" | "live";
 
-const ROUTES: Route[] = ["result", "input", "verify", "sources", "sources-full"];
+const ROUTES: Route[] = ["result", "input", "verify", "sources", "sources-full", "live"];
 
 function parse(): Route {
   const h = window.location.hash.replace(/^#\/?/, "");

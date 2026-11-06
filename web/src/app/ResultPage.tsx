@@ -37,7 +37,7 @@ export function ResultPage({ replay, scale, onScale, autoplay, onAutoplayDone }:
             <h2 className="h2" id="cards-h">
               3つの数字
             </h2>
-            <p className="note">{periodText(replay)}の合計。大きな数字は30回の真ん中（中央値）、下は10〜90%の幅です。</p>
+            <p className="note">{periodText(replay)}の合計。大きな数字は{replay.meta.runs}回の真ん中（中央値）、下は10〜90%の幅です。</p>
           </div>
           <ScaleToggle scale={scale} onChange={onScale} />
         </div>
@@ -117,13 +117,15 @@ function CostRow({ replay }: { replay: Replay }) {
       {ids.map((id) => {
         const t = replay.plans[id]!.totals;
         const video = !!replay.plans[id]!.config.organic_video;
+        // 動画の案に広告も足したとき（ライブで試す）は、費用が広告費と制作費の合計になる
+        const ads = video && (t.spend_jpy?.p50 ?? 0) > (t["spend_video_jpy" as "spend_jpy"]?.p50 ?? 0) * 1.0001;
         return (
           <div key={id} className="cost">
             <span className="plan-tag" style={{ color: PLAN_VAR[id] }}>
               {id}案
             </span>
             <span>
-              <span className="note">{video ? "動画の制作費" : "広告費"}</span>{" "}
+              <span className="note">{ads ? "広告費と動画の制作費" : video ? "動画の制作費" : "広告費"}</span>{" "}
               <strong className="num" style={{ fontSize: 20 }}>{t.spend_jpy ? yen(Math.round(t.spend_jpy.p50 * k)) : "—"}</strong>
             </span>
             {t.cpi_jpy && (

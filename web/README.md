@@ -1,10 +1,21 @@
 # テプリ Web（リプレイ再生）
 
-エンジンが事前に計算したリプレイ（`public/replays/<app_id>.json`）を読み込んで再生するだけの静的サイトです。ライブ実行はしません。
+エンジンが事前に計算したリプレイ（`public/replays/<app_id>.json`）を読み込んで再生する静的サイトです。「ライブで試す」（`#/live`）だけは、ブラウザの中でエンジンを回し直します（下の節）。
+
+## ライブで試す（`#/live`）
+
+デモアプリの A案・B案の条件（期間、キャンペーン日数、地域、チャネル別の予算、男性の月額、無料体験日数、動画の大量投稿）を変えて、ブラウザの中で世界エンジンをもう一度回します。
+
+- **Claude は呼ばない。** 判断は事前に取った1万人分（`runs/demo_matching/decisions.json`）の level をそのまま使う。広告・動画の素材は変えられない（判断が素材に結びついているため）。
+- **エンジンは Python のものをそのまま使う。** Pyodide（cdn.jsdelivr.net の 314.0.7、numpy・pandas・PyYAML）を Web Worker（`src/live/live.worker.ts`）で読み込み、`teppuri/engine/live.py` の `LiveSession`（= `python -m teppuri.engine.run` と同じ処理）で回す。結果は結果画面の部品（`ResultPage`）で出す。インタビュー・レポート・理由の文はライブでは出さない。
+- ファイル一式 `public/live/`（エンジンの .py、`rules/*.yaml`、1万人、判断の level だけ、ペルソナの interest だけ、app.yaml、`manifest.json`）は `npm run build-live` で作る（約1.9MB、gzip で約0.26MB）。エンジン・ルール・判断を変えたら作り直す。
+- ネイティブとの一致: `npm run check-live`（条件を変えないときの `engine.run` との一致と、Node の Pyodide（`scripts/live-pyodide-node.mjs`、devDependencies の pyodide 同じ版）とネイティブの一致を、いくつかの条件で確かめる）。
 
 ## 公開画面（設計 6章 v2）
 
-入口（`#/`）は「デモを再生」ボタン1つ。押すと結果を自動で再生します。メニューは4つで、どれも「最初は要点だけ、押すと詳しく」の3段です。
+トップ（`#/`、`src/app/TopPage.tsx`）は1枚の縦長ページです。上から: ヒーロー（1万個の点が色づく図 `src/components/HeroDots.tsx`。動きを減らす設定では静止）→ 解決したいこと → しくみ → 得られるもの → 期待できる効果 → なぜ信じられるか → デモ → Claude の使い方 → 「テプリで試す」（デモを再生 / ライブで試す）。デモの数字はリプレイ、バックテストの的中数は `backtest.json` から読みます（画面に数字を書き写さない）。「デモを再生」は結果へ移って自動で再生し、「ライブで試す」は `#/live`（今は「準備中」の仮ページ）に移ります。
+
+メニューは4つで、どれも「最初は要点だけ、押すと詳しく」の3段です。
 
 | メニュー | 1段目 | 2段目（押すと） | 3段目 |
 |---|---|---|---|

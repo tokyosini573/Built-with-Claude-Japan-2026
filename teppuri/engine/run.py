@@ -45,15 +45,23 @@ def horizon_of(app: dict) -> int:
 
 
 def run_app(app: dict, pop: Population, rules: Rules, decisions: list[dict],
-            runs: int = 30, seed: int = DEFAULT_SEED, personas: dict | None = None) -> dict:
+            runs: int = 30, seed: int = DEFAULT_SEED, personas: dict | None = None,
+            progress=None) -> dict:
+    """progress（任意）: 段階ごとに progress(段階, 案) を呼ぶ（Web の「ライブで試す」の進み具合用。結果は変わらない）。"""
     horizon = horizon_of(app)
     draws = Draws(seed=seed, runs=runs)  # A と B で共有する
     results, events = {}, {}
     for key in app["plans"]:
+        if progress:
+            progress("simulate", str(key))
         res = simulate_plan(app, key, pop, rules, draws, decisions, horizon, personas)
         results[key] = res
+        if progress:
+            progress("sample", str(key))
         ev_seed = (seed * 31 + zlib.crc32(str(key).encode())) % (2**32)
         events[key] = sample_events(res.sample, pop, ev_seed, horizon)
+    if progress:
+        progress("assemble", "")
     return assemble_replay(app, pop, results, events, decisions, runs, horizon)
 
 

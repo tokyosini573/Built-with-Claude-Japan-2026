@@ -1,0 +1,306 @@
+# アプリ種類プリセット（matching / subscription / habit / shopping）
+#
+# 値の書き方:
+#   low / mid / high … 範囲。エンジンは1回ごとに範囲の中から値を抽選する（rules/README.md）。
+#   source …… data/DATA_SOURCES.md の略称と表・ページ。出典のない値は "assumption"。
+#   note ……… 根拠が弱い点、規則の例外、計算方法。
+# 割合はすべて 0〜1 の小数（15% → 0.15）。
+# このファイルはバックテスト前に固定する。
+
+version: 1
+
+# 為替（ドル建ての出典を円に直すときだけ使う）
+usd_jpy:
+  low: 150
+  mid: 150
+  high: 150
+  source: assumption
+  note: ドル建ての出典（CPI、RPP、年額価格）を円にするための固定レート。為替の変動は範囲に入れない。
+
+presets:
+  # ---------------------------------------------------------------
+  matching:
+    name_ja: マッチング（デーティング、フリマなど二者間）
+    core_action_ja: 初めてのマッチ
+    retention:
+      # 設置から N 日後にアクティブな割合。D1・D7 は出典が1本なので単一値。
+      d1: {low: 0.26, mid: 0.26, high: 0.26, source: "[L19] PDF p.19 Dating（線グラフの点ラベル）"}
+      d7: {low: 0.15, mid: 0.15, high: 0.15, source: "[L19] PDF p.19 Dating"}
+      d30:
+        low: 0.027
+        mid: 0.09
+        high: 0.09
+        source: "[Braze] 出会い Android（low） / [L19] PDF p.19 Dating（mid・high）"
+        note: low は地域・期間不明の2次資料。日本のデーティングのリテンションは 2018-19 年の [L19] 1本だけ（DATA_SOURCES 5章-1）。
+      d90:
+        source: assumption
+        note: 出典なし。D7→D30 のべき乗減衰 R(a)=R30·(a/30)^-b, b=ln(R7/R30)/ln(30/7) で延ばした曲線に、指数の和を合わせて作る（エンジンが計算。設置日・D1・D7・D30 は誤差およそ3%以内で通る）。90日以降も同じ曲線で延長し、meta.extrapolated_after_day で示す。
+    signup:
+      # 設置 → 登録
+      low: 0.466
+      mid: 0.466
+      high: 0.584
+      source: "[LD22] p.18 国別チャート 日本 ITA-Registration 46.61% / [L19] p.9 58.4%"
+      note: mid は最新の日本値（[LD22]）。広告経由の設置ベースと推定（DATA_SOURCES 5章-6）。
+    core:
+      # 特別規則: 近くに相手側がいるほど初マッチが起きる（都道府県 × 性別の密度）
+      daily_hazard:
+        low: 0.10
+        mid: 0.30
+        high: 0.50
+        source: assumption
+        note: 関門を通ってまだマッチしていない人が、相手側が十分いるときに1日でマッチする確率。初マッチ率の公開値がないための仮定。
+      density_half:
+        low: 100
+        mid: 300
+        high: 1000
+        source: assumption
+        note: 同じ都道府県で、関門を通って表示されている相手側のプロフィール（累計、実人数）がこの人数のとき、マッチの起きやすさが半分になる。係数 = n / (n + density_half)。相手側は matching_sides（既定 opposite_sex = 異性、any = 全員）。
+    # 運営中のアプリから始めるとき（plans.<案>.initial_state）、既存の利用者を配る重み（人口の列 → 区分 → 倍率）
+    initial_affinity:
+      marital:
+        unmarried: {low: 1.0, mid: 1.0, high: 1.0, source: assumption, note: 基準。}
+        married:
+          low: 0.05
+          mid: 0.1
+          high: 0.3
+          source: assumption
+          note: 既婚者がデーティングアプリを使っている割合の公開値はない（[CFA24] は未婚者と最近結婚した人だけ）。フリマなど既婚者も使う二者間アプリでは高めになるため範囲を広くとった。
+        widowed_divorced:
+          low: 0.3
+          mid: 0.5
+          high: 0.8
+          source: assumption
+          note: 離別・死別者の利用率の公開値はない。未婚と既婚の間に置いた。
+    pay:
+      install_to_paid:
+        low: 0.054
+        mid: 0.054
+        high: 0.063
+        source: "[L19] p.9 日本デーティング 設置→購読（前年 6.3%）"
+        note: "[LD22] の ITA-Purchase 0.57% は同じチャートの費用と矛盾するため使わない（DATA_SOURCES 5章-6）。エンジンは「相手が十分いる既存アプリ」でこの値になるように、初マッチ時点の決済率を逆算する。"
+      paying_share_male:
+        low: 0.513
+        mid: 0.556
+        high: 0.596
+        source: "[CFA24] PDF p.30 Q56(1) 未婚利用者のうち有料 男性"
+        note: mid は範囲の中央の値（規則の例外）。who_pays で男女の比を決める。
+      paying_share_female:
+        low: 0.035
+        mid: 0.043
+        high: 0.115
+        source: "[CFA24] PDF p.30 Q56(1) 未婚利用者のうち有料 女性"
+      reference_monthly_jpy:
+        low: 3105
+        mid: 3135
+        high: 3135
+        source: "[MG25Q3] / [MG25Q4] RPP $20.7 / $20.9 × usd_jpy"
+        note: Match Group Asia 事業部合計（Pairs＋Azar、全世界）の決済者1人あたり月間売上。日本単独ではない。価格弾力性の基準価格としてだけ使う。
+
+  # ---------------------------------------------------------------
+  subscription:
+    name_ja: サブスク・コンテンツ（動画、音楽、学習）
+    core_action_ja: 初めての視聴・学習
+    retention:
+      d1: {low: 0.12, mid: 0.12, high: 0.22, source: "[A25] p.40 Entertainment / [L19] p.19"}
+      d7: {low: 0.05, mid: 0.05, high: 0.15, source: "[A25] p.40 / [L19] p.19"}
+      d30: {low: 0.02, mid: 0.02, high: 0.10, source: "[A25] p.40 / [L19] p.19"}
+      d90: {source: assumption, note: matching と同じべき乗延長。}
+    signup:
+      low: 0.867
+      mid: 0.867
+      high: 0.867
+      source: "[L19] p.10 設置→登録"
+    core:
+      rate:
+        low: 0.60
+        mid: 0.80
+        high: 0.90
+        source: assumption
+        note: 登録した人が初めて視聴・学習する割合。公開値なし。参考に「設置後一度も開かなかった経験 30%」（3-E、2次）。
+    pay:
+      download_to_trial:
+        low: 0.040
+        mid: 0.057
+        high: 0.065
+        source: "[RC26] グローバル M&E / APAC / グローバル Education"
+        note: 日本単独の値なし（APAC で代用）。
+      trial_to_paid:
+        low: 0.319
+        mid: 0.319
+        high: 0.438
+        source: "[RC26] APAC / [RC25] グローバル M&E"
+      download_to_paid:
+        low: 0.020
+        mid: 0.024
+        high: 0.044
+        source: "[RC26] グローバル / APAC / [L19] Entertainment 設置→購入"
+        note: 無料体験なしのときに使う。high は購入の定義が違う。
+      reference_monthly_jpy:
+        low: 682
+        mid: 682
+        high: 682
+        source: "[AD26] 日本の年額プラン価格 $54.59 ÷ 12 × usd_jpy"
+        note: 価格弾力性の基準価格としてだけ使う。
+
+  # ---------------------------------------------------------------
+  habit:
+    name_ja: 習慣系ツール（家計簿、運動、生産性）
+    core_action_ja: 初めての記録
+    retention:
+      d1: {low: 0.18, mid: 0.18, high: 0.25, source: "[A25] p.29 Finance（家計簿の近似）/ [L19] p.19 Utilities"}
+      d7: {low: 0.10, mid: 0.10, high: 0.17, source: "[A25] p.29 / [L19] p.19"}
+      d30:
+        low: 0.034
+        mid: 0.07
+        high: 0.12
+        source: "[Braze] ヘルス・フィットネス Android / [A25] / [L19]"
+      d90: {source: assumption, note: matching と同じべき乗延長。D7→D30 の落ち方がゆるいので「7日を越えると残る」形になる。}
+    signup:
+      low: 0.325
+      mid: 0.426
+      high: 0.426
+      source: "[L19] p.11 Finance / p.14 Utilities"
+      note: mid は範囲の中の値（規則の例外）。
+    core:
+      rate:
+        low: 0.50
+        mid: 0.70
+        high: 0.85
+        source: assumption
+        note: 登録した人が初めて記録する割合。公開値なし。
+      paywall_day:
+        low: 7
+        mid: 7
+        high: 7
+        source: assumption
+        note: 特別規則「7日を越えると残る」。無料体験がないときは、設置7日後にまだ使っている人に決済画面を出す。
+    pay:
+      download_to_trial:
+        low: 0.069
+        mid: 0.069
+        high: 0.069
+        source: "[RC26] グローバル Health & Fitness"
+      trial_to_paid:
+        low: 0.319
+        mid: 0.377
+        high: 0.399
+        source: "[RC26] APAC / [RC26] グローバル H&F / [RC25] グローバル H&F"
+      download_to_paid:
+        low: 0.024
+        mid: 0.029
+        high: 0.071
+        source: "[RC26] APAC / グローバル H&F / [L19] Utilities 設置→購入"
+      reference_monthly_jpy:
+        low: 682
+        mid: 682
+        high: 682
+        source: "[AD26] 日本の年額プラン価格 $54.59 ÷ 12 × usd_jpy"
+        note: カテゴリ別の日本価格がないため subscription と同じ値。
+
+  # ---------------------------------------------------------------
+  shopping:
+    name_ja: ショッピング・EC
+    core_action_ja: 初めての購入
+    retention:
+      d1: {low: 0.20, mid: 0.20, high: 0.30, source: "[A24] p.45 / [LS19] p.23 / [L19] p.19"}
+      d7: {low: 0.10, mid: 0.10, high: 0.20, source: "[A24] p.45 / [L19] p.19"}
+      d30:
+        low: 0.04
+        mid: 0.05
+        high: 0.13
+        source: "[Braze] ショッピング Android / [A24] p.45 / [L19]"
+      d90: {source: assumption, note: matching と同じべき乗延長。}
+    signup:
+      low: 0.203
+      mid: 0.319
+      high: 0.329
+      source: "[LS19] p.22 / [L19] p.13（図表 31.9%、本文 32.9%）"
+    core:
+      install_to_first_purchase:
+        low: 0.077
+        mid: 0.096
+        high: 0.096
+        source: "[LS19] p.22 / [L19] p.13"
+        note: エンジンは「登録 → 初回購入」= 設置→初回購入 ÷ 設置→登録 に直して使う（上限 1）。
+    pay:
+      repurchase_cycle_days:
+        low: 30
+        mid: 45
+        high: 60
+        source: assumption
+        note: 特別規則「再購入周期」。続けて使っている購入者が、平均この日数に1回買う。日本の公開値なし。
+      arpmau_jpy:
+        low: 1560
+        mid: 1560
+        high: 1643
+        source: "[A24] p.45 ARPMAU $10.4 / $10.95 × usd_jpy"
+        note: app.yaml に pricing.order_jpy がないときだけ、アクティブ1人あたり月間売上として使う。
+
+# サブスク型（matching・subscription・habit）の決済後の継続
+paying_retention:
+  first_renewal:
+    low: 0.62
+    mid: 0.62
+    high: 0.62
+    source: "[RC24] 日本 median first renewal rate 62%"
+    note: RevenueCat 2025 の 61.7% は説明が矛盾するため使わない（DATA_SOURCES 5章-6）。
+  year1_monthly:
+    low: 0.17
+    mid: 0.26
+    high: 0.26
+    source: "[RC25] グローバル 17.0% / [RC24] 日本 26%"
+    note: 2か月目以降は一定の率で減り、12か月後にこの値になるとする（率 = (year1/first_renewal)^(1/11)）。デーティングにも同じ値を使う（サブスク全体の値）。
+
+  mature_monthly_churn:
+    low: 0.02
+    mid: 0.04
+    high: 0.076
+    source: "assumption（high は [RC24] 日本 初回更新 62% と [RC24]/[RC25] 1年継続 26% から計算した 2〜12か月目の平均月次解約 1 − (0.26/0.62)^(1/11) ≈ 7.6%）"
+    note: 成熟期（決済から13か月目以降、運営中のアプリの既存の決済者）の月次解約率。2年目以降の継続率の公開値は調査に見つからなかった。解約率は継続月数とともに下がる（初回更新で38%、2〜12か月目は平均7.6%）ので、1年目の平均を上限（high）に置き、mid・low はそれより低い仮定。initial_state.monthly_churn があればそちらを使う。
+
+# 関門（app.yaml の gates）。id が下の表にあればその値、なければ default。
+gates:
+  id_verification:
+    pass:
+      low: 0.479
+      mid: 0.659
+      high: 0.757
+      source: "[CFA24] PDF p.30 利用者のうち「身分証明書の登録」"
+      note: 代理指標。low = 既婚男性35-39（n=140）、high = 未婚女性25-34。eKYC ベンダーの自社主張は使わない（DATA_SOURCES 5章-2）。
+    privacy_sensitive: true
+  default:
+    pass:
+      low: 0.80
+      mid: 0.90
+      high: 0.95
+      source: assumption
+      note: 本人確認以外の関門（決済手段の登録、位置情報の許可など）の通過率。公開値なし。
+    privacy_sensitive: false
+  wait_loss_per_day:
+    low: 0.05
+    mid: 0.10
+    high: 0.20
+    source: assumption
+    note: 審査待ちの1日ごとに離れる割合。ベンチマークのアプリにも1日程度の審査はあるとみなし、1日を超えた分だけに掛ける。
+  baseline_wait_days:
+    low: 1
+    mid: 1
+    high: 1
+    source: assumption
+    note: 上の「1日程度」。
+
+# 価格の扱い: 決済確率 × (価格 / 基準価格)^(-弾力性)
+price_elasticity:
+  low: 0.3
+  mid: 0.6
+  high: 1.0
+  source: assumption
+  note: 日本のアプリ課金の価格弾力性の公開値なし。基準価格は各プリセットの reference_monthly_jpy。
+
+# 運営中のアプリから始めるとき（initial_state）の既存の利用者
+# 数値ではなく形の仮定（source: assumption、獲得の履歴は入力にないため）:
+# - ever_installed（累計設置者）が無ければ、発売から as_of_day_since_launch 日まで一定のペースで設置されてきたとみなして推定する:
+#   1日の設置 = active ÷ Σ_{a=0..as_of} R(a)、ever_installed = 1日の設置 × (as_of + 1)。
+# - 今使っている人の継続は成熟期の曲線 E(t) = R(as_of + t) / R(as_of)。
+# - 既存の決済者は paying_retention.mature_monthly_churn（または initial_state.monthly_churn）で減り、更新日は30日に均等に散らばる。

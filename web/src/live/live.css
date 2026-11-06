@@ -1,0 +1,71 @@
+/* ライブで試す（#/live）だけの見た目。色は index.css の変数を使う */
+
+.live-facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.live-facts li {
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--fg);
+  border-radius: 12px; padding: 12px 16px; line-height: 1.7;
+}
+.live-facts li:last-child { border-left-color: var(--gold); }
+.live-facts strong { display: block; font-family: var(--display); }
+
+.live-common { display: flex; flex-wrap: wrap; gap: 24px 40px; }
+.live-field { display: grid; gap: 8px; align-content: start; max-width: 32em; }
+.live-label { font-weight: 700; font-size: 15px; }
+
+.live-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .live-plans { grid-template-columns: 1fr; } }
+
+.live-plan {
+  margin: 0; min-width: 0; display: grid; gap: 20px; align-content: start;
+  background: var(--surface); border: 1px solid var(--line); border-top-width: 4px; border-radius: var(--radius); padding: 18px 22px 22px;
+}
+.live-plan legend { padding: 0 6px; font-size: 22px; }
+.live-group { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+
+.live-num { display: grid; gap: 4px; min-width: 0; }
+.live-num .note { font-size: 13px; line-height: 1.5; }
+.live-num select,
+.live-input input {
+  width: 100%; min-height: 44px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg);
+}
+.live-input { display: flex; align-items: center; gap: 6px; }
+.live-input input { text-align: right; font-variant-numeric: tabular-nums; }
+.live-input .suffix { white-space: nowrap; font-size: 15px; color: var(--muted); }
+.live-num select:focus-visible,
+.live-input input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.live-channels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.live-row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+@media (max-width: 400px) { .live-channels, .live-row2 { grid-template-columns: 1fr; } }
+
+.live-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; line-height: 1.6; }
+.live-check input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--fg); }
+
+.live-total { font-size: 20px; font-weight: 700; font-family: var(--display); display: grid; gap: 0; padding-top: 12px; border-top: 1px solid var(--line); }
+
+.live-materials { display: grid; gap: 10px; }
+.live-thumbs { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+.live-thumbs figure { margin: 0; flex: none; width: 92px; display: grid; gap: 4px; }
+.live-thumbs img { width: 92px; height: 164px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); }
+.live-thumbs figcaption { font-size: 13px; line-height: 1.4; }
+.live-caveats { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 15px; color: var(--text-secondary); }
+
+.live-run { display: grid; gap: 12px; position: sticky; bottom: 0; z-index: 5; background: var(--bg); padding: 14px 0 10px; border-top: 1px solid var(--line); }
+.live-buttons { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.live-buttons .cta { font-size: 20px; padding: 14px 28px; }
+.live-buttons .cta:disabled { opacity: .55; cursor: progress; }
+.live-reset { min-height: 44px; padding: 8px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+.live-reset:disabled { opacity: .5; cursor: default; }
+@media (max-width: 640px) {
+  .live-buttons .cta { width: 100%; justify-content: center; font-size: 18px; }
+  .live-run { position: static; }
+}
+
+.live-progress { display: grid; gap: 6px; }
+.live-progress .bar { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.live-progress .bar span { display: block; height: 100%; background: var(--fg); transition: width .3s ease; }
+
+.live-stale { background: var(--warn-bg); color: var(--warn-text); border-radius: 10px; padding: 8px 12px; font-size: 15px; }
+.error-box { background: var(--error-bg); color: var(--error-text); border-radius: 10px; padding: 10px 14px; }
+
+.live-result { gap: 40px; padding-top: 32px; border-top: 2px solid var(--fg); }
