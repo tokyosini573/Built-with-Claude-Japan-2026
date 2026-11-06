@@ -393,3 +393,15 @@ def test_gzipped_decisions_are_readable_everywhere(tmp_path):
     shutil.copy(FIX / "engine.json", ctx.out_dir / "engine.json")
     out = build_replay.build("test_matching", runs_root=ctx.runs_dir, out=tmp_path / "replay.json")
     assert "person_decisions" in json.loads(out.read_text(encoding="utf-8"))
+
+
+def test_japan_scaled_facts():
+    facts, _ = report.build_facts(json.loads((FIX / "engine.json").read_text(encoding="utf-8")))
+    # 154 × 9680.6585 = 1,490,821 → 有効数字3桁
+    assert facts["A.japan.installs.p50"]["value"] == "1,490,000"
+    assert facts["A.japan.payers.p50"]["value"] == "44,500"   # 4.6 × scale
+    assert "B.japan.revenue_jpy.p50" in facts and "cmp.japan.B_minus_A.installs.p50" in facts
+    assert facts["A.totals.installs.p50"]["value"] == "154"   # 一万人あたりも残す
+    assert report.japan_value(516.5, 9680.6585) == "5,000,000"
+    assert report.japan_value(54.23, 9680.6585) == "525,000"
+    assert report.japan_value(0.004148, 9680.6585) == "40"

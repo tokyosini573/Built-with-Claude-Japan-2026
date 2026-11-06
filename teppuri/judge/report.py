@@ -50,7 +50,7 @@ REPORT_SCHEMA = {
 METRIC_JA = {"impressions": "広告表示", "installs": "インストール", "signups": "会員登録",
              "core_actions": "核となる行動", "active": "アクティブ", "active_end": "最終日のアクティブ",
              "payers": "課金者（期間中に一度でも決済）", "revenue_jpy": "売上（円）", "reached": "広告が届いた人数",
-             "spend_jpy": "広告費（円）", "installs_ad": "広告経由のインストール", "installs_wom": "口コミ経由のインストール",
+             "spend_jpy": "費用（広告費・制作費、円）", "installs_ad": "広告経由のインストール", "installs_wom": "口コミ経由のインストール",
              "trials": "無料体験", "cpi_jpy": "インストール単価（円）", "roas": "ROAS"}
 
 
@@ -71,6 +71,22 @@ def fmt(v) -> str:
     return str(v)
 
 
+# 日本全体に換算しない項目（単価・比率）
+NOT_SCALED = {"cpi_jpy", "roas"}
+
+
+def japan_value(v: float, scale: float) -> str:
+    """1万人基準の件数・人数・円を日本全体に換算した表示（× scale_to_japan）。
+
+    整数に丸め、1,000 以上は有効数字3桁にする（エンジンの値は有効数字4桁ほどなので、それより細かい桁は意味がない）。
+    """
+    x = int(round(v * scale))
+    if abs(x) >= 1000:
+        digits = len(str(abs(x))) - 3
+        x = int(round(x, -digits))
+    return f"{x:,}"
+
+
 def build_facts(engine_out: dict) -> tuple[dict[str, dict], list[dict]]:
     """(facts, drops)。facts は ID → {"value": 表示文字列, "label": 説明}。"""
     facts: dict[str, dict] = {}
@@ -79,6 +95,7 @@ def build_facts(engine_out: dict) -> tuple[dict[str, dict], list[dict]]:
         if k in meta:
             facts[f"meta.{k}"] = {"value": fmt(meta[k]), "label": {"period_days": "期間（日）", "runs": "実行回数",
                                                                    "population": "人口（人）"}[k]}
+    scale = meta.get("scale_to_japan")
     drops = []
     for plan_id, plan in sorted(engine_out.get("plans", {}).items()):
         for metric, q in (plan.get("totals") or {}).items():
@@ -86,6 +103,10 @@ def build_facts(engine_out: dict) -> tuple[dict[str, dict], list[dict]]:
                 continue
             for pk in ("p10", "p50", "p90"):
                 if pk in q:
+                    if scale and metric not in NOT_SCALED:
+                        facts[f"{plan_id}.japan.{metric}.{pk}"] = {
+                            "value": japan_value(q[pk], scale),
+                            "label": f"{plan_id}案 {METRIC_JA.get(metric, metric)} {pk}（日本全体換算）"}
                     facts[f"{plan_id}.totals.{metric}.{pk}"] = {
                         "value": fmt(q[pk]), "label": f"{plan_id}案 {METRIC_JA.get(metric, metric)} {pk}（一万人あたり）"}
         for i, d in enumerate(plan.get("drop_reasons") or []):
@@ -100,6 +121,10 @@ def build_facts(engine_out: dict) -> tuple[dict[str, dict], list[dict]]:
     for metric, q in (cmp.get("B_minus_A") or {}).items():
         for pk in ("p10", "p50", "p90"):
             if pk in q:
+                if scale and metric not in NOT_SCALED:
+                    facts[f"cmp.japan.B_minus_A.{metric}.{pk}"] = {
+                        "value": japan_value(q[pk], scale),
+                        "label": f"B案−A案 {METRIC_JA.get(metric, metric)} の差 {pk}（同じ回どうし、日本全体換算）"}
                 facts[f"cmp.B_minus_A.{metric}.{pk}"] = {
                     "value": fmt(q[pk]), "label": f"B案−A案 {METRIC_JA.get(metric, metric)} の差 {pk}（同じ回どうし）"}
     for metric, v in (cmp.get("p_B_better") or {}).items():
