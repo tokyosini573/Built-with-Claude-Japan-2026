@@ -283,7 +283,7 @@ def build(app: c.App, people: list[dict], ctx: c.RunContext, skipped_people: int
     if merge:
         run_plans = set(plans) if plans else set(app.plans())
         prev_path = ctx.out_dir / "decisions_detail.json"
-        if prev_path.exists():
+        if c.json_exists(prev_path):
             kept = [d for d in c.read_json(prev_path) if d["plan"] not in run_plans]
             print(f"merge: 既存の {len(kept)} 行（{sorted({d['plan'] for d in kept})}案）を残し、"
                   f"{sorted(run_plans)}案を置き換えます")
@@ -296,6 +296,9 @@ def build(app: c.App, people: list[dict], ctx: c.RunContext, skipped_people: int
     summary = summarize(details, expected, skipped_people)
     c.write_json(ctx.out_dir / "decisions.json", decisions)
     c.write_json(ctx.out_dir / "decisions_detail.json", details)
+    # コミットするのは .json.gz（元の .json は大きいので .gitignore に入れる想定）。エンジンはどちらも読める
+    c.write_json_gz(ctx.out_dir / "decisions.json", decisions)
+    c.write_json_gz(ctx.out_dir / "decisions_detail.json", details)
     c.write_json(ctx.out_dir / "decisions_summary.json", summary)
     print(f"書き出し: {ctx.out_dir / 'decisions.json'}（{summary['people']} 人、{len(decisions)} 行）")
     print(f"判断の分布: {summary['total']}")

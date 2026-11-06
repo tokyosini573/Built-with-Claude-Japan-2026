@@ -117,7 +117,7 @@ def build(engine_path: Path, app: c.App | None, ctx: c.RunContext, population_di
           per_plan: int = 4) -> list[dict] | None:
     engine_out = c.read_json(engine_path)
     personas = c.read_json(ctx.out_dir / "personas.json")["personas"] if (ctx.out_dir / "personas.json").exists() else {}
-    decisions = c.read_json(ctx.out_dir / "decisions.json") if (ctx.out_dir / "decisions.json").exists() else []
+    decisions = c.read_json(ctx.out_dir / "decisions.json") if c.json_exists(ctx.out_dir / "decisions.json") else []
     jobs = build_jobs(engine_out, app, c.load_population_rows(population_dir), personas, decisions, per_plan)
     res = c.run_jobs(jobs, ctx)
     if res is None:

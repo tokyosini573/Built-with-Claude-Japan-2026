@@ -371,3 +371,25 @@ def test_merge_replaces_only_the_plans_run(tmp_path):
     # merge なしで B案だけ回すと A案は消える（従来どおり）
     decide.build(app, people, ctx, skipped, plans=["B"])
     assert {d["plan"] for d in json.loads((ctx.out_dir / "decisions.json").read_text(encoding="utf-8"))} == {"B"}
+
+
+def test_gzipped_decisions_are_readable_everywhere(tmp_path):
+    from teppuri.engine import build_replay
+    from teppuri.engine.inputs import load_decisions
+
+    app = c.load_app(APP)
+    people, skipped = people_for(app)
+    ctx = ctx_for(tmp_path)
+    decide.build(app, people, ctx, skipped, plans=["A"])
+    plain = json.loads((ctx.out_dir / "decisions.json").read_text(encoding="utf-8"))
+    for name in ("decisions.json", "decisions_detail.json"):
+        assert (ctx.out_dir / (name + ".gz")).exists()
+        (ctx.out_dir / name).unlink()  # コミットされた状態（.gz だけ）を再現する
+    assert c.read_json(ctx.out_dir / "decisions.json") == plain
+    assert load_decisions(ctx.out_dir / "decisions.json") == plain  # エンジン
+    decide.build(app, people, ctx, skipped, plans=["B"], merge=True)  # merge も .gz から読める
+    assert {d["plan"] for d in c.read_json(ctx.out_dir / "decisions.json")} == {"A", "B"}
+    (ctx.out_dir / "decisions.json").unlink()
+    shutil.copy(FIX / "engine.json", ctx.out_dir / "engine.json")
+    out = build_replay.build("test_matching", runs_root=ctx.runs_dir, out=tmp_path / "replay.json")
+    assert "person_decisions" in json.loads(out.read_text(encoding="utf-8"))

@@ -101,10 +101,17 @@ def load_decisions(path: Path | str | None) -> list[dict]:
     if path is None:
         return []
     path = Path(path)
+    if not path.exists() and Path(str(path) + ".gz").exists():  # コミット用の decisions.json.gz も読む
+        path = Path(str(path) + ".gz")
     if not path.exists():
         return []
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
+    if path.suffix == ".gz":
+        import gzip
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
     return data if isinstance(data, list) else data.get("decisions", [])
 
 

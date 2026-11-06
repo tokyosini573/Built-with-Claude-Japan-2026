@@ -6,4 +6,12 @@ node_modules/
 web/dist/
 .DS_Store
 runs/*/cache/
-backtest/runs/
+backtest/runs/**
+!backtest/runs/*/
+!backtest/runs/*/decisions.json.gz
+!backtest/runs/*/personas.json
+runs/*/decisions.json
+runs/*/decisions_detail.json
+runs/*/.judge_cache/
+backtest/runs/*/decisions.json
+backtest/runs/*/decisions_detail.json

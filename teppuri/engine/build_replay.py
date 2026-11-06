@@ -21,6 +21,10 @@ from .run import run_dir, write_json
 
 
 def _read(path: Path):
+    if Path(path).suffix == ".gz":
+        import gzip
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            return json.load(f)
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
@@ -46,6 +50,8 @@ def build(app_id: str, runs_root: Path | None = None, out: Path | None = None) -
         replay["drop_themes"] = data.get("themes", data.get("drop_themes", []))
 
     decisions = rd / "decisions.json"
+    if not decisions.exists():  # コミット用の decisions.json.gz も読む
+        decisions = rd / "decisions.json.gz"
     if decisions.exists():   # 判断を回し直したときも最新を入れる（数字はエンジンを回し直すまで変わらない）
         data = _read(decisions)
         data = data if isinstance(data, list) else data.get("decisions", [])

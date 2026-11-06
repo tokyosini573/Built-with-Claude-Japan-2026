@@ -710,8 +710,33 @@ def write_json(path: Path, data: Any) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+def write_json_gz(path: Path, data: Any) -> Path:
+    """<path>.gz に書く（コミットする大きなファイル用。中身は .json と同じ）。"""
+    import gzip
+
+    gz = Path(str(path) + ".gz") if not str(path).endswith(".gz") else Path(path)
+    gz.parent.mkdir(parents=True, exist_ok=True)
+    with gzip.open(gz, "wt", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+    return gz
+
+
+def json_exists(path: Path) -> bool:
+    """path か path.gz のどちらかがあるか。"""
+    return Path(path).exists() or Path(str(path) + ".gz").exists()
+
+
 def read_json(path: Path) -> Any:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    """.json を読む。無ければ .json.gz を読む。"""
+    import gzip
+
+    p = Path(path)
+    if not p.exists() and Path(str(p) + ".gz").exists():
+        p = Path(str(p) + ".gz")
+    if p.suffix == ".gz":
+        with gzip.open(p, "rt", encoding="utf-8") as f:
+            return json.load(f)
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 NUMERIC_IN_REASON = re.compile(r"[0-9０-９]+\s*(%|％|割|人|倍|パーセント)")
