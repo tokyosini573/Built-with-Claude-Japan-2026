@@ -4,6 +4,9 @@
   広告露出 → 設置 → 登録 → 関門（審査待ち）→ 核心行動 → 継続 → 決済 → クチコミ
 設計 3-5 のとおり、人ごとに 0/1 ではなく各段階の確率（期待値）を積み上げる。
 配列の形は (回, 人)。回は runs 回 + 最後に mid 回（sample_run 用）。
+
+動画の大量投稿（plan の organic_video、organic_video.py）は 12d263a でルールを固定した後に追加した
+チャネルで、バックテストでは検証していない。plan に organic_video が無ければ結果は固定時と完全に同じ。
 """
 
 from __future__ import annotations
@@ -15,6 +18,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from .inputs import Population, creative_id
+from .organic_video import DAILY_KEYS as VIDEO_KEYS, OrganicVideo
 from .rules import Draws, EXP_RATES, Rules, fit_exponentials, fitted_curve, retention_curve
 
 STEPS = ["install", "signup", "core_action", "retention", "pay"]
@@ -237,6 +241,10 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         return step_multiplier(step, plan_key, creatives, pop, index, levels, draws, jitter_sd)
 
     m_install = mult("install")
+
+    def mult_install_for(creative_ids: list[str]) -> np.ndarray:
+        """動画の creative_ids で引いた install の倍率（organic_video 用）。"""
+        return step_multiplier("install", plan_key, creative_ids, pop, index, levels, draws, jitter_sd)
     m_signup = mult("signup")
     m_core = mult("core_action")
     m_ret = mult("retention")
@@ -288,6 +296,16 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         if audience <= 0:
             continue  # 届く人がいなければ出稿できない（費用もかからない）
         channel_specs.append((ch, reach, audience, cost, per_imp))
+
+    # --- 動画の大量投稿（organic_video、12d263a の固定後に追加・バックテスト未検証） ---------
+    # plan に organic_video が無ければ video = None で、以下の計算は固定時と完全に同じ。
+    video = None
+    if plan.get("organic_video"):
+        vspec = plan["organic_video"]
+        v_creatives = [creative_id(c) for c in (vspec.get("creative_ids") or [])]
+        m_video = mult_install_for(v_creatives) if v_creatives else m_install
+        video = OrganicVideo(vspec, rules, draws, pop, eligible,
+                             m_video * (t_ad * t_nov)[None, :] * interest, T)
 
     ad_cache: dict[tuple, tuple] = {}
 
@@ -457,6 +475,8 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
     names = ["impressions", "reached", "installs", "installs_ad", "installs_wom",
              "installs_wom_local", "installs_wom_x", "signups", "core_actions",
              "active", "new_payers", "spend_jpy"]
+    if video is not None:
+        names = names + VIDEO_KEYS
     daily = {k: np.zeros((RR, T)) for k in names}
     gate_daily = {g.gate_id: np.zeros((RR, T)) for g in gates}
     cum = {k: np.zeros((RR, N)) for k in ["installs", "signups", "ready", "core", "pay", "trial"]}
@@ -491,6 +511,9 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
             inst_ad = np.zeros((RR, N))
         # 6) クチコミ（前日のアクティブ数から）: 合計 = q × A × (M − N) / M
         rest = U - inst_ad
+        if video is not None:   # 1') 動画の投稿 → 設置（広告で設置しなかった分に）
+            inst_video, p_video, vstats = video.step(t, rest)
+            rest = rest - inst_video
         # (b) 身近な人づて: 合計 = q × A × (M − N) / M
         if market > 0:
             room = np.maximum(market - installed_local, 0.0) / market          # (M − N)/M
@@ -514,11 +537,15 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         inst_x = rest * p_x
         inst_wom = inst_local + inst_x
         inst = inst_ad + inst_wom
+        if video is not None:
+            inst = inst + inst_video
         U = U - inst
         installed_local += (inst * w * local).sum(axis=1)
         installed_x += (inst * w * x_user).sum(axis=1)
         pa_mid = pa[-1] if in_campaign else 0.0
         p_inst_mid[t] = 1.0 - (1.0 - pa_mid) * (1.0 - p_wom[-1]) * (1.0 - p_x[-1])
+        if video is not None:
+            p_inst_mid[t] = 1.0 - (1.0 - p_inst_mid[t]) * (1.0 - p_video[-1])
 
         # 2) 登録
         signup = inst * p_signup
@@ -604,6 +631,14 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         daily["core_actions"][:, t] = wsum(core)
         daily["active"][:, t] = active_real_prev / scale
         daily["new_payers"][:, t] = wsum(pay)
+        if video is not None:   # 制作費は広告費とは別に spend_jpy に足す
+            daily["video_posts"][:, t] = vstats["posts"] / scale
+            daily["video_views"][:, t] = vstats["views"] / scale
+            if vstats["newly_reached"] is not None:
+                daily["video_reached"][:, t] = wsum(vstats["newly_reached"])
+            daily["installs_video"][:, t] = wsum(inst_video)
+            daily["spend_video_jpy"][:, t] = vstats["spend"] / scale
+            daily["spend_jpy"][:, t] += vstats["spend"] / scale
 
     # --- 決済後: 継続課金と売上（集計値で計算） --------------------------------
     # daily の payers は「その日に新しく決済した人数」（契約 v1）
@@ -629,6 +664,9 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         "active_end": daily["active"][:, -1],
         "paying_end": daily["paying"][:, -1],
     }
+    if video is not None:
+        for k in VIDEO_KEYS:
+            totals[k] = daily[k].sum(1)
     for g in gates:
         totals["gate:" + g.gate_id] = gate_daily[g.gate_id].sum(1)
     if trial_days > 0 and preset_name in ("subscription", "habit"):
@@ -638,6 +676,8 @@ def simulate_plan(app: dict, plan_key: str, pop: Population, rules: Rules, draws
         totals["roas"] = np.where(totals["spend_jpy"] > 0, totals["revenue_jpy"] / totals["spend_jpy"], 0.0)
 
     # --- mid 回の人ごとの累計（離脱理由用） -----------------------------------
+    if video is not None:   # 広告か動画のどちらかが届いた人
+        not_reached = not_reached * video.not_reached
     person = {
         "reached": (1.0 - not_reached[-1]) * eligible,
         "installs": cum["installs"][-1],

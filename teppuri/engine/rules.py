@@ -24,6 +24,9 @@ class Rules:
     presets: dict
     channels: dict
     multipliers: dict
+    # 動画の大量投稿（organic_video）。12d263a の固定後に追加、バックテストでは未検証。
+    # ファイルが無ければ空（organic_video を使う plan だけがエラーになる）。
+    organic_video: dict = field(default_factory=dict)
 
     @classmethod
     def load(cls, rules_dir: Path | str = RULES_DIR) -> "Rules":
@@ -34,7 +37,12 @@ class Rules:
             channels = yaml.safe_load(f)
         with open(rules_dir / "multipliers.yaml", encoding="utf-8") as f:
             multipliers = yaml.safe_load(f)
-        return cls(presets=presets, channels=channels, multipliers=multipliers)
+        organic_video = {}
+        if (rules_dir / "organic_video.yaml").exists():
+            with open(rules_dir / "organic_video.yaml", encoding="utf-8") as f:
+                organic_video = yaml.safe_load(f) or {}
+        return cls(presets=presets, channels=channels, multipliers=multipliers,
+                   organic_video=organic_video)
 
 
 def triple(spec: dict) -> tuple[float, float, float]:

@@ -1,6 +1,7 @@
 """感度表: 仮定の値を1つずつ low / high に固定したとき、A/B の結果がどう動くか。
 
 python -m teppuri.engine.sensitivity [--out rules/sensitivity.md]
+python -m teppuri.engine.sensitivity --video   # 固定後に追加した動画チャネルの節だけを作り直す
 
 バックテストで rules/ を固定する前の確認用。fixture アプリ（tests/fixtures/engine/app.yaml）を
 実データ人口で30回まわす。判断は「なし（全て similar）」と「仮の判断あり」
@@ -89,11 +90,120 @@ def running_app(app: dict) -> dict:
     return a
 
 
+# ---------------------------------------------------------------------------
+# 固定後に追加した機能（バックテスト未検証）: 動画の大量投稿（organic_video）
+# 固定前の表とは別の節として、sensitivity.md の印（VIDEO_BEGIN〜VIDEO_END）の間だけを書き換える。
+# ---------------------------------------------------------------------------
+
+VIDEO_BEGIN = "<!-- organic_video: begin（python -m teppuri.engine.sensitivity --video で作り直す） -->"
+VIDEO_END = "<!-- organic_video: end -->"
+VIDEO_PLAN = {"platforms": ["tiktok", "instagram", "youtube"], "accounts": 10,
+              "posts_per_account_per_day": 1, "start_day": 1, "days": 50, "cost_per_video_jpy": 1050}
+
+
+def video_app(app: dict) -> dict:
+    """A は fixture の A案（首都圏・広告500万円）。B は全国・広告なしで動画10アカウント × 毎日1本 × 50日。"""
+    a = copy.deepcopy(app)
+    a["plans"]["B"] = {"regions": [], "period_days": 90, "campaign_days": 30,
+                       "target": {"age": [20, 34], "sex": "any"}, "channels": {}, "creatives": [],
+                       "organic_video": dict(VIDEO_PLAN)}
+    return a
+
+
+def video_variants(rules: Rules):
+    R = rules.organic_video
+    labels = {"median_new_account": "新規アカウントの1投稿の再生数の中央値",
+              "sigma_within_account": "アカウント内のばらつき σ_within",
+              "sigma_between_accounts": "アカウント間のばらつき σ_between",
+              "p_post_over_10k": "1万回以上の投稿の割合",
+              "viral_tail_alpha": "パレートの裾の指数 α",
+              "max_views_per_post": "1投稿の再生数の上限",
+              "follow_per_view": "1再生あたりのフォロー",
+              "followers_exponent": "フォロワーと再生の指数 k",
+              "freq_uplift_daily": "毎日投稿の上積み",
+              "same_account_decay_per_post": "同じアカウントの飽き（11本目以降）",
+              "viewer_fatigue_half_views": "見る側の飽き（反応が半分になる本数）",
+              "japan_view_share": "人口に届く再生の割合",
+              "view_to_install": "1再生あたりの設置"}
+    for key, label in labels.items():
+        lo, _, hi = triple(R[key])
+        for which, val in (("low", lo), ("high", hi)):
+            def apply(r, key=key, which=which):
+                _fix(r.organic_video[key], which)
+            yield label, f"{which} = {val:g}", apply
+
+
+def video_main(path: Path, pop: Population) -> None:
+    t0 = time.time()
+    app = video_app(load_app(FIX / "app.yaml"))
+    base_rules = Rules.load()
+
+    def run(r):
+        rep = run_app(app, pop, r, [], runs=RUNS, seed=SEED)
+        a, b = rep["plans"]["A"]["totals"], rep["plans"]["B"]["totals"]
+        return {"A": a["installs"]["p50"] * pop.scale, "B": b["installs"]["p50"] * pop.scale,
+                "Bv": b["installs_video"]["p50"] * pop.scale, "views": b["video_views"]["p50"] * pop.scale,
+                "pB": rep["comparison"]["p_B_better"]["installs"]}
+
+    rows = [("（基準）", "範囲どおりに抽選", run(base_rules))]
+    for label, desc, apply in video_variants(base_rules):
+        r = copy.deepcopy(base_rules)
+        apply(r)
+        rows.append((label, desc, run(r)))
+    lines = [
+        VIDEO_BEGIN,
+        "## 固定後に追加した機能（バックテスト未検証）: 動画の大量投稿（organic_video）",
+        "",
+        "12d263a でルールを固定した後に追加したチャネルです。バックテストでは検証していません。"
+        "値は `rules/organic_video.yaml`（出典は `03_조사/08_오가닉영상.md`、日本以外のデータ。3次・推計・仮定を含む）。"
+        "上の表（固定前）には影響しません。",
+        "",
+        f"`python -m teppuri.engine.sensitivity --video` でこの節だけを作り直せます（{RUNS}回、シード {SEED}、"
+        f"約{time.time() - t0:.0f}秒）。",
+        "",
+        "- A案: fixture の A案（首都圏4都県、20〜34歳、Instagram 300万円＋TikTok 200万円）",
+        "- B案: 全国、広告なし、動画10アカウント × 毎日1本 × 50日（TikTok・Instagram リール・YouTube ショートに同じ動画）、"
+        "アカウントごとに別の動画、"
+        "制作費 1本1,050円（AI 動画の mid $7、計52.5万円）",
+        "- 設置は日本全体に換算した p50（人）。「B が良い確率」は同じ回どうしで B の設置が A を上回った回の割合。判断なし。",
+        "",
+        "| 仮定 | 値 | A 設置 p50 | B 設置 p50 | B のうち動画経由 | B の再生数 p50 | B が良い確率（設置） |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    b0 = rows[0][2]["pB"]
+    for label, desc, s in rows:
+        lines.append(f"| {label} | {desc} | {s['A']:,.0f} | {s['B']:,.0f} | {s['Bv']:,.0f} | {s['views']:,.0f} | "
+                     f"{s['pB']:.2f}{_flip(b0, s['pB'])} |")
+    by = {}
+    for label, _, s in rows[1:]:
+        by.setdefault(label, []).append(s["Bv"])
+    top = max(by.items(), key=lambda kv: max(kv[1]) / max(min(kv[1]), 1e-9))
+    lines += ["", f"- 動画経由の設置を最も動かすのは「{top[0]}」（{min(top[1]):,.0f}〜{max(top[1]):,.0f} 人）。"
+              "日本のオーガニック動画の値はなく、1再生あたりの設置は3次の積なので、水準（何人）ではなく「広告と比べて桁がどのくらいか」の目安として読む。",
+              "- 見る側の飽きは、1人あたりの再生が少ない（数千万人の利用者に数百万再生を配る）この規模ではほとんど効かない。"
+              "アカウントや本数を大きく増やしたときに効く。同じ動画を全アカウントで使い回す（unique_videos_per_account: false）と"
+              "重複のペナルティで再生が減る（この表は別の動画の前提）。", "", VIDEO_END]
+    text = path.read_text(encoding="utf-8") if path.exists() else ""
+    block = "\n".join(lines)
+    if VIDEO_BEGIN in text and VIDEO_END in text:
+        head, rest = text.split(VIDEO_BEGIN, 1)
+        tail = rest.split(VIDEO_END, 1)[1]
+        text = head + block + tail
+    else:
+        text = text.rstrip("\n") + "\n\n" + block + "\n"
+    path.write_text(text, encoding="utf-8")
+    print(f"出力: {path}（動画の節、{time.time() - t0:.0f}秒）")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="感度表を作る")
     ap.add_argument("--out", default=str(REPO_ROOT / "rules" / "sensitivity.md"))
     ap.add_argument("--population", default=str(DEFAULT_POPULATION))
+    ap.add_argument("--video", action="store_true", help="固定後に追加した動画チャネルの節だけを作り直す")
     args = ap.parse_args(argv)
+    if args.video:
+        video_main(Path(args.out), Population.load(args.population))
+        return 0
 
     t0 = time.time()
     pop = Population.load(args.population)

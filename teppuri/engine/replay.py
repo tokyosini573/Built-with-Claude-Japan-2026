@@ -14,6 +14,9 @@ DAILY_KEYS = ["impressions", "reached", "installs", "installs_wom_local", "insta
               "core_actions", "active", "payers", "paying", "revenue_jpy"]
 CUMULATIVE_KEYS = ["installs", "payers", "revenue_jpy", "reached", "core_actions"]
 COMPARISON_KEYS = ["installs", "payers", "revenue_jpy", "active_end", "core_actions"]
+# 動画の大量投稿（organic_video）を使う案だけに出す（12d263a の固定後に追加、バックテスト未検証）
+VIDEO_DAILY_KEYS = ["video_posts", "video_views", "video_reached", "installs_video", "spend_video_jpy"]
+VIDEO_CUMULATIVE_KEYS = ["video_reached", "installs_video"]
 EXTRAPOLATED_AFTER_DAY = 90
 NO_DECISION_REASON = "判断なし（カテゴリ平均どおりの離脱）"
 
@@ -127,9 +130,11 @@ def assemble_replay(app: dict, pop: Population, results: dict[str, PlanResult], 
     plans = {}
     for key, res in results.items():
         daily = {"day": list(range(1, horizon + 1))}
-        for k in DAILY_KEYS:
+        has_video = "video_views" in res.daily
+        for k in DAILY_KEYS + (VIDEO_DAILY_KEYS if has_video else []):
             daily[k] = _band(res.daily[k], runs)
-        cumulative = {k: _band(np.cumsum(res.daily[k], axis=1), runs) for k in CUMULATIVE_KEYS}
+        cumulative = {k: _band(np.cumsum(res.daily[k], axis=1), runs)
+                      for k in CUMULATIVE_KEYS + (VIDEO_CUMULATIVE_KEYS if has_video else [])}
         totals = {k: _band(v, runs) for k, v in res.totals.items()}
         plans[key] = {
             "config": plan_config(app, key),
