@@ -511,8 +511,11 @@ dialog.sheet .person { grid-template-columns: 1fr; }
 }
 .hero-fig { margin: 0; display: grid; gap: 12px; min-width: 0; }
 .hero-dots { width: 100%; display: block; }
-.hero-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; color: var(--text-secondary); }
-.hero-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+/* 凡例は下の注記（15px・薄い色）より目立たせる */
+.hero-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 17px; font-weight: 700; color: var(--fg); }
+.hero-legend > span { display: inline-flex; align-items: center; gap: 7px; }
+.hero-legend .swatch { width: 14px; height: 14px; }
+.hero-fig figcaption .hero-legend { margin-bottom: 4px; }
 .hero-fig figcaption { display: grid; gap: 6px; }
 .swatch.lv1 { background: var(--a-reach); }
 .swatch.lv2 { background: var(--a-dot); }
