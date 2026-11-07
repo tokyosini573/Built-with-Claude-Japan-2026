@@ -1,4 +1,5 @@
-// 根拠: 1段目 = 「1万人は何からできているか」の図。2段目 = 属性ごとの出典表。3段目 = 限界の全文と DATA_SOURCES。
+// 根拠: 1段目 = 「1万人は何からできているか」の図。2段目 = 数字の出発点（業界の平均値）。3段目 = 属性ごとの出典表。
+// 4段目 = 限界の全文と DATA_SOURCES。最後に出典表記（小さく、ただし見える形で）。
 // 限界と出典表記は data/ の文書をそのまま読み込んで出す（画面側で数字を書き写さない）。
 
 import dataSources from "../../../data/DATA_SOURCES.md?raw";
@@ -6,6 +7,7 @@ import populationReadme from "../../../data/population/README.md?raw";
 import { REPO_URL } from "../config";
 import { Markdown, extractSection } from "../lib/markdown";
 import { href } from "../lib/router";
+import "./sources.css";
 
 // 図の中身は data/population/README.md の「作り方」「列と出典」と DATA_SOURCES.md 1章から
 const LAYERS: { step: string; attrs: string[]; src: string }[] = [
@@ -41,6 +43,14 @@ const TABLE: [string, string, string, string][] = [
   ["iPhone / Android", "スマホを持つ人だけ。性 × 10歳階級", "モバイル社会研究所（2026年）", "2-7"],
   ["SNS（5種類）", "スマホを持つ人だけ。性 × 10歳階級", "情報通信メディアの利用時間調査 表5-1-1、モバイル社会白書2026", "2-8"],
   ["気質（5つ）", "性 × 10歳階級", "消費者意識基本調査（令和4・5・7年度）", "2-12"],
+];
+
+// 数字の出発点: デモアプリ（matching プリセット）の主な値。rules/presets.yaml・rules/channels.yaml の mid（括弧は範囲）と source をそのまま写す
+const BENCH: { what: string; value: string; range?: string; src: string }[] = [
+  { what: "設置した人が登録する割合", value: "46.6%", range: "46.6〜58.4%", src: "[LD22] p.18 / [L19] p.9" },
+  { what: "設置から 1日後・7日後・30日後に使っている割合", value: "26%・15%・9%", range: "30日後は 2.7〜9%", src: "[L19] p.19（30日後の下限は [Braze]）" },
+  { what: "設置した人が有料会員になる割合", value: "5.4%", range: "5.4〜6.3%", src: "[L19] p.9" },
+  { what: "Instagram 広告 1,000回表示の費用", value: "750円", range: "500〜3,000円", src: "[3-F] 代理店の相場" },
 ];
 
 const popLimits = extractSection(populationReadme, "限界");
@@ -82,10 +92,54 @@ export function SourcesPage() {
           </div>
           <div className="layer layer-brand">
             <span className="step">架空の1万人</span>
-            <span style={{ fontSize: 17 }}>1人が、実際の15〜79歳の約9,680人分を表します（2025年国勢調査の 96,806,585人 ÷ 1万）。</span>
+            <span style={{ fontSize: 17 }}>1人が、実際の15〜79歳の約9,681人分を表します（2025年国勢調査の 96,806,585人 ÷ 1万）。</span>
           </div>
         </div>
         <p className="note">乱数の種は固定。同じコマンドで同じ1万人ができます。</p>
+      </section>
+
+      <section className="section" aria-labelledby="bench-h">
+        <div style={{ display: "grid", gap: 8 }}>
+          <h2 className="h2" id="bench-h">
+            数字の出発点（業界の平均値）
+          </h2>
+          <p className="lead">エンジンは、出典のあるカテゴリの平均値から計算を始め、Claude の判断でそれを上下させます。</p>
+        </div>
+        <div className="src-flow" aria-label="数字の作り方">
+          <span className="src-flow-box">業界の平均値（出典つき）</span>
+          <span className="src-flow-op" aria-hidden>
+            ×
+          </span>
+          <span className="src-flow-box">Claude の判断（平均より 高い・同じ・低い）</span>
+          <span className="src-flow-op" aria-hidden>
+            →
+          </span>
+          <span className="src-flow-box strong">エンジンが数字にする</span>
+        </div>
+        <div className="src-bench" role="list" aria-label="マッチングアプリの主な平均値">
+          {BENCH.map((b) => (
+            <div key={b.what} role="listitem" className="src-bench-item">
+              <span className="src-bench-what">{b.what}</span>
+              <span className="src-bench-value num">{b.value}</span>
+              <span className="src-bench-src">
+                {b.range && <>範囲 {b.range}・</>}出典 {b.src}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="note">
+          デモアプリ（マッチング）の値です。出典のない値は「仮定」と明記しています（例: 初めてのマッチの起きやすさ、90日後に使っている割合）。略称の中身は
+          <a href={href("sources-full")}>DATA_SOURCES</a>
+          {REPO_URL && (
+            <>
+              、値の全体は
+              <a href={`${REPO_URL}/blob/main/rules/presets.yaml`} target="_blank" rel="noreferrer">
+                rules/presets.yaml
+              </a>
+            </>
+          )}
+          にあります。
+        </p>
       </section>
 
       <section className="section" aria-labelledby="tbl-h">
@@ -154,13 +208,10 @@ export function SourcesPage() {
       </section>
 
       {credit && (
-        <section className="section" aria-labelledby="credit-h">
-          <h2 className="h3" id="credit-h">
-            出典表記
-          </h2>
-          <div className="note">
-            <Markdown source={credit} idPrefix="cr" />
-          </div>
+        // 政府統計の利用規約は出典と「加工して作成」の明記を求めるので、折りたたまずに小さく見える形で置く
+        <section className="src-credit" aria-labelledby="credit-h">
+          <h2 id="credit-h">出典表記（統計の利用条件による）</h2>
+          <Markdown source={credit} idPrefix="cr" />
         </section>
       )}
     </>

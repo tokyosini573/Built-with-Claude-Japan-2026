@@ -1,0 +1,127 @@
+/* トップだけの部品（TopPage.tsx）。色は index.css のトークンだけを使う（ダークでも同じ名前で切り替わる）。 */
+
+/* ---- 解決したいこと ---- */
+.t-points { gap: 32px; }
+.t-bridge {
+  display: grid; gap: 4px; padding: 22px 28px; border-radius: 18px;
+  background: var(--brand-soft); border-left: 6px solid var(--brand-solid); max-width: 52em;
+}
+.t-bridge strong { font-family: var(--display); font-weight: 900; font-size: clamp(20px, 2.6vw, 26px); line-height: 1.45; color: var(--fg); }
+.t-bridge > span { color: var(--text-secondary); }
+
+/* ---- 例えば（デモ） ---- */
+.t-demo { display: grid; gap: 28px; min-width: 0; }
+.t-vs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; position: relative; }
+.t-vs-item { position: relative; min-width: 0; display: grid; }
+.t-vs-mark {
+  position: absolute; z-index: 2; left: -20px; top: 50%; transform: translate(-50%, -50%);
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  font-family: var(--display); font-weight: 900; font-size: 16px; letter-spacing: .04em;
+  background: var(--brand-solid); color: var(--on-brand); box-shadow: var(--shadow);
+}
+.t-plan { display: grid; gap: 8px; align-content: start; }
+.t-plan-name { font-size: 20px; }
+.t-plan-cost { font-family: var(--display); font-weight: 900; font-size: clamp(26px, 3.4vw, 34px); line-height: 1.2; }
+.t-plan-cost .tip { vertical-align: 0.15em; }
+.t-plan-detail { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+
+.t-result { display: grid; gap: 14px; padding: 32px; }
+.t-claim { font-family: var(--display); font-weight: 900; font-size: clamp(22px, 3.2vw, 32px); line-height: 1.45; }
+.t-claim .tip { vertical-align: 0.1em; }
+.t-claim-2 { display: block; color: var(--brand-text); }
+.t-cpi { margin: 6px 0 0; display: grid; gap: 10px; max-width: 720px; }
+.t-cpi figcaption { font-size: 15px; font-weight: 700; color: var(--text-secondary); }
+.t-cpi-row { display: grid; grid-template-columns: 3em minmax(0, 1fr) 5.5em; gap: 12px; align-items: center; }
+.t-cpi-label { font-family: var(--display); font-weight: 900; }
+.t-cpi-track { height: 18px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.t-cpi-fill { display: block; height: 100%; border-radius: 999px; }
+.t-cpi-val { font-family: var(--display); font-weight: 900; font-size: 22px; text-align: right; }
+
+/* ---- 1人を追ってみる ---- */
+.t-follow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); gap: 28px; align-items: start; }
+.t-person { display: grid; gap: 8px; align-content: start; }
+.t-person-id { font-family: var(--display); font-weight: 900; font-size: 15px; color: var(--brand-text); letter-spacing: .04em; }
+.t-person-facts { font-family: var(--display); font-weight: 900; font-size: 22px; line-height: 1.4; }
+.t-steps-wrap { display: grid; gap: 12px; min-width: 0; }
+.t-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.t-steps li {
+  display: grid; grid-template-columns: 7.5em 3.6em minmax(0, 1fr); gap: 14px; align-items: baseline;
+  padding: 14px 18px; border-radius: 14px; background: var(--tint); border: 1px solid var(--card-line);
+}
+.t-step-name { font-weight: 700; }
+.t-step-why { color: var(--text-secondary); line-height: 1.7; }
+.t-pill {
+  justify-self: start; display: inline-block; padding: 1px 12px; border-radius: 999px; font-size: 15px; font-weight: 700; line-height: 1.7; white-space: nowrap;
+  background: var(--surface-2); color: var(--ink-2);
+}
+.t-pill.lv-higher { background: var(--b-soft); color: var(--b); }
+.t-pill.lv-lower { background: var(--error-bg); color: var(--error-text); }
+.t-more > summary { cursor: pointer; font-weight: 700; color: var(--brand-text); padding: 4px 0; }
+.t-more[open] > summary { margin-bottom: 10px; }
+.t-steps-sm li { padding: 10px 14px; font-size: 15px; }
+
+.t-eq-wrap { display: grid; gap: 16px; }
+.t-eq { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.t-eq-box {
+  display: grid; gap: 6px; align-content: start; padding: 20px 22px; border-radius: 18px;
+  background: var(--surface); border: 1px solid var(--card-line); box-shadow: var(--shadow); min-width: 0;
+}
+.t-eq-box.is-claude { border-color: var(--brand-text); box-shadow: inset 0 0 0 1px var(--brand-text), var(--shadow); }
+.t-eq-box.is-engine { background: var(--brand-soft); }
+.t-eq-tag { justify-self: start; font-size: 14px; font-weight: 700; border-radius: 999px; padding: 1px 10px; background: var(--surface-2); color: var(--muted); }
+.t-eq-box.is-claude .t-eq-tag { background: var(--brand-soft); color: var(--brand-text); }
+.t-eq-box.is-engine .t-eq-tag { background: var(--surface); color: var(--fg); }
+.t-eq-num { font-family: var(--display); font-weight: 900; font-size: clamp(34px, 4.4vw, 46px); line-height: 1.15; color: var(--fg); }
+.t-eq-d { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
+.t-eq-op { align-self: center; font-family: var(--display); font-weight: 900; font-size: 32px; color: var(--brand-text); }
+.t-eq-cap { font-weight: 700; }
+
+.t-jp { display: grid; gap: 14px; padding-top: 28px; border-top: 1px solid var(--line); }
+.t-jp-row { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.t-jp-row li { display: grid; gap: 4px; align-content: start; padding: 16px 18px; border-radius: 14px; background: var(--tint); border: 1px solid var(--card-line); font-size: 15px; line-height: 1.65; }
+.t-jp-row strong { font-family: var(--display); font-size: 17px; color: var(--brand-text); }
+.t-jp-row span { color: var(--text-secondary); }
+.t-jp-row li.is-key { background: var(--brand-soft); border-color: var(--brand-text); }
+.t-jp-row .t-jp-link { color: var(--brand-text); font-weight: 700; }
+
+/* ---- なぜ信じられるか ---- */
+.t-checks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.t-checks li { display: grid; gap: 10px; align-content: start; padding: 24px; }
+.t-check-k { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; color: var(--brand-text); }
+.t-check-n {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--brand-solid); color: var(--on-brand); font-family: var(--display); font-weight: 900; font-size: 16px;
+}
+.t-check-t { font-family: var(--display); font-weight: 900; font-size: 20px; line-height: 1.5; }
+.t-check-link { font-weight: 700; justify-self: start; }
+
+/* ---- Claude の使い方 ---- */
+.t-models { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.t-models li {
+  display: grid; gap: 4px; align-content: start; padding: 16px 18px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--card-line); box-shadow: var(--shadow); font-size: 15px; line-height: 1.6;
+}
+.t-models .model { font-size: 18px; }
+
+@media (max-width: 860px) {
+  .t-follow { grid-template-columns: 1fr; }
+  .t-jp-row, .t-models { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .t-checks { grid-template-columns: 1fr; }
+  .t-eq { grid-template-columns: 1fr; gap: 6px; }
+  .t-eq-op { justify-self: center; line-height: 1; }
+}
+@media (max-width: 640px) {
+  .t-vs { grid-template-columns: 1fr; gap: 32px; }
+  .t-vs-mark { left: 50%; top: -16px; }
+  .t-result { padding: 22px; }
+  .t-bridge { padding: 18px 20px; }
+  .t-cpi-row { grid-template-columns: 2.6em minmax(0, 1fr) 4.6em; gap: 8px; }
+  .t-cpi-val { font-size: 19px; }
+  .t-steps li { grid-template-columns: auto 1fr; gap: 6px 10px; padding: 12px 14px; }
+  .t-steps .t-step-why { grid-column: 1 / -1; }
+  .t-jp-row, .t-models { grid-template-columns: 1fr; }
+  .t-checks li { padding: 20px; }
+  .t-check-t { font-size: 18px; }
+}
+.t-check-sub { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+.t-model-n { font-size: 14px; color: var(--muted); }

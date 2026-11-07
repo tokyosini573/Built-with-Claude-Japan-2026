@@ -1,0 +1,48 @@
+/* 結果と入力のページだけで使う形。色は index.css のトークンだけを使う。 */
+
+/* 見出しと切り替えを横に並べ、狭いときは折り返す */
+.sec-head { display: flex; justify-content: space-between; align-items: end; gap: 12px 16px; flex-wrap: wrap; }
+
+/* ---- 費用 ---- */
+.cost-top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.cost-amount { font-family: var(--display); font-size: 24px; line-height: 1.25; }
+.cost-range { display: block; font-size: 13px; }
+
+/* ---- 数字カード（A と B の中央値、幅は小さく） ---- */
+.mcard { gap: 12px; }
+.mcard .mrow { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); column-gap: 10px; align-items: baseline; }
+.mcard .mrow .plan-tag { font-size: 17px; }
+.mcard .mval { font-family: var(--display); font-weight: 900; font-size: 34px; line-height: 1.15; }
+.mcard .munit { font-size: 17px; margin-left: 2px; }
+.mcard .mrange { grid-column: 2; font-size: 13px; }
+.mcard .more { margin-top: 2px; padding-top: 12px; border-top: 1px solid var(--line); }
+
+/* ---- 離れた理由 ---- */
+.themes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .themes { grid-template-columns: 1fr; } }
+.theme {
+  display: grid; gap: 6px; align-content: start; min-width: 0; padding: 16px 18px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--card-line); box-shadow: var(--shadow);
+}
+.theme-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 13px; color: var(--muted); }
+.theme-only { font-family: var(--display); font-weight: 900; }
+.theme-title { font-family: var(--display); font-weight: 900; font-size: 18px; line-height: 1.4; }
+.theme-sum { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+.themes-more > summary { font-size: 16px; padding: 14px 20px; }
+.themes-more > div { padding: 0 16px 18px; }
+.themes-more .theme { box-shadow: none; background: var(--tint); border-color: transparent; }
+
+/* ---- 次に試すこと ---- */
+.next-list { list-style: none; margin: 0; padding: 18px 20px; display: grid; gap: 12px; border-radius: 18px; background: var(--brand-soft); color: var(--fg); max-width: 880px; }
+.next-list li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: baseline; line-height: 1.7; }
+.next-no {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--brand-solid); color: var(--on-brand); font-family: var(--display); font-weight: 900; font-size: 14px; line-height: 1;
+}
+
+/* ---- 入力: 説明は2行だけ見せて、残りは「詳しく」 ---- */
+.desc-rest { max-width: 46em; }
+.desc-rest.clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.linkbtn { justify-self: start; padding: 4px 0; border: 0; background: none; color: var(--link); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.linkbtn:hover { text-decoration: underline; text-underline-offset: 3px; }
+.h2 .tip-pop, .h3 .tip-pop, .h4 .tip-pop, h4 .tip-pop { font-weight: 400; font-family: var(--body); letter-spacing: 0; }

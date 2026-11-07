@@ -21,8 +21,9 @@ function readParams() {
 }
 
 const NAV: { route: Route; label: string }[] = [
-  { route: "result", label: "結果" },
+  // 「何を試したか → どうなったか → 当たるのか → 何からできているか」の順
   { route: "input", label: "入力" },
+  { route: "result", label: "結果" },
   { route: "verify", label: "検証" },
   { route: "sources", label: "根拠" },
 ];

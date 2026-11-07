@@ -1,20 +1,22 @@
-// 結果: 1段目 = 一行の結論・再生される地図・数字カード3枚。
-// 2段目 = カードを押すとその指標の内訳。3段目 = 地図の点を押すと一人のパネル。
+// 結果: 一行の結論 → 再生される地図 → 数字カード3枚 → 離れた理由（Claude のまとめ）→ 次に試すこと。
+// カードを押すとその指標の内訳。地図の点を押すと一人のパネル。細かい説明は「?」の吹き出しと折りたたみに入れる。
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { InfoTip } from "../components/HeroDots";
 import { JapanMap } from "../components/JapanMap";
 import { Mascot } from "../components/Mascot";
 import { Timeline, usePlayback } from "../components/Timeline";
 import { ScaleToggle } from "../components/Metrics";
 import { CARD_METRICS, HEADLINE_METRIC, ORGANIC_VIDEO_NOTE_JA, UNCLEAR_RANGE } from "../config";
 import { formatCount, scaleFactor, type Scale } from "../lib/format";
-import { metricName, yen } from "../lib/labels";
-import { planIds, type Band, type PlanId, type Replay } from "../lib/replay";
+import { metricName, stepName, yen } from "../lib/labels";
+import { planIds, type Band, type DropTheme, type PlanId, type Replay } from "../lib/replay";
 import { PersonState, statesOnDay } from "../lib/states";
 import { useStateTimeline } from "../lib/useReplay";
 import { MetricDetail } from "./MetricDetail";
 import { PersonPanel } from "./PersonPanel";
 import { PLAN_VAR, PlanName, count, people, periodText, unit } from "./ui";
+import "./result.css";
 
 interface Props {
   replay: Replay;
@@ -33,12 +35,17 @@ export function ResultPage({ replay, scale, onScale, autoplay, onAutoplayDone }:
       <Verdict replay={replay} />
       <Player replay={replay} scale={scale} autoplay={autoplay} onAutoplayDone={onAutoplayDone} picked={picked} onPick={setPicked} />
       <section className="section" aria-labelledby="cards-h">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 16, flexWrap: "wrap" }}>
+        <div className="sec-head">
           <div style={{ display: "grid", gap: 6 }}>
             <h2 className="h2" id="cards-h">
               3つの数字
             </h2>
-            <p className="note">{periodText(replay)}の合計。大きな数字は{replay.meta.runs}回の真ん中（中央値）、下は10〜90%の幅です。</p>
+            <p className="note">
+              {periodText(replay)}の合計。大きな数字は真ん中の値です。
+              <InfoTip label="数字の読み方">
+                同じ条件で{replay.meta.runs}回試したうちの、真ん中の回の値（中央値）です。小さな字の「幅」は、下から10%〜90%の回が入る範囲です。カードを押すと内訳が出ます。
+              </InfoTip>
+            </p>
           </div>
           <ScaleToggle scale={scale} onChange={onScale} />
         </div>
@@ -49,6 +56,8 @@ export function ResultPage({ replay, scale, onScale, autoplay, onAutoplayDone }:
         </div>
         {openMetric && <MetricDetail replay={replay} metric={openMetric} scale={scale} onClose={() => setOpenMetric(null)} />}
       </section>
+      <DropThemes replay={replay} />
+      <NextSteps replay={replay} />
     </>
   );
 }
@@ -101,12 +110,33 @@ function Verdict({ replay }: { replay: Replay }) {
           <p className="note">
             同じ条件で{replay.meta.runs}回ずつ試し、<PlanName id="B" />の{name}が A案を上回ったのは {replay.meta.runs}回中
             <strong className="num">{Math.round(p * replay.meta.runs)}回</strong>でした。
+            <OtherVerdicts replay={replay} headlineUnclear={p > UNCLEAR_RANGE[0] && p < UNCLEAR_RANGE[1]} />
           </p>
         </>
       )}
       <CostRow replay={replay} />
     </section>
   );
+}
+
+// ---- 費用 ----
+
+/** ほかのカードの指標の勝ち負けを一文で（数字は出さない。回数はカードの内訳に） */
+function OtherVerdicts({ replay, headlineUnclear }: { replay: Replay; headlineUnclear: boolean }) {
+  const pb = replay.comparison?.p_B_better as Record<string, number | undefined> | undefined;
+  if (!pb) return null;
+  const groups: Record<"unclear" | "B" | "A", string[]> = { unclear: [], B: [], A: [] };
+  for (const m of CARD_METRICS) {
+    if (m === HEADLINE_METRIC) continue;
+    const p = pb[m];
+    if (p === undefined) continue;
+    groups[p >= UNCLEAR_RANGE[1] ? "B" : p <= UNCLEAR_RANGE[0] ? "A" : "unclear"].push(metricName(m, replay));
+  }
+  const parts: string[] = [];
+  if (groups.unclear.length) parts.push(`${groups.unclear.join("・")}${headlineUnclear ? "も" : "は"}、どちらが多いかはっきりしません。`);
+  if (groups.B.length) parts.push(`${groups.B.join("・")}は、B案が上回った回のほうが多めです。`);
+  if (groups.A.length) parts.push(`${groups.A.join("・")}は、A案が上回った回のほうが多めです。`);
+  return parts.length ? <> {parts.join("")}</> : null;
 }
 
 // ---- 費用 ----
@@ -125,21 +155,22 @@ function CostRow({ replay }: { replay: Replay }) {
         const ads = video && (t.spend_jpy?.p50 ?? 0) > (t["spend_video_jpy" as "spend_jpy"]?.p50 ?? 0) * 1.0001;
         return (
           <div key={id} className="cost">
-            <span className="plan-tag" style={{ color: PLAN_VAR[id] }}>
-              {id}案
+            <span className="cost-top">
+              <span className="plan-tag" style={{ color: PLAN_VAR[id] }}>
+                {id}案
+              </span>
+              <span className="note">
+                {ads ? "広告費と動画の制作費" : video ? "動画の制作費" : "広告費"}
+                {video && <InfoTip label="動画の案についての注意">{ORGANIC_VIDEO_NOTE_JA}</InfoTip>}
+              </span>
             </span>
-            <span>
-              <span className="note">{ads ? "広告費と動画の制作費" : video ? "動画の制作費" : "広告費"}</span>{" "}
-              <strong className="num" style={{ fontSize: 20 }}>{t.spend_jpy ? yen(Math.round(t.spend_jpy.p50 * k)) : "—"}</strong>
-            </span>
+            <strong className="num cost-amount">{t.spend_jpy ? yen(Math.round(t.spend_jpy.p50 * k)) : "—"}</strong>
             {t.cpi_jpy && (
-              <span>
-                <span className="note">1インストールあたり</span>{" "}
-                <strong className="num">{count(t.cpi_jpy.p50)}円</strong>
-                <span className="range num">（幅 {count(t.cpi_jpy.p10)}〜{count(t.cpi_jpy.p90)}円）</span>
+              <span className="note">
+                1インストールあたり <strong className="num" style={{ color: "var(--fg)" }}>{count(t.cpi_jpy.p50)}円</strong>
+                <span className="range num cost-range">幅 {count(t.cpi_jpy.p10)}〜{count(t.cpi_jpy.p90)}円</span>
               </span>
             )}
-            {video && <span className="caveat">{ORGANIC_VIDEO_NOTE_JA}</span>}
           </div>
         );
       })}
@@ -155,24 +186,23 @@ function rangeText(metric: string, b: Band<number>, k: number) {
 
 function MetricCard({ replay, metric, scale, open, onToggle }: { replay: Replay; metric: string; scale: Scale; open: boolean; onToggle: () => void }) {
   const k = scaleFactor(replay.meta, scale, metric);
-  const p = replay.comparison?.p_B_better[metric as keyof NonNullable<Replay["comparison"]>["p_B_better"]];
   return (
-    <button type="button" className="card" aria-expanded={open} onClick={onToggle}>
+    <button type="button" className="card mcard" aria-expanded={open} onClick={onToggle}>
       <span className="h3" style={{ fontFamily: "var(--display)" }}>{metricName(metric, replay)}</span>
       {planIds(replay).map((id) => {
         const b = replay.plans[id]!.totals[metric as "installs"];
         return (
-          <span key={id} style={{ display: "grid", gap: 2 }}>
-            <span className="plan-tag" style={{ color: PLAN_VAR[id], fontSize: 16 }}>
+          <span key={id} className="mrow">
+            <span className="plan-tag" style={{ color: PLAN_VAR[id] }}>
               {id}案
             </span>
             {b ? (
               <>
-                <span className="big num">
+                <span className="mval num">
                   {count(b.p50 * k)}
-                  <span style={{ fontSize: 20, marginLeft: 2 }}>{unit(metric)}</span>
+                  <span className="munit">{unit(metric)}</span>
                 </span>
-                <span className="range num">幅 {rangeText(metric, b, k)}</span>
+                <span className="range num mrange">幅 {rangeText(metric, b, k)}</span>
               </>
             ) : (
               <span className="range">データなし</span>
@@ -180,14 +210,6 @@ function MetricCard({ replay, metric, scale, open, onToggle }: { replay: Replay;
           </span>
         );
       })}
-      {p !== undefined && (
-        <span style={{ display: "grid", gap: 0, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
-          <span className="note">B案が上回った回</span>
-          <strong className="num" style={{ fontSize: 18 }}>
-            {replay.meta.runs}回中{Math.round(p * replay.meta.runs)}回
-          </strong>
-        </span>
-      )}
       <span className="more">{open ? "閉じる ▲" : "内訳を見る ▼"}</span>
     </button>
   );
@@ -402,9 +424,10 @@ function InterviewChips({ replay, picked, onPick }: Pick<PlayerProps, "replay" |
   const list = replay.interviews.filter((iv) => rowOf.has(iv.person_id));
   if (list.length === 0) return null;
   return (
-    <div style={{ display: "grid", gap: 10 }}>
+    <div style={{ display: "grid", gap: 6 }}>
       <h3 className="h3">話を聞いた人</h3>
-      <div className="chips">
+      <p className="note">地図から選んだ{new Set(list.map((iv) => iv.person_id)).size}人に、Claude が話を聞きました。答えはその人の記録だけから作っています。</p>
+      <div className="chips" style={{ marginTop: 4 }}>
         {list.map((iv) => {
           const row = rowOf.get(iv.person_id)!;
           const p = replay.people[row];
@@ -417,5 +440,148 @@ function InterviewChips({ replay, picked, onPick }: Pick<PlayerProps, "replay" |
         })}
       </div>
     </div>
+  );
+}
+
+// ---- 離れた理由（report.json のテーマ）----
+
+/** 最初に見せるテーマの数。残りは「すべて見る」の中 */
+const TOP_THEMES = 4;
+
+const nonEmpty = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+
+/** テーマを集める。一番外側の drop_themes を優先し、なければ案ごとの drop_themes を重複なしで */
+function collectThemes(replay: Replay): DropTheme[] {
+  const top = Array.isArray(replay.drop_themes) ? replay.drop_themes : [];
+  const src = top.length
+    ? top
+    : planIds(replay).flatMap((id) => (Array.isArray(replay.plans[id]!.drop_themes) ? replay.plans[id]!.drop_themes : []));
+  const seen = new Set<string>();
+  const out: DropTheme[] = [];
+  for (const t of src) {
+    if (!t || !nonEmpty(t.theme_ja)) continue;
+    const key = `${t.theme_ja}|${t.plan ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(t);
+  }
+  // まとめた離脱理由の数が多い順（同じ数ならレポートの並び）
+  const n = (t: DropTheme) => (Array.isArray(t.drop_reason_ids) ? t.drop_reason_ids.length : 0);
+  return out.map((t, i) => ({ t, i })).sort((a, b) => n(b.t) - n(a.t) || a.i - b.i).map((x) => x.t);
+}
+
+/** "A,B" → 両方なら null、片方なら "B" */
+function onlyPlan(plan: unknown): PlanId | null {
+  if (typeof plan !== "string") return null;
+  const ps = [...new Set(plan.split(/[,、\s]+/).filter((p): p is PlanId => p === "A" || p === "B"))];
+  return ps.length === 1 ? ps[0] : null;
+}
+
+/** "install,gate:id_verification" → "インストール・本人確認" */
+function stepsText(step: unknown, replay: Replay): string {
+  if (typeof step !== "string") return "";
+  return [...new Set(step.split(/[,、\s]+/).filter(Boolean).map((s) => stepName(s, replay)))].join("・");
+}
+
+function ThemeList({ themes, replay }: { themes: DropTheme[]; replay: Replay }) {
+  return (
+    <ul className="themes">
+      {themes.map((t, i) => {
+        const only = onlyPlan(t.plan);
+        const steps = stepsText(t.step, replay);
+        return (
+          <li key={`${t.theme_ja}-${i}`} className="theme">
+            {(steps || only) && (
+              <span className="theme-meta">
+                {only && (
+                  <span className="theme-only" style={{ color: PLAN_VAR[only] }}>
+                    {only}案だけ
+                  </span>
+                )}
+                {steps && <span>{steps}</span>}
+              </span>
+            )}
+            <strong className="theme-title">{t.theme_ja}</strong>
+            {nonEmpty(t.summary_ja) && <span className="theme-sum">{t.summary_ja}</span>}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function DropThemes({ replay }: { replay: Replay }) {
+  const themes = useMemo(() => collectThemes(replay), [replay]);
+  if (themes.length === 0) return null;
+  const top = themes.slice(0, TOP_THEMES);
+  const rest = themes.slice(TOP_THEMES);
+  return (
+    <section className="section" aria-labelledby="themes-h">
+      <div style={{ display: "grid", gap: 6 }}>
+        <h2 className="h2" id="themes-h">
+          離れた理由
+        </h2>
+        <p className="note">
+          途中でやめた人の理由を、Claude がテーマにまとめました。
+          <InfoTip label="まとめ方">
+            段階とグループごとの離れた理由を、似たものどうしでまとめたものです。上から、まとめた理由の数が多い順です。小さな字は、その理由が出た段階です。
+          </InfoTip>
+        </p>
+      </div>
+      <ThemeList themes={top} replay={replay} />
+      {rest.length > 0 && (
+        <details className="fold themes-more">
+          <summary>すべて見る（ほか{rest.length}件）</summary>
+          <div>
+            <ThemeList themes={rest} replay={replay} />
+          </div>
+        </details>
+      )}
+    </section>
+  );
+}
+
+// ---- 次に試すこと（report_ja の「次に試す…」の箇条書き）----
+
+/** report_ja から「次に試す」の見出しの下の箇条書きだけを取り出す。見つからなければ空 */
+function nextStepsFrom(report: unknown): string[] {
+  if (typeof report !== "string" || !report.includes("次に試す")) return [];
+  const lines = report.split(/\r?\n/).map((l) => l.trim());
+  const isHeading = (l: string) => /^【[^】]*】/.test(l) || /^#{1,6}\s/.test(l) || /^■/.test(l);
+  const start = lines.findIndex((l) => l.includes("次に試す") && (isHeading(l) || l.length <= 24));
+  if (start < 0) return [];
+  const out: string[] = [];
+  for (const l of lines.slice(start + 1)) {
+    if (!l) continue;
+    if (isHeading(l)) break;
+    const m = /^(?:[・•●○◦\-*＊]|\d{1,2}[.)．、）])\s*(.+)$/.exec(l);
+    if (m && m[1].trim()) out.push(m[1].trim());
+    else if (out.length) break;
+  }
+  return out;
+}
+
+function NextSteps({ replay }: { replay: Replay }) {
+  const steps = useMemo(() => nextStepsFrom(replay.report_ja), [replay.report_ja]);
+  if (steps.length === 0) return null;
+  return (
+    <section className="section next" aria-labelledby="next-h">
+      <div style={{ display: "grid", gap: 6 }}>
+        <h2 className="h2" id="next-h">
+          次に試すこと
+        </h2>
+        <p className="note">Claude のレポートから。</p>
+      </div>
+      <ol className="next-list">
+        {steps.map((t, i) => (
+          <li key={i}>
+            <span className="next-no num" aria-hidden>
+              {i + 1}
+            </span>
+            <span>{t}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }

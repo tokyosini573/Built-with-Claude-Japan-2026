@@ -610,16 +610,7 @@ dialog.sheet .person { grid-template-columns: 1fr; }
 .flow-ai { justify-self: start; margin-top: 6px; font-size: 15px; font-weight: 700; border-radius: 999px; padding: 2px 12px; background: var(--surface-2); color: var(--muted); }
 .flow-ai.on { background: var(--brand-soft); color: var(--brand-text); }
 
-.effects { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
-.effects li { display: grid; gap: 10px; align-content: start; border-top: 4px solid var(--brand-solid); padding-top: 20px; }
-.effects li:nth-child(2) { border-top-color: var(--b); }
-.jp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
-.jp-item { display: grid; gap: 6px; align-content: start; padding: 22px; }
-.jp-item strong { font-family: var(--display); font-size: 18px; color: var(--brand-text); }
-.jp-item span { color: var(--text-secondary); }
 
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-.stats > div { display: grid; gap: 6px; align-content: start; }
 .stat { font-family: var(--display); font-weight: 900; font-size: clamp(44px, 6vw, 68px); line-height: 1.1; color: var(--brand-text); }
 .links { display: flex; flex-wrap: wrap; gap: 8px 28px; font-weight: 700; }
 
@@ -641,11 +632,10 @@ dialog.sheet .person { grid-template-columns: 1fr; }
 @media (max-width: 860px) {
   .hero-in { grid-template-columns: 1fr; gap: 36px; }
   .hero-fig { max-width: 560px; }
-  .points, .effects, .stats { grid-template-columns: 1fr; gap: 28px; }
+  .points { grid-template-columns: 1fr; gap: 28px; }
   .flow { grid-template-columns: 1fr; gap: 20px; }
   .flow-line { display: none; }
   .flow-step, .flow-step:nth-child(even) { margin-top: 28px; }
-  .jp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
   .tsec { padding: 80px 16px; }
@@ -656,7 +646,6 @@ dialog.sheet .person { grid-template-columns: 1fr; }
   .hero-cta .cta { margin-bottom: 14px; }
   .hero-mascot { width: 116px; height: 116px; }
   .hero-card { border-radius: 26px; padding: 16px 14px 14px; }
-  .jp-grid { grid-template-columns: 1fr; }
   .models li { grid-template-columns: 1fr; gap: 4px; padding: 18px 20px; }
   .start-card { padding: 26px; }
   .cta { font-size: 19px; padding: 16px 28px; }

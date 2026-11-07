@@ -1,7 +1,9 @@
-// 結果の2段目: カードを押した指標の、ファネル・日ごとの推移・離れた理由の上位3つ。
+// 結果の2段目: カードを押した指標の、B案が上回った回・ファネル・日ごとの推移・離れた理由の上位3つ。
+// 読み方の説明は「?」の吹き出しに入れて、本文は短くする。
 
 import { useEffect, useRef } from "react";
 import { DailyChart, canCumulate } from "../components/DailyChart";
+import { InfoTip } from "../components/HeroDots";
 import { scaleFactor, type Scale } from "../lib/format";
 import { metricName, stepName } from "../lib/labels";
 import { planIds, type DailyKey, type DropReason, type PlanId, type Replay, type TotalKey } from "../lib/replay";
@@ -40,11 +42,28 @@ export function MetricDetail({ replay, metric, scale, onClose }: { replay: Repla
           閉じる
         </button>
       </div>
+      <WinCount replay={replay} metric={metric} />
       {metric === "installs" && <VideoBlock replay={replay} scale={scale} />}
       <Funnel replay={replay} metric={metric} scale={scale} />
       <Trend replay={replay} metric={metric} scale={scale} />
       <Reasons replay={replay} metric={metric} />
     </div>
+  );
+}
+
+/** 同じ回どうしで比べて B案が上回った回数（comparison.p_B_better から） */
+function WinCount({ replay, metric }: { replay: Replay; metric: string }) {
+  const p = (replay.comparison?.p_B_better as Record<string, number | undefined> | undefined)?.[metric];
+  if (p === undefined) return null;
+  const runs = replay.meta.runs;
+  return (
+    <p className="note" style={{ marginTop: -8 }}>
+      同じ回どうしで比べて、<PlanName id="B" />が上回ったのは{" "}
+      <strong className="num" style={{ color: "var(--fg)" }}>
+        {runs}回中{Math.round(p * runs)}回
+      </strong>
+      。
+    </p>
   );
 }
 
@@ -58,7 +77,13 @@ function Funnel({ replay, metric, scale }: { replay: Replay; metric: string; sca
       <div style={{ display: "grid", gap: 4 }}>
         <h4 className="h3">どこで減ったか</h4>
         <p className="note">
-          インストールした人が、段階ごとに何人残ったか（中央値。上の棒が A案、下の棒が B案）。届いた人は
+          インストールした人が、段階ごとに何人残ったか。
+          <InfoTip label="棒の読み方">
+            {replay.meta.runs}回の真ん中（中央値）の人数です。上の棒が A案、下の棒が B案。右の%は、ひとつ前の段階から進んだ人の割合です。
+          </InfoTip>
+        </p>
+        <p className="note">
+          届いた人:{" "}
           {ids.map((id, i) => {
             const t = replay.plans[id]!.totals;
             const v = (t["video_reached" as TotalKey]?.p50 ?? 0) > 0;
@@ -70,7 +95,6 @@ function Funnel({ replay, metric, scale }: { replay: Replay; metric: string; sca
               </span>
             );
           })}
-          。
         </p>
       </div>
       <div className="funnel">
@@ -101,7 +125,6 @@ function Funnel({ replay, metric, scale }: { replay: Replay; metric: string; sca
           </div>
         ))}
       </div>
-      <p className="note">右の%は、ひとつ前の段階から進んだ人の割合です。</p>
     </div>
   );
 }
@@ -144,8 +167,12 @@ function Reasons({ replay, metric }: { replay: Replay; metric: string }) {
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={{ display: "grid", gap: 4 }}>
-        <h4 className="h3">離れた理由の上位3つ</h4>
-        <p className="note">Claude が一人ずつ判断したときの理由から。%は、その段階で離れた人のうち、そのグループが占める割合です。</p>
+        <h4 className="h3">
+          離れた理由の上位3つ
+          <InfoTip label="理由と%の読み方">
+            Claude が一人ずつ判断したときの理由から。%は、その段階で離れた人のうち、そのグループが占める割合です。
+          </InfoTip>
+        </h4>
       </div>
       <div className="cards2">
         {ids.map((id) => (
@@ -192,6 +219,7 @@ function VideoBlock({ replay, scale }: { replay: Replay; scale: Scale }) {
             <div style={{ display: "grid", gap: 4 }}>
               <h4 className="h3">
                 <PlanName id={id} />の動画はどこまで届いたか
+                <InfoTip label="動画の案についての注意">{ORGANIC_VIDEO_NOTE_JA}</InfoTip>
               </h4>
               <p className="note">{scaleLabel(scale)}。大きな数字は中央値、下は10〜90%の幅です。</p>
             </div>
@@ -214,7 +242,6 @@ function VideoBlock({ replay, scale }: { replay: Replay; scale: Scale }) {
                 );
               })}
             </div>
-            <p className="caveat">{ORGANIC_VIDEO_NOTE_JA}</p>
           </div>
         );
       })}

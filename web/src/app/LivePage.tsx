@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ResultPage } from "./ResultPage";
 import { Mascot } from "../components/Mascot";
+import { InfoTip } from "../components/HeroDots";
 import { PLAN_VAR, PlanName } from "./ui";
 import { href } from "../lib/router";
 import { CHANNEL_JA, regionText, yen } from "../lib/labels";
@@ -12,6 +13,7 @@ import type { Scale } from "../lib/format";
 import { liveBase, runLive, startLive, useLive } from "../live/engine";
 import type { LiveManifest, LiveOverrides, LivePlanInput, VideoInput } from "../live/protocol";
 import "../live/live.css";
+import "./live.css";
 
 type PlanKey = "A" | "B";
 const PLAN_KEYS: PlanKey[] = ["A", "B"];
@@ -55,6 +57,29 @@ function toOverrides(m: LiveManifest): LiveOverrides {
   return { runs: m.defaults.runs, period_days: m.defaults.period_days, plans: { A: plan("A"), B: plan("B") } };
 }
 
+/** 期間を変えたときと同じく、キャンペーン日数と動画の日数を期間に収める（エンジンも同じように切る） */
+function clipToPeriod(o: LiveOverrides, d: number): LiveOverrides {
+  const clip = (p: LivePlanInput): LivePlanInput => ({
+    ...p,
+    campaign_days: Math.min(p.campaign_days, d),
+    organic_video: p.organic_video ? { ...p.organic_video, days: Math.min(p.organic_video.days, d) } : null,
+  });
+  return { ...o, period_days: d, plans: { A: clip(o.plans.A), B: clip(o.plans.B) } };
+}
+
+// ワンクリックの例。元の条件（app.yaml）から1つだけ変える。両案に同じ変更を入れる
+const SCENARIOS: { id: string; label: string; hint: string; apply: (p: LivePlanInput) => LivePlanInput }[] = [
+  { id: "tokyo", label: "広告を東京都だけに", hint: "両案とも、出荷も東京都だけになります", apply: (p) => ({ ...p, regions: [13] }) },
+  { id: "price", label: "男性の月額を2,980円に", hint: "両案とも 3,980円 → 2,980円", apply: (p) => ({ ...p, monthly_jpy: 2980 }) },
+  {
+    id: "video",
+    label: "動画の本数を2倍に",
+    hint: "動画を出す案（B案）の1日の本数を2倍に。制作費も2倍です",
+    apply: (p) =>
+      p.organic_video ? { ...p, organic_video: { ...p.organic_video, posts_per_account_per_day: p.organic_video.posts_per_account_per_day * 2 } } : p,
+  },
+];
+
 function useManifest() {
   const [m, setM] = useState<LiveManifest | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -88,6 +113,8 @@ export function LivePage() {
   const live = useLive();
   const [form, setForm] = useState<LiveOverrides | null>(null);
   const [scale, setScale] = useState<Scale>("japan");
+  // 「細かく設定する」の開閉（この画面の中だけで覚える）
+  const [detailOpen, setDetailOpen] = useState(false);
 
   useEffect(() => {
     if (manifest && !form) setForm(live.result ? structuredClone(live.result.overrides) : toOverrides(manifest));
@@ -107,15 +134,14 @@ export function LivePage() {
   if (!manifest || !form) return <p className="muted">読み込んでいます…</p>;
 
   const setPlan = (k: PlanKey, patch: Partial<LivePlanInput>) => setForm({ ...form, plans: { ...form.plans, [k]: { ...form.plans[k], ...patch } } });
-  const setPeriod = (d: number) => {
-    // キャンペーン日数と動画の日数は期間を超えない（エンジンも同じように切る）
-    const clip = (p: LivePlanInput): LivePlanInput => ({
-      ...p,
-      campaign_days: Math.min(p.campaign_days, d),
-      organic_video: p.organic_video ? { ...p.organic_video, days: Math.min(p.organic_video.days, d) } : null,
-    });
-    setForm({ ...form, period_days: d, plans: { A: clip(form.plans.A), B: clip(form.plans.B) } });
+  // キャンペーン日数と動画の日数は期間を超えない
+  const setPeriod = (d: number) => setForm(clipToPeriod(form, d));
+  // 例: 元の条件に1つだけ変更を入れる。期間と回数はいまの選択のまま
+  const scenarioForm = (sc: (typeof SCENARIOS)[number]): LiveOverrides => {
+    const base = toOverrides(manifest);
+    return clipToPeriod({ ...base, runs: form.runs, plans: { A: sc.apply(base.plans.A), B: sc.apply(base.plans.B) } }, form.period_days);
   };
+  const formKey = JSON.stringify(form);
 
   return (
     <>
@@ -125,31 +151,64 @@ export function LivePage() {
           <h1 className="h1" id="live-h">
             条件を変えて、エンジンをもう一度回す
           </h1>
-          <p className="lead">
-            デモアプリ「{manifest.name_ja}」の A案・B案の条件を変えて、あなたのブラウザの中で世界エンジンを回します。サーバーにも Claude にも送りません。
+          <p className="lead live-intro">
+            <span className="ib">デモアプリ「{manifest.name_ja}」の条件を変えて、あなたのブラウザの中でエンジンを回します。</span>
+            <span className="ib">
+              Claude の判断は事前に取ったものを使い、どこにも送りません。
+              <InfoTip label="判断と数字について">
+                1万人のうちインストールできる {manifest.decisions.people.toLocaleString("ja-JP")}人に Claude が出した「平均より進みやすいか」の判断（
+                {manifest.decisions.rows.toLocaleString("ja-JP")}
+                件）をそのまま使います。条件を変えても、反応の理由は変わりません。届く人数・クチコミ・決済などの数字は、事前計算と同じ Python
+                のエンジンが毎日計算します。
+              </InfoTip>
+            </span>
           </p>
         </div>
-        <ul className="live-facts">
-          <li>
-            <strong>判断は事前に取ったものです。</strong>1万人のうちインストールできる {manifest.decisions.people.toLocaleString("ja-JP")}人に Claude
-            が出した「平均より進みやすいか」の判断（{manifest.decisions.rows.toLocaleString("ja-JP")}件）をそのまま使います。条件を変えても、1万人の反応の理由は変わりません。
-          </li>
-          <li>
-            <strong>数字はエンジンが作ります。</strong>予算・地域・価格・期間から、届く人数・密度・クチコミ・決済をエンジンが毎日計算します。事前計算と同じ Python のエンジンです。
-          </li>
-          <li>
-            <strong>動画のチャネルはバックテストで検証していません。</strong>ルールを固定した後に足した機能で、値の多くは仮定です。
-          </li>
-        </ul>
       </section>
 
       <section className="section" aria-labelledby="cond-h">
         <h2 className="h2" id="cond-h">
           条件
         </h2>
+        <div className="live-scenarios">
+          <span className="live-label">ワンクリックで試す（元の条件から1つだけ変える）</span>
+          <div className="live-scenario-buttons">
+            {SCENARIOS.map((sc) => {
+              const next = scenarioForm(sc);
+              return (
+                <button
+                  key={sc.id}
+                  type="button"
+                  className="live-scenario"
+                  aria-pressed={JSON.stringify(next) === formKey}
+                  disabled={busy}
+                  title={sc.hint}
+                  onClick={() => setForm(next)}
+                >
+                  <span>{sc.label}</span>
+                  <span className="live-scenario-hint">{sc.hint}</span>
+                </button>
+              );
+            })}
+            <button type="button" className="live-reset" disabled={busy} onClick={() => setForm(toOverrides(manifest))}>
+              元の条件に戻す
+            </button>
+          </div>
+        </div>
+        <div className="live-now">
+          <span className="live-label">いまの条件</span>
+          {PLAN_KEYS.map((k) => (
+            <span key={k} className="live-now-row">
+              <PlanName id={k} /> {regionLabel(form.plans[k].regions)}・{summary(form.plans[k])}
+            </span>
+          ))}
+        </div>
         <div className="live-common">
           <div className="live-field">
-            <span className="live-label">期間（両案共通）</span>
+            <span className="live-label">
+              期間（両案共通）
+              <InfoTip label="期間について">エンジンは両案を長いほうの期間で計算するので、期間は共通にしています。90日より後は推計の延長です。</InfoTip>
+            </span>
             <div className="seg" role="group" aria-label="期間">
               {PERIODS.map((d) => (
                 <button key={d} type="button" aria-pressed={form.period_days === d} onClick={() => setPeriod(d)}>
@@ -157,10 +216,12 @@ export function LivePage() {
                 </button>
               ))}
             </div>
-            <span className="note">エンジンは両案を長いほうの期間で計算するので、期間は共通にしています。90日より後は推計の延長です。</span>
           </div>
           <div className="live-field">
-            <span className="live-label">試す回数</span>
+            <span className="live-label">
+              試す回数
+              <InfoTip label="試す回数について">事前計算のデモは30回。ここでは速さのため10回が既定です（幅が少し粗くなります）。</InfoTip>
+            </span>
             <div className="seg" role="group" aria-label="試す回数">
               {RUN_CHOICES.map((n) => (
                 <button key={n} type="button" aria-pressed={form.runs === n} onClick={() => setForm({ ...form, runs: n })}>
@@ -168,57 +229,64 @@ export function LivePage() {
                 </button>
               ))}
             </div>
-            <span className="note">事前計算のデモは30回。ここでは速さのため10回が既定です（幅が少し粗くなります）。</span>
           </div>
         </div>
 
-        <div className="live-plans">
-          {PLAN_KEYS.map((k) => (
-            <PlanForm
-              key={k}
-              id={k}
-              plan={form.plans[k]}
-              period={form.period_days}
-              creatives={manifest.defaults.plans[k].creatives}
-              videoCreatives={manifest.defaults.plans[k].video_creatives}
-              videoTemplate={manifest.defaults.video_template}
-              onChange={(p) => setPlan(k, p)}
-            />
-          ))}
-        </div>
-
-        <div className="live-materials">
-          <h3 className="h3">広告と動画の素材は変えられません</h3>
-          <p className="note">
-            Claude の判断は「この広告（動画の見本）を見たとき」の反応で、素材ごとに取ってあります。素材を変えると判断を取り直す必要があり、ブラウザの中ではできないためです。
-          </p>
-          <div className="live-thumbs">
-            {PLAN_KEYS.flatMap((k) =>
-              [...manifest.defaults.plans[k].creatives, ...manifest.defaults.plans[k].video_creatives].map((c) => (
-                <figure key={`${k}-${c}`}>
-                  <img src={`apps/${manifest.app_id}/ads/${c}.png`} alt={`${k}案の素材 ${c}`} loading="lazy" />
-                  <figcaption>
-                    <span style={{ color: PLAN_VAR[k], fontWeight: 700 }}>{k}案</span> {c.startsWith("v") ? "動画" : "広告"} {c}
-                  </figcaption>
-                </figure>
-              )),
-            )}
+        <details className="fold live-detail" open={detailOpen} onToggle={(e) => setDetailOpen(e.currentTarget.open)}>
+          <summary>細かく設定する（地域・チャネル別の広告費・価格・動画）</summary>
+          <div>
+            <div className="live-plans">
+              {PLAN_KEYS.map((k) => (
+                <PlanForm
+                  key={k}
+                  id={k}
+                  plan={form.plans[k]}
+                  period={form.period_days}
+                  creatives={manifest.defaults.plans[k].creatives}
+                  videoCreatives={manifest.defaults.plans[k].video_creatives}
+                  videoTemplate={manifest.defaults.video_template}
+                  onChange={(p) => setPlan(k, p)}
+                />
+              ))}
+            </div>
           </div>
-          <ul className="live-caveats">
-            <li>エンジンは広告の判断をチャネルと結びつけていません。A案に YouTube・LINE・電車の広告・大学を足しても、判断は A案の広告 a1〜a3 の平均をどのチャネルにも同じに使います。</li>
-            <li>B案は広告の素材を持たないので、B案に広告を足すと、エンジンは install の最初の判断（動画の見本 v1）を広告の判断として使います。</li>
-            <li>A案に動画を足すと、動画の見本の判断が無いので、A案の広告 a1〜a3 の判断の平均を動画にも使います。</li>
-          </ul>
-        </div>
+        </details>
 
-        <RunBar
-          live={live}
-          manifest={manifest}
-          dirty={dirty}
-          busy={busy}
-          onRun={() => runLive(structuredClone(form))}
-          onReset={() => setForm(toOverrides(manifest))}
-        />
+        <details className="fold live-detail live-notes">
+          <summary>しくみの注意</summary>
+          <div className="live-materials">
+            <p className="note">
+              <strong>動画のチャネルはバックテストで検証していません。</strong>ルールを固定した後に足した機能で、値の多くは仮定です。
+            </p>
+            <h3 className="h3">広告と動画の素材は変えられません</h3>
+            <p className="note">
+              Claude
+              の判断は「この広告（動画の見本）を見たとき」の反応で、素材ごとに取ってあります。素材を変えると判断を取り直す必要があり、ブラウザの中ではできないためです。
+            </p>
+            <div className="live-thumbs">
+              {PLAN_KEYS.flatMap((k) =>
+                [...manifest.defaults.plans[k].creatives, ...manifest.defaults.plans[k].video_creatives].map((c) => (
+                  <figure key={`${k}-${c}`}>
+                    <img src={`apps/${manifest.app_id}/ads/${c}.png`} alt={`${k}案の素材 ${c}`} loading="lazy" />
+                    <figcaption>
+                      <span style={{ color: PLAN_VAR[k], fontWeight: 700 }}>{k}案</span> {c.startsWith("v") ? "動画" : "広告"} {c}
+                    </figcaption>
+                  </figure>
+                )),
+              )}
+            </div>
+            <ul className="live-caveats">
+              <li>
+                エンジンは広告の判断をチャネルと結びつけていません。A案に YouTube・LINE・電車の広告・大学を足しても、判断は A案の広告 a1〜a3
+                の平均をどのチャネルにも同じに使います。
+              </li>
+              <li>B案は広告の素材を持たないので、B案に広告を足すと、エンジンは install の最初の判断（動画の見本 v1）を広告の判断として使います。</li>
+              <li>A案に動画を足すと、動画の見本の判断が無いので、A案の広告 a1〜a3 の判断の平均を動画にも使います。</li>
+            </ul>
+          </div>
+        </details>
+
+        <RunBar live={live} manifest={manifest} dirty={dirty} busy={busy} onRun={() => runLive(structuredClone(form))} />
       </section>
 
       {live.result && (
@@ -240,7 +308,8 @@ export function LivePage() {
             </p>
             {dirty && !busy && <p className="live-stale">条件を変えました。下の結果は前の条件のものです。「この条件で回す」で計算し直せます。</p>}
             <p className="caveat">
-              インタビュー・レポート・離れた理由・一人ずつの判断の理由は、事前計算のデモ（<a href={href("result")}>結果</a>）だけにあります。ライブでは出しません（理由の文は条件を変えても同じで、人数だけが変わるため）。
+              インタビュー・レポート・離れた理由・一人ずつの判断の理由は、事前計算のデモ（<a href={href("result")}>結果</a>
+              ）だけにあります。ライブでは出しません（理由の文は条件を変えても同じで、人数だけが変わるため）。
             </p>
           </div>
           <ResultPage key={live.result.id} replay={live.result.replay} scale={scale} onScale={setScale} autoplay={false} onAutoplayDone={() => {}} />
@@ -259,7 +328,10 @@ function summary(p: LivePlanInput): string {
   const parts: string[] = [];
   const ch = Object.entries(p.channels).filter(([, v]) => v > 0);
   if (ch.length) parts.push(`広告 ${ch.map(([c, v]) => `${CHANNEL_JA[c] ?? c} ${yen(v)}`).join("・")}（${p.campaign_days}日）`);
-  if (p.organic_video) parts.push(`動画 ${p.organic_video.accounts}アカウント × 1日${p.organic_video.posts_per_account_per_day}本 × ${p.organic_video.days}日（制作費 ${yen(s.video)}）`);
+  if (p.organic_video)
+    parts.push(
+      `動画 ${p.organic_video.accounts}アカウント × 1日${p.organic_video.posts_per_account_per_day}本 × ${p.organic_video.days}日（制作費 ${yen(s.video)}）`,
+    );
   if (!parts.length) parts.push("広告も動画もなし");
   parts.push(`男性月額 ${yen(p.monthly_jpy)}`);
   return parts.join("・");
@@ -394,28 +466,49 @@ function PlanForm({ id, plan, period, creatives, videoCreatives, videoTemplate, 
           <NumberField label="男性の月額" value={plan.monthly_jpy} step={100} suffix="円" onChange={(y) => onChange({ monthly_jpy: Math.round(y) })} />
           <NumberField label="無料体験" value={plan.free_trial_days} max={60} suffix="日" onChange={(d) => onChange({ free_trial_days: Math.round(d) })} />
         </div>
-        <p className="note">女性は無料のまま。無料体験の日数は、マッチングのプリセットではエンジンが使いません（変えても数字は変わりません。サブスク・習慣のアプリ向けの項目です）。</p>
+        <p className="note">
+          女性は無料のまま。無料体験の日数は、マッチングのプリセットではエンジンが使いません（変えても数字は変わりません。サブスク・習慣のアプリ向けの項目です）。
+        </p>
       </div>
 
       <div className="live-group">
         <label className="live-check">
-          <input type="checkbox" checked={!!v} onChange={(e) => onChange({ organic_video: e.target.checked ? { ...videoTemplate, days: Math.min(videoTemplate.days, period) } : null })} />
+          <input
+            type="checkbox"
+            checked={!!v}
+            onChange={(e) => onChange({ organic_video: e.target.checked ? { ...videoTemplate, days: Math.min(videoTemplate.days, period) } : null })}
+          />
           <span className="live-label">動画の大量投稿（広告費なし、自社アカウントから毎日投稿）</span>
         </label>
         {v && (
           <>
             <div className="live-row2">
               <NumberField label="アカウント数" value={v.accounts} min={1} max={100} onChange={(n) => setVideo({ accounts: Math.round(n) })} />
-              <NumberField label="1アカウント1日の本数" value={v.posts_per_account_per_day} min={0.1} max={10} step={0.5} suffix="本" onChange={(n) => setVideo({ posts_per_account_per_day: n })} />
+              <NumberField
+                label="1アカウント1日の本数"
+                value={v.posts_per_account_per_day}
+                min={0.1}
+                max={10}
+                step={0.5}
+                suffix="本"
+                onChange={(n) => setVideo({ posts_per_account_per_day: n })}
+              />
               <NumberField label="投稿する日数" value={v.days} min={1} max={period} suffix="日" onChange={(n) => setVideo({ days: Math.round(n) })} />
-              <NumberField label="1本の制作費" value={v.cost_per_video_jpy} step={50} suffix="円" onChange={(n) => setVideo({ cost_per_video_jpy: Math.round(n) })} />
+              <NumberField
+                label="1本の制作費"
+                value={v.cost_per_video_jpy}
+                step={50}
+                suffix="円"
+                onChange={(n) => setVideo({ cost_per_video_jpy: Math.round(n) })}
+              />
             </div>
             <label className="live-check">
               <input type="checkbox" checked={!v.unique_videos_per_account} onChange={(e) => setVideo({ unique_videos_per_account: !e.target.checked })} />
               <span>同じ動画を全アカウントで使い回す（制作は少なくて済むが、推薦されにくくなる）</span>
             </label>
             <p className="note">
-              TikTok・リール・ショートに投稿。動画の見本: {videoCreatives.length ? videoCreatives.join("・") : `なし（A案の広告 ${creatives.join("・")} の判断を使う）`}（固定）。
+              TikTok・リール・ショートに投稿。動画の見本:{" "}
+              {videoCreatives.length ? videoCreatives.join("・") : `なし（A案の広告 ${creatives.join("・")} の判断を使う）`}（固定）。
               同じ動画の使い回しや一般人を装う運用は、各社の規約やステルスマーケティング規制に当たるおそれがあります。
             </p>
             <p className="caveat">動画のチャネルはバックテストで検証していません。</p>
@@ -442,24 +535,25 @@ function RunBar({
   dirty,
   busy,
   onRun,
-  onReset,
 }: {
   live: ReturnType<typeof useLive>;
   manifest: LiveManifest;
   dirty: boolean;
   busy: boolean;
   onRun: () => void;
-  onReset: () => void;
 }) {
   const first = live.loadSeconds === null;
   return (
     <div className="live-run" aria-live="polite">
       <div className="live-buttons">
         <button type="button" className="cta" disabled={busy} onClick={onRun}>
-          {live.phase === "loading" ? "エンジンを読み込んでいます…" : live.phase === "running" ? "計算しています…" : first ? "エンジンを読み込んで回す" : "この条件で回す"}
-        </button>
-        <button type="button" className="live-reset" disabled={busy} onClick={onReset}>
-          元の条件（app.yaml）に戻す
+          {live.phase === "loading"
+            ? "エンジンを読み込んでいます…"
+            : live.phase === "running"
+              ? "計算しています…"
+              : first
+                ? "エンジンを読み込んで回す"
+                : "この条件で回す"}
         </button>
         {first && live.phase === "idle" && (
           <button type="button" className="live-reset" onClick={startLive}>
@@ -469,8 +563,11 @@ function RunBar({
       </div>
       {first && (
         <p className="note">
-          初回は、ブラウザで動く Python（Pyodide）と numpy・pandas を CDN から読み込みます。合わせて約20MB（転送は約14MB）で、回線によって数十秒かかります。
-          エンジンと1万人・判断のファイルは {(manifest.total_gzip_bytes / 1e6).toFixed(1)}MB（圧縮後）です。2回目からは計算だけです。
+          初回だけ、読み込みに数十秒かかります。
+          <InfoTip label="読み込むものについて">
+            ブラウザで動く Python（Pyodide）と numpy・pandas を CDN から読み込みます。合わせて約20MB（転送は約14MB）です。エンジンと1万人・判断のファイルは{" "}
+            {(manifest.total_gzip_bytes / 1e6).toFixed(1)}MB（圧縮後）です。2回目からは計算だけです。
+          </InfoTip>
         </p>
       )}
       {(busy || live.progress) && (

@@ -1,10 +1,13 @@
 // 入力: 1段目 = アプリ画面5枚と A案・B案の条件カード。2段目 = カードを押すと広告素材・関門・価格。
+// 説明文は2行だけ見せて、残りは「詳しく」。注意書きは「?」の吹き出しに入れる。
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { InfoTip } from "../components/HeroDots";
 import { APP_ASSET_DIR, DEFAULT_SCREENS, MOCK_ASSET_APP_ID, ORGANIC_VIDEO_NOTE_JA } from "../config";
 import { CHANNEL_JA, gateName, regionText, yen } from "../lib/labels";
 import { planIds, type PlanConfig, type PlanId, type Replay } from "../lib/replay";
 import { PLAN_VAR } from "./ui";
+import "./result.css";
 
 /** public/apps/<app_id>/app.json（任意）。app.yaml から作る想定 */
 interface AppManifest {
@@ -71,12 +74,9 @@ export function InputPage({ replay }: { replay: Replay }) {
       </section>
 
       <section className="section" aria-labelledby="plans-h">
-        <div style={{ display: "grid", gap: 6 }}>
-          <h2 className="h2" id="plans-h">
-            比べた2つの案
-          </h2>
-          <p className="note">カードの下のボタンで、広告や動画の見本・関門・価格が出ます。</p>
-        </div>
+        <h2 className="h2" id="plans-h">
+          比べた2つの案
+        </h2>
         <div className="cards2">
           {ids.map((id) => (
             <PlanCard key={id} id={id} replay={replay} config={replay.plans[id]!.config} open={open} onToggle={() => setOpen(!open)} base={base} manifest={manifest} />
@@ -149,6 +149,7 @@ function PlanCard({
             <dt>費用</dt>
             <dd>
               <strong>{spend !== null ? yen(spend) : "—"}</strong>（動画の制作費。広告費なし）
+              <InfoTip label="動画の案についての注意">{ORGANIC_VIDEO_NOTE_JA}</InfoTip>
             </dd>
             <dt>動画の投稿</dt>
             <dd>
@@ -199,7 +200,6 @@ function PlanCard({
               <p className="note">アカウントごとに内容の違う動画を、アプリ公式・AI 生成と明示して投稿する前提です。</p>
             </div>
           )}
-          {video && <p className="caveat">{ORGANIC_VIDEO_NOTE_JA}</p>}
           {creatives.length > 0 && (
             <div style={{ display: "grid", gap: 8 }}>
               <h3 className="h3">広告の素材</h3>
@@ -264,16 +264,38 @@ function PlanCard({
   );
 }
 
-/** 説明の最初の1文を大きく、残りは小さく */
+/** 説明の最初の1文を大きく。残りは2行だけ見せて、はみ出すときは「詳しく」で全部出す */
 function Description({ text }: { text: string }) {
   const t = text.replace(/\s+/g, "");
   const i = t.indexOf("。");
   const head = i >= 0 ? t.slice(0, i + 1) : t;
   const rest = i >= 0 ? t.slice(i + 1) : "";
+  const [open, setOpen] = useState(false);
+  const [overflow, setOverflow] = useState(true);
+  const ref = useRef<HTMLParagraphElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || open) return;
+    const check = () => setOverflow(el.scrollHeight > el.clientHeight + 2);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [open, rest]);
   return (
     <>
       <p className="lead">{head}</p>
-      {rest && <p className="note" style={{ maxWidth: "46em" }}>{rest}</p>}
+      {rest && (
+        <>
+          <p ref={ref} id="app-desc-rest" className={`note desc-rest${open ? "" : " clamped"}`}>
+            {rest}
+          </p>
+          {(overflow || open) && (
+            <button type="button" className="linkbtn" aria-expanded={open} aria-controls="app-desc-rest" onClick={() => setOpen(!open)}>
+              {open ? "閉じる ▲" : "詳しく ▼"}
+            </button>
+          )}
+        </>
+      )}
     </>
   );
 }
