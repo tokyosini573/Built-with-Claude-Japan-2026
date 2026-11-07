@@ -80,7 +80,7 @@ export function SourcesPage() {
           <div className="arrow" aria-hidden>
             ↓
           </div>
-          <div className="layer" style={{ background: "var(--fg)", color: "var(--bg)", borderColor: "var(--fg)" }}>
+          <div className="layer layer-brand">
             <span className="step">架空の1万人</span>
             <span style={{ fontSize: 17 }}>1人が、実際の15〜79歳の約9,680人分を表します（2025年国勢調査の 96,806,585人 ÷ 1万）。</span>
           </div>

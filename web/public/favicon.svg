@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 24 88 88">
+  <!-- テプリのマスコット「小さなリハーサル監督」の顔とヘッドホンだけ（src/components/Mascot.tsx をもとに、小さくても読めるよう線を太く） -->
+  <path d="M60 39 C82 39 95 54 95 72 C95 89 80 101 60 101 C40 101 25 89 25 72 C25 54 38 39 60 39 Z" fill="#fdfcf9" stroke="#1a2140" stroke-width="3.4"/>
+  <path d="M24 57 C24 26 96 26 96 57" fill="none" stroke="#1a2140" stroke-width="9" stroke-linecap="round"/>
+  <path d="M24 57 C24 26 96 26 96 57" fill="none" stroke="#2a46b0" stroke-width="4" stroke-linecap="round"/>
+  <rect x="17" y="51" width="14" height="25" rx="7" fill="#2a46b0" stroke="#1a2140" stroke-width="3"/>
+  <rect x="89" y="51" width="14" height="25" rx="7" fill="#2a46b0" stroke="#1a2140" stroke-width="3"/>
+  <ellipse cx="41" cy="76" rx="5.4" ry="3.4" fill="#ef9a8e"/>
+  <ellipse cx="79" cy="76" rx="5.4" ry="3.4" fill="#ef9a8e"/>
+  <circle cx="49" cy="66" r="4.8" fill="#1a2140"/>
+  <circle cx="71" cy="66" r="4.8" fill="#1a2140"/>
+  <circle cx="50.8" cy="64.2" r="1.6" fill="#fff"/>
+  <circle cx="72.8" cy="64.2" r="1.6" fill="#fff"/>
+  <path d="M53 74.5 Q60 86 67 74.5 Z" fill="#1a2140" stroke="#1a2140" stroke-width="2" stroke-linejoin="round"/>
+</svg>

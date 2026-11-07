@@ -39,7 +39,10 @@ npm run build-hero   # public/replays/demo_matching.json → public/hero/people.
 - アプリ画面と広告素材: `npm run sync-apps` で `apps/<app_id>/` の `screens/`・`ads/` を `public/apps/<app_id>/` に写し、`app.yaml` から `app.json`（名前・説明・関門の詳細）を作ります（PyYAML は `../.venv`）。
 - バックテスト: `public/backtest.json`（今はモック。形は `src/lib/backtest.ts`）。
 - 一人の判断の理由: リプレイに任意の `person_decisions: [{plan, person_id, step, level, reason_ja}]` があれば使い、なければ同じグループの `drop_reasons` を出します。
-- 色は `src/index.css`。A案 = 藍、B案 = 若竹。点の色は 未接触（灰）→ インストール（案の色・薄）→ 初マッチ（案の色・濃）→ 課金（金）、やめた（灰）。
+- 色は `src/index.css` のトークンだけ。主役色は深い藍（`--brand`）で、ヒーロー・しくみ・はじめる・下の帯の大きな面に敷く（相棒は若竹 `--b`）。白いカード（やわらかい影・角丸）、節の上のラベルは主役色。背景の形（波・しずく・リボン）は `src/components/Shapes.tsx`。検証は白黒のまま（主役色はラベルだけ）。A案 = 藍、B案 = 若竹。
+- 結果の地図はトップの図と同じ「点だけ」の見た目（`JapanMap` の `variant="dots"`。県の境界と塗りは描かない）。点の色は 未接触（灰）→ インストール（案の色・薄）→ 初マッチ（案の色・濃）→ 課金（ピンク `--pay`）、やめた（灰）。出稿地域があるときは地域の中の点を濃く、外を薄くする。
+- トップの上のバーはロゴだけ。メニュー（結果・入力・検証・根拠）は結果などのページで出す。
+- ファビコンは `public/favicon.svg`（マスコットの顔とヘッドホンだけ）と `public/apple-touch-icon.png`（180px、同じ顔を主役色の地に）。
 
 以下は前からある土台の部品と開発用ページ（`/?dev`）の説明です。
 
@@ -94,7 +97,7 @@ npm run build-map    # 固定コミットの元データを取得して public/g
 | 状態の計算 | `src/lib/states.ts` | `sample_run.events` から各日・各人の状態（未接触/インストール/登録/核心行動/無料体験/決済/離脱）と点の数を作る。色とラベルもここ |
 | 地図の計算 | `src/lib/geo.ts` | 境界の読み込み、投影（沖縄はめ込み）、person_id をシードに県の形の内側へ点を置く |
 | 数字の表示 | `src/lib/format.ts` | 万・億の表記、1万人基準 ⇔ 日本全体換算（`scale_to_japan`） |
-| `JapanMap` | `src/components/JapanMap.tsx` | Canvas に47都道府県と1万点。出稿地域の強調、テーマ対応 |
+| `JapanMap` | `src/components/JapanMap.tsx` | Canvas に47都道府県と1万点。出稿地域の強調、テーマ対応。`variant="dots"` で県の形を描かず丸い点だけ（結果画面） |
 | `Timeline` / `usePlayback` | `src/components/Timeline.tsx` | 日付スライダー、再生/一時停止、速度（1/3/7/15日/秒）。延長部分の表示 |
 | `RangeCompare` | `src/components/Metrics.tsx` | 主要指標（インストール・登録・継続（最終日）・決済した人・売上）を A/B で p50 と p10〜p90 の帯で比べる |
 | `ABComparison` / `ProbabilityBar` | 同上 | `comparison` から、差（B − A）の範囲と「B案が良い確率」を出す |

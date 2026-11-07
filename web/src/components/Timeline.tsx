@@ -146,7 +146,7 @@ export function Timeline({ playback, extrapolatedAfterDay, startDate }: Timeline
           }}
           aria-label="日付"
           aria-valuetext={dayLabel(day, startDate)}
-          style={{ width: "100%", position: "relative", accentColor: "var(--text-primary)" }}
+          style={{ width: "100%", position: "relative", accentColor: "var(--brand-text)" }}
         />
       </div>
       <div className="small muted num" style={{ position: "relative", height: 18 }}>

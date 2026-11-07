@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DevPage } from "./dev/DevPage";
 import { ReplayErrorView } from "./components/ReplayErrorView";
+import { Decor, Wave } from "./components/Shapes";
 import { ResultPage } from "./app/ResultPage";
 import { InputPage } from "./app/InputPage";
 import { VerifyPage } from "./app/VerifyPage";
@@ -42,19 +43,23 @@ function Site({ replayParam }: { replayParam: string | null }) {
   const isMock = !!ready?.meta.is_mock;
 
   return (
-    <div className="shell">
+    <div className={`shell${route === "home" ? " is-home" : ""}`}>
       <header className="topbar">
         <div className="topbar-in">
           <a className="brand" href={href("home")} aria-label="テプリ（トップへ）">
+            <img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={36} height={36} />
             テプリ
           </a>
-          <nav className="nav" aria-label="メニュー">
-            {NAV.map((n) => (
-              <a key={n.route} href={href(n.route)} aria-current={route === n.route || (route === "sources-full" && n.route === "sources") ? "page" : undefined}>
-                {n.label}
-              </a>
-            ))}
-          </nav>
+          {/* トップはロゴだけ。「デモを再生」の後のページ（結果・入力・検証・根拠・ライブ）でメニューを出す */}
+          {route !== "home" && (
+            <nav className="nav" aria-label="メニュー">
+              {NAV.map((n) => (
+                <a key={n.route} href={href(n.route)} aria-current={route === n.route || (route === "sources-full" && n.route === "sources") ? "page" : undefined}>
+                  {n.label}
+                </a>
+              ))}
+            </nav>
+          )}
         </div>
         {isMock && (route === "result" || route === "input") && <div className="mock-note">モックの数字です。根拠はありません。</div>}
       </header>
@@ -64,7 +69,9 @@ function Site({ replayParam }: { replayParam: string | null }) {
           <TopPage status={status} onPlay={() => setAutoplay(true)} />
         </main>
       ) : (
-        <main className="page" id="main">
+        <main className={`page${route === "verify" ? " page-mono" : ""}`} id="main">
+          {/* 検証は白黒の約束なので、主役色の飾りは置かない */}
+          {route !== "verify" && <Decor kind="page" />}
           {route === "live" ? (
             <LivePage />
           ) : route === "verify" ? (
@@ -85,7 +92,8 @@ function Site({ replayParam }: { replayParam: string | null }) {
         </main>
       )}
 
-      <footer className="footer">
+      <footer className="footer on-brand">
+        <Wave position="top" />
         <div className="footer-in">
           <span>テプリは統計から作った架空の1万人で試すシミュレーターです。実在の人は含みません。</span>
           <span>

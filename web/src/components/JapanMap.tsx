@@ -1,5 +1,7 @@
 // 日本地図と1万人の点。Canvas に描く。
 // 地図（県の形）は大きさが変わったときだけ描き直し、点は状態が変わるたびに描く。
+// variant="dots" のときは県の境界も塗りも描かず、トップの図（HeroDots）と同じく丸い点だけで形を出す。
+// そのときの地域の強調は、出稿地域の中の点を濃く、外の点を薄くして見せる（全国のときは強調しない）。
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadJapanMap, makeProjection, placePeople, type JapanMapData, type Projection } from "../lib/geo";
@@ -33,6 +35,27 @@ export interface JapanMapProps {
   selectedRow?: number | null;
   /** 選んだ人の印の色 */
   selectedColor?: string;
+  /** "dots" = 県の形を描かず、丸い点だけ（トップの図と同じ見た目）。size は幅に合わせて少し大きくなる */
+  variant?: "fill" | "dots";
+}
+
+/** 1色の丸を小さなキャンバスに描いておく（1万個を毎フレーム描くため。HeroDots と同じやり方） */
+const spriteCache = new Map<string, HTMLCanvasElement>();
+function dotSprite(color: string, d: number, dpr: number): HTMLCanvasElement {
+  const key = `${color}|${d.toFixed(2)}|${dpr}`;
+  let c = spriteCache.get(key);
+  if (c) return c;
+  if (spriteCache.size > 64) spriteCache.clear();
+  c = document.createElement("canvas");
+  const side = Math.ceil((d + 2) * dpr);
+  c.width = c.height = side;
+  const g = c.getContext("2d")!;
+  g.fillStyle = color;
+  g.beginPath();
+  g.arc(side / 2, side / 2, (d / 2) * dpr, 0, Math.PI * 2);
+  g.fill();
+  spriteCache.set(key, c);
+  return c;
 }
 
 function cssVar(el: Element, name: string, fallback: string): string {
@@ -54,7 +77,9 @@ export function JapanMap({
   onPick,
   selectedRow = null,
   selectedColor = "#000",
+  variant = "fill",
 }: JapanMapProps) {
+  const dots = variant === "dots";
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const baseRef = useRef<HTMLCanvasElement | null>(null);
@@ -124,7 +149,7 @@ export function JapanMap({
     const line = cssVar(host, "--map-line", "#ffffff");
     const muted = cssVar(host, "--text-muted", "#888");
     const highlight = new Set(highlightPrefs);
-    for (const pref of map.prefs) {
+    for (const pref of dots ? [] : map.prefs) {
       ctx.beginPath();
       for (const poly of pref.polygons) {
         for (const ring of poly) {
@@ -144,13 +169,13 @@ export function JapanMap({
     }
     if (proj.insetBox) {
       const [x0, y0, x1, y1] = proj.insetBox;
-      ctx.strokeStyle = muted;
-      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = dots ? cssVar(host, "--dot-untouched", muted) : muted;
+      ctx.lineWidth = dots ? 1 : 0.8;
       ctx.setLineDash([3, 3]);
       ctx.strokeRect(x0 * cssWidth, y0 * cssHeight, (x1 - x0) * cssWidth, (y1 - y0) * cssHeight);
       ctx.setLineDash([]);
     }
-  }, [map, proj, cssWidth, cssHeight, highlightKey, themeTick]);
+  }, [map, proj, cssWidth, cssHeight, highlightKey, themeTick, dots]);
 
   // 地図 + 点を表のキャンバスに描く（再生中は毎フレーム）
   useEffect(() => {
@@ -171,6 +196,8 @@ export function JapanMap({
     const n = people.length;
     const r = dotSize;
     const hl = new Set(highlightPrefs);
+    // 点だけの地図: 点の大きさを図の幅に合わせる（HeroDots と同じ考え方。スマホでも形がつぶれないように）
+    const unit = dots ? Math.max(0.75, Math.min(1.5, cssWidth / 320)) : 1;
     // 状態ごとにまとめて描く（進んだ状態ほど上に重ねる）
     const order: PersonState[] = [
       PersonState.None,
@@ -195,7 +222,10 @@ export function JapanMap({
         : s === PersonState.None && wrapRef.current
           ? cssVar(wrapRef.current, "--dot-untouched", STATE_COLORS[s])
           : STATE_COLORS[s];
-      const size = custom?.size ?? (s === PersonState.None ? r * 0.8 : r);
+      const size = (custom?.size ?? (s === PersonState.None ? r * 0.8 : r)) * unit;
+      const color = ctx.fillStyle as string;
+      const sprite = dots ? dotSprite(color, size, dpr) : null;
+      const half = sprite ? (size + 2) / 2 : 0;
       for (const i of list) {
         const x = positions[i * 2], y = positions[i * 2 + 1];
         if (Number.isNaN(x)) continue;
@@ -203,11 +233,14 @@ export function JapanMap({
         const base = custom?.alpha ?? 1;
         // 出稿地域の外にいる未接触の点は薄くして、地域の違いを見えるようにする
         const outside = hl.size > 0 && !hl.has(people[i][1]);
+        // 点だけの地図では、地域の中の未接触の点を少し濃くして、地域の形が点で浮かぶようにする
+        const inside = dots && hl.size > 0 && !outside;
         ctx.globalAlpha =
           s === PersonState.None
-            ? (custom?.alpha ?? 0.55) * (outside ? 0.45 : 1)
+            ? Math.min(1, (custom?.alpha ?? 0.55) * (outside ? (dots ? 0.4 : 0.45) : inside ? 1.5 : 1))
             : base * (weights ? 0.6 + 0.4 * Math.min(1, Math.log10(1 + weights[i]) / 3) : 1);
-        ctx.fillRect(x * cssWidth - size / 2, y * cssHeight - size / 2, size, size);
+        if (sprite) ctx.drawImage(sprite, x * cssWidth - half, y * cssHeight - half, size + 2, size + 2);
+        else ctx.fillRect(x * cssWidth - size / 2, y * cssHeight - size / 2, size, size);
       }
     }
     ctx.globalAlpha = 1;
@@ -222,7 +255,7 @@ export function JapanMap({
         ctx.beginPath(); ctx.arc(x, y, 7.5, 0, Math.PI * 2); ctx.stroke();
       }
     }
-  }, [positions, states, weights, cssWidth, cssHeight, dotSize, showUntouched, people, highlightKey, themeTick, stateStyle, selectedRow, selectedColor]);
+  }, [positions, states, weights, cssWidth, cssHeight, dotSize, showUntouched, people, highlightKey, themeTick, stateStyle, selectedRow, selectedColor, dots]);
 
   // 押した位置に一番近い点（未接触は除かない。12px 以内）
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {

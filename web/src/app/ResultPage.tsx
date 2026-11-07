@@ -310,21 +310,22 @@ function PlanMap({
   const muted = useCssVar("--muted");
   const untouched = useCssVar("--dot-untouched");
   const fg = useCssVar("--fg");
+  // 点の直径（幅 320px のとき。地図の幅に合わせて少し変わる）。トップの図と同じく、進んだ人ほど少し大きい丸
   const style = useCallback(
     (s: PersonState) => {
       switch (s) {
         case PersonState.None:
-          return { color: untouched, alpha: 0.6, size: 1.5 };
+          return { color: untouched, alpha: 0.75, size: 1.8 };
         case PersonState.Install:
         case PersonState.Signup:
-          return { color, alpha: 0.5, size: 3 };
+          return { color, alpha: 0.6, size: 2.3 };
         case PersonState.CoreAction:
         case PersonState.Trial:
-          return { color, alpha: 1, size: 3.6 };
+          return { color, alpha: 1, size: 2.8 };
         case PersonState.Paid:
-          return { color: gold, alpha: 1, size: 4.6 };
+          return { color: gold, alpha: 1, size: 3.5 };
         case PersonState.Churned:
-          return { color: muted, alpha: 0.55, size: 2.6 };
+          return { color: muted, alpha: 0.55, size: 2.1 };
         default:
           return null;
       }
@@ -357,6 +358,7 @@ function PlanMap({
           highlightPrefs={p.config.regions ?? []}
           dotSize={2}
           maxWidth={640}
+          variant="dots"
           stateStyle={style}
           onPick={onPick}
           selectedRow={selectedRow}

@@ -2,9 +2,10 @@
 // 文章は 02_전략/teppuri_overview.html・README.md・backtest/report.md から。
 // デモとバックテストの数字は画面で書かず、リプレイと backtest.json から読む。
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { HeroDots, HeroRegionList, HERO_LEGEND, InfoTip } from "../components/HeroDots";
 import { Mascot } from "../components/Mascot";
+import { Decor, Wave } from "../components/Shapes";
 import { HEADLINE_METRIC, ORGANIC_VIDEO_NOTE_JA, REPO_URL, UNCLEAR_RANGE } from "../config";
 import { CHANNEL_JA, metricName, regionText, yen } from "../lib/labels";
 import { href } from "../lib/router";
@@ -24,8 +25,44 @@ function scrollToId(id: string) {
   el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
 }
 
+/**
+ * スクロールで節が少しだけ浮かび上がる（.rv → .in）。動きを減らす設定では何もしない（CSS 側でも止める）。
+ * 監視の通知が来ない環境（見えていないタブなど）でも内容が消えたままにならないよう、少し待って全部出す
+ */
+function useReveal() {
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const els = Array.from(document.querySelectorAll<HTMLElement>(".top .rv"));
+    let fired = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        fired = true;
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
+    );
+    root.classList.add("rv-ready");
+    els.forEach((el) => io.observe(el));
+    const fallback = window.setTimeout(() => {
+      if (!fired) els.forEach((el) => el.classList.add("in"));
+    }, 1500);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(fallback);
+      root.classList.remove("rv-ready");
+    };
+  }, []);
+}
+
 export function TopPage({ status, onPlay }: Props) {
   const replay = status.kind === "ready" ? status.replay : null;
+  useReveal();
   return (
     <div className="top">
       <Hero />
@@ -41,7 +78,9 @@ export function TopPage({ status, onPlay }: Props) {
   );
 }
 
-function Sec({ id, eyebrow, title, children, tone, aside }: { id: string; eyebrow: string; title: ReactNode; children: ReactNode; tone?: "alt"; aside?: ReactNode }) {
+type Tone = "brand" | "tint";
+
+function Sec({ id, eyebrow, title, children, tone, aside, last }: { id: string; eyebrow: string; title: ReactNode; children: ReactNode; tone?: Tone; aside?: ReactNode; last?: boolean }) {
   const head = (
     <div className="tsec-head">
       <p className="eyebrow">{eyebrow}</p>
@@ -51,8 +90,10 @@ function Sec({ id, eyebrow, title, children, tone, aside }: { id: string; eyebro
     </div>
   );
   return (
-    <section className={`tsec${tone === "alt" ? " alt" : ""}`} id={id} aria-labelledby={`${id}-h`}>
-      <div className="tsec-in">
+    <section className={`tsec${tone === "brand" ? " on-brand" : tone === "tint" ? " tint" : ""}`} id={id} aria-labelledby={`${id}-h`}>
+      {tone === "brand" && <Wave position="top" />}
+      {tone && <Decor kind={tone === "brand" ? (id === "start" ? "start" : "how") : "tint"} />}
+      <div className="tsec-in rv">
         {aside ? (
           <div className="with-mascot">
             {head}
@@ -63,6 +104,7 @@ function Sec({ id, eyebrow, title, children, tone, aside }: { id: string; eyebro
         )}
         {children}
       </div>
+      {tone === "brand" && !last && <Wave position="bottom" />}
     </section>
   );
 }
@@ -85,7 +127,8 @@ function Hero() {
   // 再生の終わり（地方別の割合を出している間）。スマホでは地図の下の一覧をこのときだけ見せる
   const [revealed, setRevealed] = useState(false);
   return (
-    <section className="hero" aria-labelledby="hero-h">
+    <section className="hero on-brand" aria-labelledby="hero-h">
+      <Decor kind="hero" />
       <div className="hero-in">
         <div className="hero-text">
           <h1 className="hero-title" id="hero-h">
@@ -96,17 +139,17 @@ function Hero() {
           <p className="lead">
             日本の統計から作った架空の日本人1万人の前でアプリを発売し、広告の出し方を2通り試して、結果を幅つきで比べるシミュレーターです。
           </p>
-          <div>
+          {/* マスコットはボタンの横で大きく、右の地図を指す */}
+          <div className="hero-cta">
             <button type="button" className="cta" onClick={() => scrollToId("start")}>
               デモを見る <span aria-hidden>↓</span>
             </button>
+            <Mascot pose="point" className="hero-mascot" />
           </div>
         </div>
-        <figure className="hero-fig">
-          {/* マスコットは地図の右下（太平洋側の空いたところ）から本州を指す */}
+        <figure className="hero-fig hero-card">
           <div className="hero-stage">
             <HeroDots onPeople={(p) => setScale({ population: p.population, perPerson: p.scale_to_japan })} onReveal={setRevealed} />
-            <Mascot pose="point" className="hero-mascot" />
           </div>
           <figcaption>
             <span className="hero-legend">
@@ -128,6 +171,7 @@ function Hero() {
           </figcaption>
         </figure>
       </div>
+      <Wave position="bottom" />
     </section>
   );
 }
@@ -154,7 +198,7 @@ function Problem() {
       <ol className="points">
         {items.map((x, i) => (
           <li key={x.t}>
-            <span className="pt-no num">{i + 1}</span>
+            <span className="pt-no num" aria-hidden>{i + 1}</span>
             <div>
               <h3 className="h3">{x.t}</h3>
               <p>{x.d}</p>
@@ -177,10 +221,15 @@ function How() {
     { n: "4", name: "結果", sub: "再生・レポート・インタビュー", ai: "Claude は文章だけ", d: "日本地図の上で再生し、離れた理由をまとめ、一人に話を聞けます。レポートの数字はエンジンの値を引用します。" },
   ];
   return (
-    <Sec id="how" eyebrow="しくみ" title="4つの部品が、それぞれ得意なことだけをする" tone="alt">
+    <Sec id="how" eyebrow="しくみ" title="4つの部品が、それぞれ得意なことだけをする" tone="brand">
+      <div className="flow-wrap">
+        {/* 番号をつなぐ流れ（広い画面だけ） */}
+        <svg className="flow-line" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path d="M60 34 C 160 4, 230 4, 312 30 S 470 58, 562 30 S 730 2, 812 30 S 920 52, 960 30" />
+        </svg>
       <ol className="flow">
         {steps.map((s) => (
-          <li key={s.n} className="flow-step">
+          <li key={s.n} className="flow-step card">
             <span className="flow-n num">{s.n}</span>
             <h3 className="h3">{s.name}</h3>
             <p className="flow-sub">{s.sub}</p>
@@ -189,6 +238,7 @@ function How() {
           </li>
         ))}
       </ol>
+      </div>
     </Sec>
   );
 }
@@ -226,7 +276,7 @@ function Effects() {
     { t: "地域の密度", d: "近くに相手がいるかで、出会いやすさが変わります。" },
   ];
   return (
-    <Sec id="effects" eyebrow="期待できる効果" title="発売の前に、安く速く試す" tone="alt">
+    <Sec id="effects" eyebrow="期待できる効果" title="発売の前に、安く速く試す" tone="tint">
       <ul className="effects">
         <li>
           <h3 className="h3">発売前に試せる</h3>
@@ -243,7 +293,7 @@ function Effects() {
       </ul>
       <div className="jp-grid">
         {jp.map((x) => (
-          <div key={x.t} className="jp-item">
+          <div key={x.t} className="jp-item card">
             <strong>{x.t}</strong>
             <span>{x.d}</span>
           </div>
@@ -340,7 +390,7 @@ function Demo({ replay, loading }: { replay: Replay | null; loading: boolean }) 
   const line = replay ? demoLine(replay) : null;
   const cpi = replay ? ids.map((id) => replay.plans[id]?.totals.cpi_jpy?.p50) : [];
   return (
-    <Sec id="demo" eyebrow="デモ" title={<><span className="ib">架空のマッチングアプリ</span><span className="ib">「{replay?.meta.name_ja ?? "ちかくに"}」で、</span><span className="ib">広告と AI 動画を比べる</span></>} tone="alt">
+    <Sec id="demo" eyebrow="デモ" title={<><span className="ib">架空のマッチングアプリ</span><span className="ib">「{replay?.meta.name_ja ?? "ちかくに"}」で、</span><span className="ib">広告と AI 動画を比べる</span></>} tone="tint">
       <p className="lead">20〜30代向けの架空の恋愛マッチングアプリ（本人確認が必須）を、2通りの出し方で全国に発売しました。</p>
       {replay ? (
         <>
@@ -430,7 +480,7 @@ function ClaudeUse() {
 
 function Start({ onPlay }: { onPlay: () => void }) {
   return (
-    <Sec id="start" eyebrow="はじめる" title="テプリで試す" tone="alt" aside={<Mascot pose="action" />}>
+    <Sec id="start" eyebrow="はじめる" title="テプリで試す" tone="brand" last aside={<Mascot pose="action" />}>
       <div className="cards2 start">
         <a className="card start-card primary" href={href("result")} onClick={onPlay}>
           <span className="h3">
