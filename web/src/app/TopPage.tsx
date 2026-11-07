@@ -2,11 +2,10 @@
 // 文章は 02_전략/teppuri_overview.html・README.md・backtest/report.md から。
 // デモとバックテストの数字は画面で書かず、リプレイと backtest.json から読む。
 
-import { useEffect, useState, type ReactNode } from "react";
-import { HeroDots, HERO_LEGEND } from "../components/HeroDots";
+import { useState, type ReactNode } from "react";
+import { HeroDots, HeroRegionList, HERO_LEGEND, InfoTip } from "../components/HeroDots";
 import { Mascot } from "../components/Mascot";
 import { HEADLINE_METRIC, ORGANIC_VIDEO_NOTE_JA, REPO_URL, UNCLEAR_RANGE } from "../config";
-import { loadBacktest, summarize, type Backtest } from "../lib/backtest";
 import { CHANNEL_JA, metricName, regionText, yen } from "../lib/labels";
 import { href } from "../lib/router";
 import type { PlanId, Replay } from "../lib/replay";
@@ -83,6 +82,8 @@ function Hero() {
   // 1人が表す人数（契約 §1: weight の合計 96,806,585 ÷ 1万人）。図のデータを読んだらその値にする
   const [scale, setScale] = useState({ population: 10000, perPerson: 96806585 / 10000 });
   const total = scale.population * scale.perPerson;
+  // 再生の終わり（地方別の割合を出している間）。スマホでは地図の下の一覧をこのときだけ見せる
+  const [revealed, setRevealed] = useState(false);
   return (
     <section className="hero" aria-labelledby="hero-h">
       <div className="hero-in">
@@ -104,7 +105,7 @@ function Hero() {
         <figure className="hero-fig">
           {/* マスコットは地図の右下（太平洋側の空いたところ）から本州を指す */}
           <div className="hero-stage">
-            <HeroDots onPeople={(p) => setScale({ population: p.population, perPerson: p.scale_to_japan })} />
+            <HeroDots onPeople={(p) => setScale({ population: p.population, perPerson: p.scale_to_japan })} onReveal={setRevealed} />
             <Mascot pose="point" className="hero-mascot" />
           </div>
           <figcaption>
@@ -116,8 +117,13 @@ function Hero() {
                 </span>
               ))}
             </span>
+            <HeroRegionList shown={revealed} />
+            <span className="note">地方ごとの%は、全国の合計のうちその地方が占める割合です。地方別の割合は、デモ（ちかくに・A案）の1回分の結果です。</span>
             <span className="note">
-              点1つが架空の1人で、人の多い都道府県ほど点が密になります。1人は、似た属性を持つ実際の日本人 <span className="ib">約{Math.round(scale.perPerson).toLocaleString("ja-JP")}人</span>の代わりです（15〜79歳 <span className="ib">約{Math.round(total / 1e4).toLocaleString("ja-JP")}万人 ÷ {(scale.population / 1e4).toLocaleString("ja-JP")}万</span>）。色づき方はイメージで、実際の結果ではありません。
+              点1つが架空の1人で、人の多い都道府県ほど点が密になります。
+              <InfoTip label="1人が表す人数と、色づき方について">
+                1人は、似た属性を持つ実際の日本人 <span className="ib">約{Math.round(scale.perPerson).toLocaleString("ja-JP")}人</span>の代わりです（15〜79歳 <span className="ib">約{Math.round(total / 1e4).toLocaleString("ja-JP")}万人 ÷ {(scale.population / 1e4).toLocaleString("ja-JP")}万</span>）。色づき方はイメージで、実際の結果ではありません。
+              </InfoTip>
             </span>
           </figcaption>
         </figure>
@@ -140,7 +146,7 @@ function Problem() {
     },
     {
       t: "アンケートは「地図」を見落とす",
-      d: "マッチングアプリは、近くに相手がいないと続きません。一人に「使いたいか」を聞いても、まわりに誰がいるかは分かりません。",
+      d: "例えば、マッチングアプリは、近くに相手がいないと続きません。一人に「使いたいか」を聞いても、まわりに誰がいるかは分かりません。",
     },
   ];
   return (
@@ -249,33 +255,7 @@ function Effects() {
 
 // ---- 6. 信頼できる理由 ----
 
-function useBacktest() {
-  const [bt, setBt] = useState<Backtest | null>(null);
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    const ac = new AbortController();
-    loadBacktest(ac.signal)
-      .then(setBt)
-      .catch((e: Error) => e.name !== "AbortError" && setFailed(true));
-    return () => ac.abort();
-  }, []);
-  return { bt, failed };
-}
-
-// コミットの順番（README.md 4章）
-const COMMITS: [string, string][] = [
-  ["12d263a", "ルールを固定"],
-  ["4567f94", "事例を入力"],
-  ["5286315", "予測"],
-  ["64f24e0", "正解を追加"],
-  ["8a7521e", "採点"],
-];
-
 function Trust() {
-  const { bt, failed } = useBacktest();
-  const s = bt ? summarize(bt) : null;
-  const best = bt && bt.baselines.length ? Math.max(...bt.baselines.map((b) => b.hits)) : null;
-  const saidNo = bt ? bt.cases.flatMap((c) => c.questions).filter((q) => q.p_yes < 0.5).length : null;
   return (
     <Sec id="trust" eyebrow="なぜ信じられるか" title="数字の出どころを、すべて見せる">
       <div className="stats">
@@ -308,42 +288,10 @@ function Trust() {
         </div>
       </div>
 
-      <div className="bt card">
-        <div style={{ display: "grid", gap: 8 }}>
-          <h3 className="h3">過去で試した。結果も正直に出す</h3>
-          <p>実在の日本のサービスの過去（値上げ・広告費の増減）を、名前を伏せて予測させました。正解は予測の後にしか入れていません。</p>
-        </div>
-        <ol className="commits" aria-label="コミットの順番">
-          {COMMITS.map(([sha, label], i) => (
-            <li key={sha}>
-              <span className="c-no num">{i + 1}</span>
-              <span className="c-label">{label}</span>
-              <code>{sha}</code>
-            </li>
-          ))}
-        </ol>
-        {s && best !== null ? (
-          <div className="bt-result">
-            <p className="bt-score">
-              <span className="num">{s.answered}</span>問中 <span className="num">{s.hits}</span>問 的中。
-              {s.hits <= best ? <><span className="ib">単純な基準に</span><span className="ib">勝てませんでした。</span></> : <span className="ib">単純な基準より多く当てました。</span>}
-            </p>
-            <p>
-              「常に増える」などの単純な基準も {best}問 当てています。テプリは{s.answered}問中{saidNo}問で「減る」と答える偏りがありました。
-              今の版は、運営中のサービスの値上げや広告の増減の方向を当てる道具としては、まだ信頼できません。
-            </p>
-            <p className="note">結果を見てからルールは直していません。直すと検証にならないからです。</p>
-          </div>
-        ) : failed ? (
-          <p className="note">バックテストの結果を読み込めませんでした。</p>
-        ) : (
-          <p className="note">読み込んでいます…</p>
-        )}
-        <div className="links">
-          <a href={href("verify")}>検証の全問を見る</a>
-          <a href={href("sources")}>出典と限界を見る</a>
-        </div>
-      </div>
+      <p className="links">
+        <a href={href("verify")}>過去の事例で試した検証を見る</a>
+        <a href={href("sources")}>出典と限界を見る</a>
+      </p>
     </Sec>
   );
 }

@@ -1,4 +1,4 @@
-/* テプリの色と文字。色は A案（藍）と B案（若竹）の2色だけ。ほかは意味の色（課金＝金、注意）と灰色 */
+/* テプリの色と文字。色は A案（藍）と B案（若竹）の2色だけ。ほかは意味の色（課金＝金、トップの図の課金＝ピンク、注意）と灰色 */
 :root {
   color-scheme: light;
   --bg: #f5f7f8;
@@ -14,6 +14,8 @@
   --a-reach: #b3c1e6;
   --b-soft: rgba(19, 138, 110, 0.1);
   --gold: #b07a00;
+  /* トップの図（HeroDots）の「課金した」 */
+  --pay: #ff6363;
   --focus: #2f4fa8;
   --display: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
   --body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
@@ -50,7 +52,7 @@
     color-scheme: dark;
     --bg: #12171b; --surface: #1a2126; --surface-2: #222b31; --fg: #e8edf0; --muted: #9aa7b0; --line: #2c363d;
     --a: #8aa4f0; --b: #4cc7a5; --a-soft: rgba(138, 164, 240, 0.14); --a-dot: #5f78c4; --a-reach: #3a4870; --b-soft: rgba(76, 199, 165, 0.14);
-    --gold: #e0b44a; --focus: #8aa4f0;
+    --gold: #e0b44a; --pay: #ff7b7b; --focus: #8aa4f0;
     --grid: #263037; --text-secondary: #c3ccd2; --map-land: #35434d; --map-line: #1a2126; --map-dim: #1f282e;
     --dot-untouched: #5a6872; --extrapolated: rgba(154, 167, 176, 0.1);
     --warn-bg: #3a2c10; --warn-text: #f3cf86; --error-bg: #3b1717; --error-text: #f4b3b3;
@@ -60,7 +62,7 @@
   color-scheme: dark;
   --bg: #12171b; --surface: #1a2126; --surface-2: #222b31; --fg: #e8edf0; --muted: #9aa7b0; --line: #2c363d;
   --a: #8aa4f0; --b: #4cc7a5; --a-soft: rgba(138, 164, 240, 0.14); --a-dot: #5f78c4; --a-reach: #3a4870; --b-soft: rgba(76, 199, 165, 0.14);
-  --gold: #e0b44a; --focus: #8aa4f0;
+  --gold: #e0b44a; --pay: #ff7b7b; --focus: #8aa4f0;
   --grid: #263037; --text-secondary: #c3ccd2; --map-land: #35434d; --map-line: #1a2126; --map-dim: #1f282e;
   --dot-untouched: #5a6872; --extrapolated: rgba(154, 167, 176, 0.1);
   --warn-bg: #3a2c10; --warn-text: #f3cf86; --error-bg: #3b1717; --error-text: #f4b3b3;
@@ -351,7 +353,67 @@ dialog.sheet .person { grid-template-columns: 1fr; }
 .swatch.lv1 { background: var(--a-reach); }
 .swatch.lv2 { background: var(--a-dot); }
 .swatch.lv3 { background: var(--a); }
-.swatch.lv4 { background: var(--gold); }
+.swatch.lv4 { background: var(--pay); }
+
+/* 地図と、再生の終わりに出す地方別の吹き出し */
+.hero-map { position: relative; }
+.hero-bubbles { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s ease; }
+.hero-bubbles.on { opacity: 1; }
+.hero-leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hero-leaders line { stroke: var(--muted); stroke-width: 1; opacity: .7; }
+.hero-leaders circle { fill: var(--fg); }
+.hb {
+  position: absolute; transform: translate(-50%, -50%); display: grid; gap: 0; justify-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px 8px 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); font-size: 13px; line-height: 1.45; white-space: nowrap; color: var(--fg);
+}
+.hb strong { font-family: var(--display); font-size: 13px; }
+.hb-nums { display: flex; gap: 7px; }
+.hb-nums > span { display: inline-flex; align-items: center; gap: 3px; }
+.hb .swatch { width: 7px; height: 7px; }
+.hb.sm { font-size: 11px; padding: 2px 6px 3px; border-radius: 8px; }
+.hb.sm strong { font-size: 11px; }
+.hb.sm .hb-nums { gap: 5px; }
+.hb.sm .swatch { width: 6px; height: 6px; }
+@media (prefers-reduced-motion: reduce) { .hero-bubbles { transition: none; } }
+/* 地方別の一覧: スマホでは地図の下に見せ、広い画面では読み上げ用だけ（吹き出しが見た目の代わり） */
+.hero-regions { opacity: 0; transition: opacity .35s ease; }
+.hero-regions.on { opacity: 1; }
+.hero-regions table { width: 100%; font-size: 14px; border-collapse: collapse; }
+.hero-regions th, .hero-regions td { padding: 2px 6px; border: 0; line-height: 1.5; text-align: right; }
+.hero-regions th:first-child { text-align: left; color: var(--fg); font-weight: 700; }
+.hero-regions thead th { color: var(--muted); font-size: 13px; }
+.hero-regions tbody tr:nth-child(odd) { background: var(--surface-2); }
+@media (prefers-reduced-motion: reduce) { .hero-regions { transition: none; } }
+@media (min-width: 641px) {
+  .hero-regions { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; opacity: 1; }
+}
+@media (max-width: 640px) {
+  .hero-bubbles { display: none; }
+  .hero-regions table { font-size: 14px; }
+  .hero-regions th, .hero-regions td { padding: 2px 4px; white-space: nowrap; }
+  .hero-regions thead th { font-size: 12px; font-weight: 400; }
+  .hero-regions thead th .swatch { width: 8px; height: 8px; margin-right: 3px; }
+}
+
+/* 丸の中のはてなのボタンと、小さな吹き出し */
+.tip { position: relative; display: inline-block; vertical-align: middle; }
+.tip-btn {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; margin: -6px 0 -6px 2px; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer;
+}
+.tip-btn:hover, .tip-btn[aria-expanded="true"] { color: var(--fg); background: var(--surface-2); }
+.tip-pop {
+  position: absolute; z-index: 20; top: calc(100% + 10px); left: 50%; transform: translateX(calc(-50% + var(--shift, 0px)));
+  display: block; width: min(300px, calc(100vw - 24px)); padding: 12px 14px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+  font-size: 14px; line-height: 1.7; color: var(--text-secondary); text-align: left; white-space: normal;
+}
+.tip-pop[hidden] { display: none; }
+.tip-pop::before {
+  content: ""; position: absolute; top: -6px; left: calc(50% - 6px - var(--shift, 0px)); width: 10px; height: 10px;
+  background: var(--surface); border-left: 1px solid var(--line); border-top: 1px solid var(--line); transform: rotate(45deg);
+}
 
 .points { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
 .points li { display: grid; gap: 14px; align-content: start; }
@@ -377,14 +439,6 @@ dialog.sheet .person { grid-template-columns: 1fr; }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .stats > div { display: grid; gap: 6px; align-content: start; }
 .stat { font-family: var(--display); font-weight: 900; font-size: clamp(40px, 6vw, 60px); line-height: 1.1; }
-.bt { display: grid; gap: 28px; }
-.commits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-.commits li { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); position: relative; }
-.commits .c-no { font-size: 14px; color: var(--muted); font-weight: 700; }
-.commits .c-label { font-weight: 700; }
-.commits code { font-size: 14px; color: var(--muted); }
-.bt-result { display: grid; gap: 12px; padding-left: 20px; border-left: 4px solid var(--fg); }
-.bt-score { font-family: var(--display); font-weight: 900; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.4; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 28px; font-weight: 700; }
 
 .demo-line { display: grid; gap: 12px; }
@@ -407,8 +461,6 @@ dialog.sheet .person { grid-template-columns: 1fr; }
   .flow { grid-template-columns: 1fr; gap: 28px; }
   .flow-step:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -25px; transform: translateX(-50%); }
   .jp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .commits { grid-template-columns: 1fr; }
-  .commits li { grid-template-columns: 1.6em minmax(0, 1fr) auto; align-items: baseline; gap: 8px; }
 }
 @media (max-width: 640px) {
   .tsec { padding: 64px 16px; }
@@ -418,7 +470,6 @@ dialog.sheet .person { grid-template-columns: 1fr; }
   .jp-grid { grid-template-columns: 1fr; }
   .models li { grid-template-columns: 1fr; gap: 4px; }
   .start-card { padding: 24px; }
-  .bt-result { padding-left: 14px; }
   .cta { font-size: 20px; padding: 16px 30px; }
 }
 
