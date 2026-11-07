@@ -1,0 +1,3570 @@
+{
+ "meta": {
+  "note_ja": "日本全体に換算した人数・円。diff は回ごとの (対照 − v1) の p10/p50/p90、median_diff は中央値どうしの差、p_better は対照が v1 を上回った回の割合（同じ抽選値の30回）。",
+  "runs": 30,
+  "seed": 20261108,
+  "base": "demo_matching"
+ },
+ "sanity_v1_vs_replay": {
+  "A.installs": {
+   "this_script_p50": 6091.2,
+   "replay_p50": 6091.1,
+   "match": true
+  },
+  "A.signups": {
+   "this_script_p50": 2861.8,
+   "replay_p50": 2861.6,
+   "match": true
+  },
+  "A.core_actions": {
+   "this_script_p50": 128.8,
+   "replay_p50": 128.8,
+   "match": true
+  },
+  "A.payers": {
+   "this_script_p50": 40.2,
+   "replay_p50": 40.2,
+   "match": true
+  },
+  "A.revenue_jpy": {
+   "this_script_p50": 293936.2,
+   "replay_p50": 293904.8,
+   "match": true
+  },
+  "A.paying_end": {
+   "this_script_p50": 25.3,
+   "replay_p50": 25.3,
+   "match": true
+  },
+  "B.installs": {
+   "this_script_p50": 8710.0,
+   "replay_p50": 8709.7,
+   "match": true
+  },
+  "B.signups": {
+   "this_script_p50": 3468.7,
+   "replay_p50": 3468.6,
+   "match": true
+  },
+  "B.core_actions": {
+   "this_script_p50": 68.0,
+   "replay_p50": 68.0,
+   "match": true
+  },
+  "B.payers": {
+   "this_script_p50": 19.0,
+   "replay_p50": 19.0,
+   "match": true
+  },
+  "B.revenue_jpy": {
+   "this_script_p50": 109495.1,
+   "replay_p50": 109488.2,
+   "match": true
+  },
+  "B.paying_end": {
+   "this_script_p50": 14.2,
+   "replay_p50": 14.2,
+   "match": true
+  }
+ },
+ "v1_levels": {
+  "A.core_action": {
+   "n": 8489,
+   "higher": 0.0007,
+   "similar": 0.2143,
+   "lower": 0.785
+  },
+  "A.gate:id_verification": {
+   "n": 8489,
+   "higher": 0.0,
+   "similar": 0.0932,
+   "lower": 0.9068
+  },
+  "A.install": {
+   "n": 25467,
+   "higher": 0.0043,
+   "similar": 0.2576,
+   "lower": 0.7381
+  },
+  "A.pay": {
+   "n": 8489,
+   "higher": 0.0073,
+   "similar": 0.1547,
+   "lower": 0.838
+  },
+  "A.retention": {
+   "n": 8489,
+   "higher": 0.0,
+   "similar": 0.1836,
+   "lower": 0.8164
+  },
+  "A.signup": {
+   "n": 8489,
+   "higher": 0.0,
+   "similar": 0.2323,
+   "lower": 0.7677
+  },
+  "B.core_action": {
+   "n": 8489,
+   "higher": 0.0005,
+   "similar": 0.2192,
+   "lower": 0.7803
+  },
+  "B.gate:id_verification": {
+   "n": 8489,
+   "higher": 0.0001,
+   "similar": 0.0707,
+   "lower": 0.9292
+  },
+  "B.install": {
+   "n": 25467,
+   "higher": 0.0075,
+   "similar": 0.2264,
+   "lower": 0.7662
+  },
+  "B.pay": {
+   "n": 8489,
+   "higher": 0.0042,
+   "similar": 0.1848,
+   "lower": 0.8109
+  },
+  "B.retention": {
+   "n": 8489,
+   "higher": 0.0,
+   "similar": 0.2014,
+   "lower": 0.7986
+  },
+  "B.signup": {
+   "n": 8489,
+   "higher": 0.0,
+   "similar": 0.2343,
+   "lower": 0.7657
+  }
+ },
+ "variants": {
+  "demo_matching_t5": {
+   "role_ja": "v2 の名札を外したコピー（ブラインド v2）",
+   "n_decisions": 135824,
+   "engine_inputs": {
+    "monthly_jpy": 2980,
+    "review_hours": [
+     12
+    ]
+   },
+   "vs_v1": {
+    "A.installs": {
+     "base": [
+      3976,
+      6091,
+      16564
+     ],
+     "variant": [
+      4147,
+      6302,
+      17221
+     ],
+     "diff": [
+      104,
+      213,
+      482
+     ],
+     "median_diff": 210,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.signups": {
+     "base": [
+      1734,
+      2862,
+      7694
+     ],
+     "variant": [
+      2088,
+      3258,
+      8354
+     ],
+     "diff": [
+      217,
+      414,
+      934
+     ],
+     "median_diff": 396,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.core_actions": {
+     "base": [
+      23,
+      129,
+      400
+     ],
+     "variant": [
+      34,
+      179,
+      533
+     ],
+     "diff": [
+      11,
+      47,
+      126
+     ],
+     "median_diff": 50,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.payers": {
+     "base": [
+      8,
+      40,
+      146
+     ],
+     "variant": [
+      15,
+      65,
+      216
+     ],
+     "diff": [
+      6,
+      25,
+      71
+     ],
+     "median_diff": 25,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.revenue_jpy": {
+     "base": [
+      53359,
+      293936,
+      1127915
+     ],
+     "variant": [
+      74367,
+      365092,
+      1230016
+     ],
+     "diff": [
+      13004,
+      49775,
+      197517
+     ],
+     "median_diff": 71156,
+     "p_better": 0.967,
+     "p_worse": 0.033
+    },
+    "A.paying_end": {
+     "base": [
+      6,
+      25,
+      90
+     ],
+     "variant": [
+      10,
+      41,
+      133
+     ],
+     "diff": [
+      4,
+      16,
+      43
+     ],
+     "median_diff": 16,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "B.installs": {
+     "base": [
+      2587,
+      8710,
+      67472
+     ],
+     "variant": [
+      2582,
+      8670,
+      66831
+     ],
+     "diff": [
+      -369,
+      -34,
+      0
+     ],
+     "median_diff": -40,
+     "p_better": 0.1,
+     "p_worse": 0.9
+    },
+    "B.signups": {
+     "base": [
+      1074,
+      3469,
+      25236
+     ],
+     "variant": [
+      1108,
+      3666,
+      26075
+     ],
+     "diff": [
+      28,
+      139,
+      839
+     ],
+     "median_diff": 197,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "B.core_actions": {
+     "base": [
+      8,
+      68,
+      1539
+     ],
+     "variant": [
+      10,
+      84,
+      1825
+     ],
+     "diff": [
+      1,
+      13,
+      287
+     ],
+     "median_diff": 16,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "B.payers": {
+     "base": [
+      1,
+      19,
+      469
+     ],
+     "variant": [
+      2,
+      30,
+      629
+     ],
+     "diff": [
+      1,
+      9,
+      184
+     ],
+     "median_diff": 11,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "B.revenue_jpy": {
+     "base": [
+      7905,
+      109495,
+      3091847
+     ],
+     "variant": [
+      10367,
+      132108,
+      3108694
+     ],
+     "diff": [
+      -281,
+      9013,
+      314648
+     ],
+     "median_diff": 22613,
+     "p_better": 0.9,
+     "p_worse": 0.1
+    },
+    "B.paying_end": {
+     "base": [
+      1,
+      14,
+      312
+     ],
+     "variant": [
+      2,
+      22,
+      416
+     ],
+     "diff": [
+      1,
+      6,
+      121
+     ],
+     "median_diff": 8,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    }
+   },
+   "levels": {
+    "A.core_action": {
+     "n": 8489,
+     "higher": 0.002,
+     "similar": 0.2529,
+     "lower": 0.7451
+    },
+    "A.gate:id_verification": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.1242,
+     "lower": 0.8758
+    },
+    "A.install": {
+     "n": 25467,
+     "higher": 0.0143,
+     "similar": 0.208,
+     "lower": 0.7777
+    },
+    "A.pay": {
+     "n": 8489,
+     "higher": 0.0187,
+     "similar": 0.1591,
+     "lower": 0.8221
+    },
+    "A.retention": {
+     "n": 8489,
+     "higher": 0.0006,
+     "similar": 0.2051,
+     "lower": 0.7943
+    },
+    "A.signup": {
+     "n": 8489,
+     "higher": 0.0466,
+     "similar": 0.2508,
+     "lower": 0.7026
+    },
+    "B.core_action": {
+     "n": 8489,
+     "higher": 0.0028,
+     "similar": 0.2469,
+     "lower": 0.7503
+    },
+    "B.gate:id_verification": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.1258,
+     "lower": 0.8742
+    },
+    "B.install": {
+     "n": 25467,
+     "higher": 0.0162,
+     "similar": 0.174,
+     "lower": 0.8098
+    },
+    "B.pay": {
+     "n": 8489,
+     "higher": 0.0163,
+     "similar": 0.1718,
+     "lower": 0.812
+    },
+    "B.retention": {
+     "n": 8489,
+     "higher": 0.0011,
+     "similar": 0.2008,
+     "lower": 0.7981
+    },
+    "B.signup": {
+     "n": 8489,
+     "higher": 0.0254,
+     "similar": 0.2517,
+     "lower": 0.7228
+    }
+   },
+   "intermediates": {
+    "price_only": {
+     "desc_ja": "v1 の判断のまま、価格だけこの版の値にした中間",
+     "mid_vs_v1": {
+      "A.installs": {
+       "base": [
+        3976,
+        6091,
+        16564
+       ],
+       "variant": [
+        3976,
+        6091,
+        16564
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.signups": {
+       "base": [
+        1734,
+        2862,
+        7694
+       ],
+       "variant": [
+        1734,
+        2862,
+        7694
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.core_actions": {
+       "base": [
+        23,
+        129,
+        400
+       ],
+       "variant": [
+        23,
+        129,
+        400
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.payers": {
+       "base": [
+        8,
+        40,
+        146
+       ],
+       "variant": [
+        10,
+        48,
+        168
+       ],
+       "diff": [
+        1,
+        6,
+        23
+       ],
+       "median_diff": 8,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.revenue_jpy": {
+       "base": [
+        53359,
+        293936,
+        1127915
+       ],
+       "variant": [
+        49067,
+        263127,
+        967086
+       ],
+       "diff": [
+        -76874,
+        -25984,
+        -4513
+       ],
+       "median_diff": -30809,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.paying_end": {
+       "base": [
+        6,
+        25,
+        90
+       ],
+       "variant": [
+        6,
+        31,
+        103
+       ],
+       "diff": [
+        1,
+        4,
+        14
+       ],
+       "median_diff": 5,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.installs": {
+       "base": [
+        2587,
+        8710,
+        67472
+       ],
+       "variant": [
+        2587,
+        8710,
+        67472
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.signups": {
+       "base": [
+        1074,
+        3469,
+        25236
+       ],
+       "variant": [
+        1074,
+        3469,
+        25236
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.core_actions": {
+       "base": [
+        8,
+        68,
+        1539
+       ],
+       "variant": [
+        8,
+        68,
+        1539
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.payers": {
+       "base": [
+        1,
+        19,
+        469
+       ],
+       "variant": [
+        2,
+        23,
+        544
+       ],
+       "diff": [
+        0,
+        5,
+        86
+       ],
+       "median_diff": 4,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.revenue_jpy": {
+       "base": [
+        7905,
+        109495,
+        3091847
+       ],
+       "variant": [
+        6900,
+        100815,
+        2678303
+       ],
+       "diff": [
+        -199590,
+        -8398,
+        -987
+       ],
+       "median_diff": -8681,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.paying_end": {
+       "base": [
+        1,
+        14,
+        312
+       ],
+       "variant": [
+        1,
+        17,
+        361
+       ],
+       "diff": [
+        0,
+        4,
+        58
+       ],
+       "median_diff": 3,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      }
+     },
+     "variant_vs_mid": {
+      "A.installs": {
+       "base": [
+        3976,
+        6091,
+        16564
+       ],
+       "variant": [
+        4147,
+        6302,
+        17221
+       ],
+       "diff": [
+        104,
+        213,
+        482
+       ],
+       "median_diff": 210,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.signups": {
+       "base": [
+        1734,
+        2862,
+        7694
+       ],
+       "variant": [
+        2088,
+        3258,
+        8354
+       ],
+       "diff": [
+        217,
+        414,
+        934
+       ],
+       "median_diff": 396,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.core_actions": {
+       "base": [
+        23,
+        129,
+        400
+       ],
+       "variant": [
+        34,
+        179,
+        533
+       ],
+       "diff": [
+        11,
+        47,
+        126
+       ],
+       "median_diff": 50,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.payers": {
+       "base": [
+        10,
+        48,
+        168
+       ],
+       "variant": [
+        15,
+        65,
+        216
+       ],
+       "diff": [
+        5,
+        17,
+        43
+       ],
+       "median_diff": 17,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.revenue_jpy": {
+       "base": [
+        49067,
+        263127,
+        967086
+       ],
+       "variant": [
+        74367,
+        365092,
+        1230016
+       ],
+       "diff": [
+        24790,
+        100123,
+        257406
+       ],
+       "median_diff": 101965,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.paying_end": {
+       "base": [
+        6,
+        31,
+        103
+       ],
+       "variant": [
+        10,
+        41,
+        133
+       ],
+       "diff": [
+        3,
+        11,
+        25
+       ],
+       "median_diff": 10,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.installs": {
+       "base": [
+        2587,
+        8710,
+        67472
+       ],
+       "variant": [
+        2582,
+        8670,
+        66831
+       ],
+       "diff": [
+        -369,
+        -34,
+        0
+       ],
+       "median_diff": -40,
+       "p_better": 0.1,
+       "p_worse": 0.9
+      },
+      "B.signups": {
+       "base": [
+        1074,
+        3469,
+        25236
+       ],
+       "variant": [
+        1108,
+        3666,
+        26075
+       ],
+       "diff": [
+        28,
+        139,
+        839
+       ],
+       "median_diff": 197,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.core_actions": {
+       "base": [
+        8,
+        68,
+        1539
+       ],
+       "variant": [
+        10,
+        84,
+        1825
+       ],
+       "diff": [
+        1,
+        13,
+        287
+       ],
+       "median_diff": 16,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.payers": {
+       "base": [
+        2,
+        23,
+        544
+       ],
+       "variant": [
+        2,
+        30,
+        629
+       ],
+       "diff": [
+        1,
+        5,
+        98
+       ],
+       "median_diff": 7,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.revenue_jpy": {
+       "base": [
+        6900,
+        100815,
+        2678303
+       ],
+       "variant": [
+        10367,
+        132108,
+        3108694
+       ],
+       "diff": [
+        2974,
+        20798,
+        483730
+       ],
+       "median_diff": 31294,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.paying_end": {
+       "base": [
+        1,
+        17,
+        361
+       ],
+       "variant": [
+        2,
+        22,
+        416
+       ],
+       "diff": [
+        0,
+        3,
+        63
+       ],
+       "median_diff": 5,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      }
+     }
+    }
+   },
+   "install_judgments_only_vs_v1": {
+    "desc_ja": "v1 のアプリ・判断のまま、install の段階の判断だけこの版のものにした場合（広告の判断の効き目）",
+    "table": {
+     "A.installs": {
+      "base": [
+       3976,
+       6091,
+       16564
+      ],
+      "variant": [
+       4126,
+       6270,
+       17143
+      ],
+      "diff": [
+       96,
+       185,
+       430
+      ],
+      "median_diff": 179,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.signups": {
+      "base": [
+       1734,
+       2862,
+       7694
+      ],
+      "variant": [
+       1805,
+       2923,
+       7830
+      ],
+      "diff": [
+       45,
+       86,
+       198
+      ],
+      "median_diff": 62,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.core_actions": {
+      "base": [
+       23,
+       129,
+       400
+      ],
+      "variant": [
+       25,
+       135,
+       418
+      ],
+      "diff": [
+       1,
+       6,
+       14
+      ],
+      "median_diff": 6,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.payers": {
+      "base": [
+       8,
+       40,
+       146
+      ],
+      "variant": [
+       9,
+       42,
+       150
+      ],
+      "diff": [
+       0,
+       1,
+       4
+      ],
+      "median_diff": 2,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.revenue_jpy": {
+      "base": [
+       53359,
+       293936,
+       1127915
+      ],
+      "variant": [
+       56013,
+       309976,
+       1165102
+      ],
+      "diff": [
+       2674,
+       11297,
+       31343
+      ],
+      "median_diff": 16040,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.paying_end": {
+      "base": [
+       6,
+       25,
+       90
+      ],
+      "variant": [
+       6,
+       27,
+       92
+      ],
+      "diff": [
+       0,
+       1,
+       3
+      ],
+      "median_diff": 1,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "B.installs": {
+      "base": [
+       2587,
+       8710,
+       67472
+      ],
+      "variant": [
+       2580,
+       8663,
+       66773
+      ],
+      "diff": [
+       -628,
+       -41,
+       -3
+      ],
+      "median_diff": -47,
+      "p_better": 0.1,
+      "p_worse": 0.9
+     },
+     "B.signups": {
+      "base": [
+       1074,
+       3469,
+       25236
+      ],
+      "variant": [
+       1070,
+       3467,
+       25063
+      ],
+      "diff": [
+       -100,
+       -4,
+       7
+      ],
+      "median_diff": -2,
+      "p_better": 0.3,
+      "p_worse": 0.7
+     },
+     "B.core_actions": {
+      "base": [
+       8,
+       68,
+       1539
+      ],
+      "variant": [
+       8,
+       68,
+       1529
+      ],
+      "diff": [
+       -3,
+       0,
+       1
+      ],
+      "median_diff": 0,
+      "p_better": 0.433,
+      "p_worse": 0.567
+     },
+     "B.payers": {
+      "base": [
+       1,
+       19,
+       469
+      ],
+      "variant": [
+       1,
+       19,
+       467
+      ],
+      "diff": [
+       -1,
+       0,
+       0
+      ],
+      "median_diff": 0,
+      "p_better": 0.333,
+      "p_worse": 0.667
+     },
+     "B.revenue_jpy": {
+      "base": [
+       7905,
+       109495,
+       3091847
+      ],
+      "variant": [
+       7915,
+       108748,
+       3075133
+      ],
+      "diff": [
+       -7220,
+       -104,
+       1240
+      ],
+      "median_diff": -747,
+      "p_better": 0.3,
+      "p_worse": 0.7
+     },
+     "B.paying_end": {
+      "base": [
+       1,
+       14,
+       312
+      ],
+      "variant": [
+       1,
+       14,
+       310
+      ],
+      "diff": [
+       -1,
+       0,
+       0
+      ],
+      "median_diff": 0,
+      "p_better": 0.3,
+      "p_worse": 0.7
+     }
+    }
+   }
+  },
+  "demo_matching_m8": {
+   "role_ja": "見た目だけ変えた版（プラセボ）",
+   "n_decisions": 135824,
+   "engine_inputs": {
+    "monthly_jpy": 3980,
+    "review_hours": [
+     24
+    ]
+   },
+   "vs_v1": {
+    "A.installs": {
+     "base": [
+      3976,
+      6091,
+      16564
+     ],
+     "variant": [
+      4135,
+      6285,
+      17182
+     ],
+     "diff": [
+      82,
+      198,
+      450
+     ],
+     "median_diff": 194,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.signups": {
+     "base": [
+      1734,
+      2862,
+      7694
+     ],
+     "variant": [
+      1798,
+      2933,
+      7838
+     ],
+     "diff": [
+      41,
+      82,
+      190
+     ],
+     "median_diff": 71,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.core_actions": {
+     "base": [
+      23,
+      129,
+      400
+     ],
+     "variant": [
+      25,
+      137,
+      418
+     ],
+     "diff": [
+      2,
+      8,
+      23
+     ],
+     "median_diff": 8,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.payers": {
+     "base": [
+      8,
+      40,
+      146
+     ],
+     "variant": [
+      9,
+      44,
+      154
+     ],
+     "diff": [
+      1,
+      2,
+      7
+     ],
+     "median_diff": 4,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.revenue_jpy": {
+     "base": [
+      53359,
+      293936,
+      1127915
+     ],
+     "variant": [
+      59284,
+      324520,
+      1192728
+     ],
+     "diff": [
+      3844,
+      17640,
+      55638
+     ],
+     "median_diff": 30583,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "A.paying_end": {
+     "base": [
+      6,
+      25,
+      90
+     ],
+     "variant": [
+      6,
+      28,
+      94
+     ],
+     "diff": [
+      0,
+      1,
+      4
+     ],
+     "median_diff": 2,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "B.installs": {
+     "base": [
+      2587,
+      8710,
+      67472
+     ],
+     "variant": [
+      2591,
+      8743,
+      67624
+     ],
+     "diff": [
+      2,
+      15,
+      143
+     ],
+     "median_diff": 33,
+     "p_better": 0.967,
+     "p_worse": 0.033
+    },
+    "B.signups": {
+     "base": [
+      1074,
+      3469,
+      25236
+     ],
+     "variant": [
+      1073,
+      3476,
+      25237
+     ],
+     "diff": [
+      -14,
+      -1,
+      9
+     ],
+     "median_diff": 7,
+     "p_better": 0.433,
+     "p_worse": 0.567
+    },
+    "B.core_actions": {
+     "base": [
+      8,
+      68,
+      1539
+     ],
+     "variant": [
+      8,
+      70,
+      1585
+     ],
+     "diff": [
+      0,
+      2,
+      46
+     ],
+     "median_diff": 2,
+     "p_better": 1.0,
+     "p_worse": 0.0
+    },
+    "B.payers": {
+     "base": [
+      1,
+      19,
+      469
+     ],
+     "variant": [
+      1,
+      20,
+      475
+     ],
+     "diff": [
+      0,
+      1,
+      7
+     ],
+     "median_diff": 1,
+     "p_better": 0.967,
+     "p_worse": 0.033
+    },
+    "B.revenue_jpy": {
+     "base": [
+      7905,
+      109495,
+      3091847
+     ],
+     "variant": [
+      8305,
+      114309,
+      3128390
+     ],
+     "diff": [
+      150,
+      3443,
+      51216
+     ],
+     "median_diff": 4814,
+     "p_better": 0.967,
+     "p_worse": 0.033
+    },
+    "B.paying_end": {
+     "base": [
+      1,
+      14,
+      312
+     ],
+     "variant": [
+      1,
+      15,
+      315
+     ],
+     "diff": [
+      0,
+      0,
+      5
+     ],
+     "median_diff": 1,
+     "p_better": 0.967,
+     "p_worse": 0.033
+    }
+   },
+   "levels": {
+    "A.core_action": {
+     "n": 8489,
+     "higher": 0.0013,
+     "similar": 0.1964,
+     "lower": 0.8023
+    },
+    "A.gate:id_verification": {
+     "n": 8489,
+     "higher": 0.0002,
+     "similar": 0.0999,
+     "lower": 0.8999
+    },
+    "A.install": {
+     "n": 25467,
+     "higher": 0.0069,
+     "similar": 0.2935,
+     "lower": 0.6997
+    },
+    "A.pay": {
+     "n": 8489,
+     "higher": 0.0033,
+     "similar": 0.1275,
+     "lower": 0.8692
+    },
+    "A.retention": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.1932,
+     "lower": 0.8068
+    },
+    "A.signup": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.2104,
+     "lower": 0.7896
+    },
+    "B.core_action": {
+     "n": 8489,
+     "higher": 0.0013,
+     "similar": 0.2005,
+     "lower": 0.7982
+    },
+    "B.gate:id_verification": {
+     "n": 8489,
+     "higher": 0.0001,
+     "similar": 0.0852,
+     "lower": 0.9147
+    },
+    "B.install": {
+     "n": 25467,
+     "higher": 0.0098,
+     "similar": 0.2177,
+     "lower": 0.7725
+    },
+    "B.pay": {
+     "n": 8489,
+     "higher": 0.0021,
+     "similar": 0.1462,
+     "lower": 0.8517
+    },
+    "B.retention": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.2011,
+     "lower": 0.7989
+    },
+    "B.signup": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.2204,
+     "lower": 0.7796
+    }
+   },
+   "intermediates": {},
+   "install_judgments_only_vs_v1": {
+    "desc_ja": "v1 のアプリ・判断のまま、install の段階の判断だけこの版のものにした場合（広告の判断の効き目）",
+    "table": {
+     "A.installs": {
+      "base": [
+       3976,
+       6091,
+       16564
+      ],
+      "variant": [
+       4119,
+       6255,
+       17121
+      ],
+      "diff": [
+       76,
+       171,
+       408
+      ],
+      "median_diff": 164,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.signups": {
+      "base": [
+       1734,
+       2862,
+       7694
+      ],
+      "variant": [
+       1782,
+       2914,
+       7811
+      ],
+      "diff": [
+       35,
+       64,
+       151
+      ],
+      "median_diff": 53,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.core_actions": {
+      "base": [
+       23,
+       129,
+       400
+      ],
+      "variant": [
+       24,
+       132,
+       409
+      ],
+      "diff": [
+       1,
+       3,
+       9
+      ],
+      "median_diff": 3,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.payers": {
+      "base": [
+       8,
+       40,
+       146
+      ],
+      "variant": [
+       8,
+       41,
+       149
+      ],
+      "diff": [
+       0,
+       1,
+       3
+      ],
+      "median_diff": 1,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.revenue_jpy": {
+      "base": [
+       53359,
+       293936,
+       1127915
+      ],
+      "variant": [
+       55096,
+       302748,
+       1153955
+      ],
+      "diff": [
+       1748,
+       6475,
+       20353
+      ],
+      "median_diff": 8812,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "A.paying_end": {
+      "base": [
+       6,
+       25,
+       90
+      ],
+      "variant": [
+       6,
+       26,
+       91
+      ],
+      "diff": [
+       0,
+       1,
+       2
+      ],
+      "median_diff": 1,
+      "p_better": 1.0,
+      "p_worse": 0.0
+     },
+     "B.installs": {
+      "base": [
+       2587,
+       8710,
+       67472
+      ],
+      "variant": [
+       2590,
+       8738,
+       67578
+      ],
+      "diff": [
+       1,
+       10,
+       106
+      ],
+      "median_diff": 28,
+      "p_better": 0.967,
+      "p_worse": 0.033
+     },
+     "B.signups": {
+      "base": [
+       1074,
+       3469,
+       25236
+      ],
+      "variant": [
+       1075,
+       3475,
+       25235
+      ],
+      "diff": [
+       -3,
+       1,
+       13
+      ],
+      "median_diff": 7,
+      "p_better": 0.733,
+      "p_worse": 0.267
+     },
+     "B.core_actions": {
+      "base": [
+       8,
+       68,
+       1539
+      ],
+      "variant": [
+       8,
+       68,
+       1537
+      ],
+      "diff": [
+       -1,
+       0,
+       1
+      ],
+      "median_diff": 0,
+      "p_better": 0.533,
+      "p_worse": 0.467
+     },
+     "B.payers": {
+      "base": [
+       1,
+       19,
+       469
+      ],
+      "variant": [
+       1,
+       19,
+       468
+      ],
+      "diff": [
+       -1,
+       0,
+       0
+      ],
+      "median_diff": 0,
+      "p_better": 0.233,
+      "p_worse": 0.767
+     },
+     "B.revenue_jpy": {
+      "base": [
+       7905,
+       109495,
+       3091847
+      ],
+      "variant": [
+       7896,
+       109314,
+       3084317
+      ],
+      "diff": [
+       -6382,
+       -142,
+       59
+      ],
+      "median_diff": -181,
+      "p_better": 0.233,
+      "p_worse": 0.767
+     },
+     "B.paying_end": {
+      "base": [
+       1,
+       14,
+       312
+      ],
+      "variant": [
+       1,
+       14,
+       311
+      ],
+      "diff": [
+       -1,
+       0,
+       0
+      ],
+      "median_diff": 0,
+      "p_better": 0.2,
+      "p_worse": 0.8
+     }
+    }
+   }
+  },
+  "demo_matching_q3": {
+   "role_ja": "v1 の離脱理由に逆らって悪くした版",
+   "n_decisions": 135822,
+   "engine_inputs": {
+    "monthly_jpy": 4980,
+    "review_hours": [
+     48
+    ]
+   },
+   "vs_v1": {
+    "A.installs": {
+     "base": [
+      3976,
+      6091,
+      16564
+     ],
+     "variant": [
+      3425,
+      5621,
+      15198
+     ],
+     "diff": [
+      -1565,
+      -652,
+      -271
+     ],
+     "median_diff": -471,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "A.signups": {
+     "base": [
+      1734,
+      2862,
+      7694
+     ],
+     "variant": [
+      1199,
+      2295,
+      6542
+     ],
+     "diff": [
+      -1517,
+      -648,
+      -290
+     ],
+     "median_diff": -567,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "A.core_actions": {
+     "base": [
+      23,
+      129,
+      400
+     ],
+     "variant": [
+      11,
+      73,
+      257
+     ],
+     "diff": [
+      -172,
+      -53,
+      -13
+     ],
+     "median_diff": -56,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "A.payers": {
+     "base": [
+      8,
+      40,
+      146
+     ],
+     "variant": [
+      3,
+      15,
+      60
+     ],
+     "diff": [
+      -70,
+      -20,
+      -5
+     ],
+     "median_diff": -25,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "A.revenue_jpy": {
+     "base": [
+      53359,
+      293936,
+      1127915
+     ],
+     "variant": [
+      20865,
+      142391,
+      557736
+     ],
+     "diff": [
+      -373516,
+      -119658,
+      -27975
+     ],
+     "median_diff": -151545,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "A.paying_end": {
+     "base": [
+      6,
+      25,
+      90
+     ],
+     "variant": [
+      2,
+      10,
+      37
+     ],
+     "diff": [
+      -44,
+      -12,
+      -3
+     ],
+     "median_diff": -16,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "B.installs": {
+     "base": [
+      2587,
+      8710,
+      67472
+     ],
+     "variant": [
+      2493,
+      8035,
+      62381
+     ],
+     "diff": [
+      -4795,
+      -559,
+      -93
+     ],
+     "median_diff": -675,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "B.signups": {
+     "base": [
+      1074,
+      3469,
+      25236
+     ],
+     "variant": [
+      873,
+      2863,
+      20829
+     ],
+     "diff": [
+      -4200,
+      -535,
+      -89
+     ],
+     "median_diff": -606,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "B.core_actions": {
+     "base": [
+      8,
+      68,
+      1539
+     ],
+     "variant": [
+      3,
+      40,
+      949
+     ],
+     "diff": [
+      -590,
+      -22,
+      -3
+     ],
+     "median_diff": -28,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "B.payers": {
+     "base": [
+      1,
+      19,
+      469
+     ],
+     "variant": [
+      1,
+      8,
+      210
+     ],
+     "diff": [
+      -235,
+      -9,
+      -1
+     ],
+     "median_diff": -11,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "B.revenue_jpy": {
+     "base": [
+      7905,
+      109495,
+      3091847
+     ],
+     "variant": [
+      4703,
+      59028,
+      1550927
+     ],
+     "diff": [
+      -1205658,
+      -37359,
+      -4334
+     ],
+     "median_diff": -50467,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    },
+    "B.paying_end": {
+     "base": [
+      1,
+      14,
+      312
+     ],
+     "variant": [
+      0,
+      6,
+      150
+     ],
+     "diff": [
+      -153,
+      -6,
+      -1
+     ],
+     "median_diff": -8,
+     "p_better": 0.0,
+     "p_worse": 1.0
+    }
+   },
+   "levels": {
+    "A.core_action": {
+     "n": 8489,
+     "higher": 0.0011,
+     "similar": 0.1753,
+     "lower": 0.8237
+    },
+    "A.gate:id_verification": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.0218,
+     "lower": 0.9782
+    },
+    "A.install": {
+     "n": 25467,
+     "higher": 0.0012,
+     "similar": 0.1314,
+     "lower": 0.8674
+    },
+    "A.pay": {
+     "n": 8489,
+     "higher": 0.0035,
+     "similar": 0.1875,
+     "lower": 0.8089
+    },
+    "A.retention": {
+     "n": 8489,
+     "higher": 0.0001,
+     "similar": 0.17,
+     "lower": 0.8299
+    },
+    "A.signup": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.0826,
+     "lower": 0.9174
+    },
+    "B.core_action": {
+     "n": 8489,
+     "higher": 0.0004,
+     "similar": 0.1827,
+     "lower": 0.8169
+    },
+    "B.gate:id_verification": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.0226,
+     "lower": 0.9774
+    },
+    "B.install": {
+     "n": 25465,
+     "higher": 0.0036,
+     "similar": 0.1058,
+     "lower": 0.8906
+    },
+    "B.pay": {
+     "n": 8489,
+     "higher": 0.0024,
+     "similar": 0.2291,
+     "lower": 0.7685
+    },
+    "B.retention": {
+     "n": 8489,
+     "higher": 0.0001,
+     "similar": 0.1804,
+     "lower": 0.8195
+    },
+    "B.signup": {
+     "n": 8489,
+     "higher": 0.0,
+     "similar": 0.0859,
+     "lower": 0.9141
+    }
+   },
+   "intermediates": {
+    "price_only": {
+     "desc_ja": "v1 の判断のまま、価格だけこの版の値にした中間",
+     "mid_vs_v1": {
+      "A.installs": {
+       "base": [
+        3976,
+        6091,
+        16564
+       ],
+       "variant": [
+        3976,
+        6091,
+        16564
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.signups": {
+       "base": [
+        1734,
+        2862,
+        7694
+       ],
+       "variant": [
+        1734,
+        2862,
+        7694
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.core_actions": {
+       "base": [
+        23,
+        129,
+        400
+       ],
+       "variant": [
+        23,
+        129,
+        400
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.payers": {
+       "base": [
+        8,
+        40,
+        146
+       ],
+       "variant": [
+        7,
+        35,
+        125
+       ],
+       "diff": [
+        -18,
+        -4,
+        -1
+       ],
+       "median_diff": -5,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.revenue_jpy": {
+       "base": [
+        53359,
+        293936,
+        1127915
+       ],
+       "variant": [
+        57265,
+        323606,
+        1192490
+       ],
+       "diff": [
+        2954,
+        23631,
+        70951
+       ],
+       "median_diff": 29670,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "A.paying_end": {
+       "base": [
+        6,
+        25,
+        90
+       ],
+       "variant": [
+        5,
+        22,
+        76
+       ],
+       "diff": [
+        -12,
+        -3,
+        -1
+       ],
+       "median_diff": -3,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.installs": {
+       "base": [
+        2587,
+        8710,
+        67472
+       ],
+       "variant": [
+        2587,
+        8710,
+        67472
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.signups": {
+       "base": [
+        1074,
+        3469,
+        25236
+       ],
+       "variant": [
+        1074,
+        3469,
+        25236
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.core_actions": {
+       "base": [
+        8,
+        68,
+        1539
+       ],
+       "variant": [
+        8,
+        68,
+        1539
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.payers": {
+       "base": [
+        1,
+        19,
+        469
+       ],
+       "variant": [
+        1,
+        16,
+        420
+       ],
+       "diff": [
+        -54,
+        -3,
+        0
+       ],
+       "median_diff": -3,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.revenue_jpy": {
+       "base": [
+        7905,
+        109495,
+        3091847
+       ],
+       "variant": [
+        8749,
+        117189,
+        3429204
+       ],
+       "diff": [
+        844,
+        7299,
+        179108
+       ],
+       "median_diff": 7694,
+       "p_better": 1.0,
+       "p_worse": 0.0
+      },
+      "B.paying_end": {
+       "base": [
+        1,
+        14,
+        312
+       ],
+       "variant": [
+        1,
+        12,
+        278
+       ],
+       "diff": [
+        -36,
+        -2,
+        0
+       ],
+       "median_diff": -2,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      }
+     },
+     "variant_vs_mid": {
+      "A.installs": {
+       "base": [
+        3976,
+        6091,
+        16564
+       ],
+       "variant": [
+        3425,
+        5621,
+        15198
+       ],
+       "diff": [
+        -1565,
+        -652,
+        -271
+       ],
+       "median_diff": -471,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.signups": {
+       "base": [
+        1734,
+        2862,
+        7694
+       ],
+       "variant": [
+        1199,
+        2295,
+        6542
+       ],
+       "diff": [
+        -1517,
+        -648,
+        -290
+       ],
+       "median_diff": -567,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.core_actions": {
+       "base": [
+        23,
+        129,
+        400
+       ],
+       "variant": [
+        11,
+        73,
+        257
+       ],
+       "diff": [
+        -172,
+        -53,
+        -13
+       ],
+       "median_diff": -56,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.payers": {
+       "base": [
+        7,
+        35,
+        125
+       ],
+       "variant": [
+        3,
+        15,
+        60
+       ],
+       "diff": [
+        -46,
+        -16,
+        -4
+       ],
+       "median_diff": -20,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.revenue_jpy": {
+       "base": [
+        57265,
+        323606,
+        1192490
+       ],
+       "variant": [
+        20865,
+        142391,
+        557736
+       ],
+       "diff": [
+        -431888,
+        -153524,
+        -32911
+       ],
+       "median_diff": -181215,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.paying_end": {
+       "base": [
+        5,
+        22,
+        76
+       ],
+       "variant": [
+        2,
+        10,
+        37
+       ],
+       "diff": [
+        -29,
+        -10,
+        -2
+       ],
+       "median_diff": -12,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.installs": {
+       "base": [
+        2587,
+        8710,
+        67472
+       ],
+       "variant": [
+        2493,
+        8035,
+        62381
+       ],
+       "diff": [
+        -4795,
+        -559,
+        -93
+       ],
+       "median_diff": -675,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.signups": {
+       "base": [
+        1074,
+        3469,
+        25236
+       ],
+       "variant": [
+        873,
+        2863,
+        20829
+       ],
+       "diff": [
+        -4200,
+        -535,
+        -89
+       ],
+       "median_diff": -606,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.core_actions": {
+       "base": [
+        8,
+        68,
+        1539
+       ],
+       "variant": [
+        3,
+        40,
+        949
+       ],
+       "diff": [
+        -590,
+        -22,
+        -3
+       ],
+       "median_diff": -28,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.payers": {
+       "base": [
+        1,
+        16,
+        420
+       ],
+       "variant": [
+        1,
+        8,
+        210
+       ],
+       "diff": [
+        -185,
+        -6,
+        -1
+       ],
+       "median_diff": -8,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.revenue_jpy": {
+       "base": [
+        8749,
+        117189,
+        3429204
+       ],
+       "variant": [
+        4703,
+        59028,
+        1550927
+       ],
+       "diff": [
+        -1577109,
+        -46961,
+        -5221
+       ],
+       "median_diff": -58161,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.paying_end": {
+       "base": [
+        1,
+        12,
+        278
+       ],
+       "variant": [
+        0,
+        6,
+        150
+       ],
+       "diff": [
+        -120,
+        -4,
+        -1
+       ],
+       "median_diff": -6,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      }
+     }
+    },
+    "engine_inputs_only": {
+     "desc_ja": "v1 の判断のまま、価格と審査時間だけこの版の値にした中間",
+     "mid_vs_v1": {
+      "A.installs": {
+       "base": [
+        3976,
+        6091,
+        16564
+       ],
+       "variant": [
+        3976,
+        6091,
+        16564
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.signups": {
+       "base": [
+        1734,
+        2862,
+        7694
+       ],
+       "variant": [
+        1734,
+        2862,
+        7694
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "A.core_actions": {
+       "base": [
+        23,
+        129,
+        400
+       ],
+       "variant": [
+        20,
+        108,
+        344
+       ],
+       "diff": [
+        -55,
+        -14,
+        -4
+       ],
+       "median_diff": -21,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.payers": {
+       "base": [
+        8,
+        40,
+        146
+       ],
+       "variant": [
+        5,
+        32,
+        98
+       ],
+       "diff": [
+        -41,
+        -9,
+        -2
+       ],
+       "median_diff": -9,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.revenue_jpy": {
+       "base": [
+        53359,
+        293936,
+        1127915
+       ],
+       "variant": [
+        43408,
+        284596,
+        927932
+       ],
+       "diff": [
+        -93401,
+        -11122,
+        -1501
+       ],
+       "median_diff": -9340,
+       "p_better": 0.1,
+       "p_worse": 0.9
+      },
+      "A.paying_end": {
+       "base": [
+        6,
+        25,
+        90
+       ],
+       "variant": [
+        4,
+        20,
+        61
+       ],
+       "diff": [
+        -25,
+        -6,
+        -1
+       ],
+       "median_diff": -5,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.installs": {
+       "base": [
+        2587,
+        8710,
+        67472
+       ],
+       "variant": [
+        2587,
+        8710,
+        67472
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.signups": {
+       "base": [
+        1074,
+        3469,
+        25236
+       ],
+       "variant": [
+        1074,
+        3469,
+        25236
+       ],
+       "diff": [
+        0,
+        0,
+        0
+       ],
+       "median_diff": 0,
+       "p_better": 0.0,
+       "p_worse": 0.0
+      },
+      "B.core_actions": {
+       "base": [
+        8,
+        68,
+        1539
+       ],
+       "variant": [
+        6,
+        58,
+        1413
+       ],
+       "diff": [
+        -237,
+        -10,
+        -1
+       ],
+       "median_diff": -10,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.payers": {
+       "base": [
+        1,
+        19,
+        469
+       ],
+       "variant": [
+        1,
+        14,
+        322
+       ],
+       "diff": [
+        -147,
+        -5,
+        0
+       ],
+       "median_diff": -5,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.revenue_jpy": {
+       "base": [
+        7905,
+        109495,
+        3091847
+       ],
+       "variant": [
+        7149,
+        100026,
+        2603179
+       ],
+       "diff": [
+        -347015,
+        -9250,
+        -208
+       ],
+       "median_diff": -9469,
+       "p_better": 0.1,
+       "p_worse": 0.9
+      },
+      "B.paying_end": {
+       "base": [
+        1,
+        14,
+        312
+       ],
+       "variant": [
+        1,
+        11,
+        217
+       ],
+       "diff": [
+        -95,
+        -4,
+        0
+       ],
+       "median_diff": -4,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      }
+     },
+     "variant_vs_mid": {
+      "A.installs": {
+       "base": [
+        3976,
+        6091,
+        16564
+       ],
+       "variant": [
+        3425,
+        5621,
+        15198
+       ],
+       "diff": [
+        -1565,
+        -652,
+        -271
+       ],
+       "median_diff": -471,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.signups": {
+       "base": [
+        1734,
+        2862,
+        7694
+       ],
+       "variant": [
+        1199,
+        2295,
+        6542
+       ],
+       "diff": [
+        -1517,
+        -648,
+        -290
+       ],
+       "median_diff": -567,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.core_actions": {
+       "base": [
+        20,
+        108,
+        344
+       ],
+       "variant": [
+        11,
+        73,
+        257
+       ],
+       "diff": [
+        -123,
+        -39,
+        -8
+       ],
+       "median_diff": -35,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.payers": {
+       "base": [
+        5,
+        32,
+        98
+       ],
+       "variant": [
+        3,
+        15,
+        60
+       ],
+       "diff": [
+        -31,
+        -10,
+        -3
+       ],
+       "median_diff": -16,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.revenue_jpy": {
+       "base": [
+        43408,
+        284596,
+        927932
+       ],
+       "variant": [
+        20865,
+        142391,
+        557736
+       ],
+       "diff": [
+        -294746,
+        -96852,
+        -22074
+       ],
+       "median_diff": -142205,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "A.paying_end": {
+       "base": [
+        4,
+        20,
+        61
+       ],
+       "variant": [
+        2,
+        10,
+        37
+       ],
+       "diff": [
+        -20,
+        -7,
+        -2
+       ],
+       "median_diff": -10,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.installs": {
+       "base": [
+        2587,
+        8710,
+        67472
+       ],
+       "variant": [
+        2493,
+        8035,
+        62381
+       ],
+       "diff": [
+        -4795,
+        -559,
+        -93
+       ],
+       "median_diff": -675,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.signups": {
+       "base": [
+        1074,
+        3469,
+        25236
+       ],
+       "variant": [
+        873,
+        2863,
+        20829
+       ],
+       "diff": [
+        -4200,
+        -535,
+        -89
+       ],
+       "median_diff": -606,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.core_actions": {
+       "base": [
+        6,
+        58,
+        1413
+       ],
+       "variant": [
+        3,
+        40,
+        949
+       ],
+       "diff": [
+        -464,
+        -14,
+        -2
+       ],
+       "median_diff": -18,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.payers": {
+       "base": [
+        1,
+        14,
+        322
+       ],
+       "variant": [
+        1,
+        8,
+        210
+       ],
+       "diff": [
+        -102,
+        -4,
+        -1
+       ],
+       "median_diff": -6,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.revenue_jpy": {
+       "base": [
+        7149,
+        100026,
+        2603179
+       ],
+       "variant": [
+        4703,
+        59028,
+        1550927
+       ],
+       "diff": [
+        -819432,
+        -30430,
+        -3585
+       ],
+       "median_diff": -40998,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      },
+      "B.paying_end": {
+       "base": [
+        1,
+        11,
+        217
+       ],
+       "variant": [
+        0,
+        6,
+        150
+       ],
+       "diff": [
+        -68,
+        -3,
+        0
+       ],
+       "median_diff": -4,
+       "p_better": 0.0,
+       "p_worse": 1.0
+      }
+     }
+    }
+   },
+   "install_judgments_only_vs_v1": {
+    "desc_ja": "v1 のアプリ・判断のまま、install の段階の判断だけこの版のものにした場合（広告の判断の効き目）",
+    "table": {
+     "A.installs": {
+      "base": [
+       3976,
+       6091,
+       16564
+      ],
+      "variant": [
+       3449,
+       5644,
+       15265
+      ],
+      "diff": [
+       -1499,
+       -607,
+       -263
+      ],
+      "median_diff": -447,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "A.signups": {
+      "base": [
+       1734,
+       2862,
+       7694
+      ],
+      "variant": [
+       1486,
+       2533,
+       7202
+      ],
+      "diff": [
+       -664,
+       -287,
+       -127
+      ],
+      "median_diff": -329,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "A.core_actions": {
+      "base": [
+       23,
+       129,
+       400
+      ],
+      "variant": [
+       20,
+       114,
+       369
+      ],
+      "diff": [
+       -43,
+       -15,
+       -3
+      ],
+      "median_diff": -14,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "A.payers": {
+      "base": [
+       8,
+       40,
+       146
+      ],
+      "variant": [
+       7,
+       35,
+       130
+      ],
+      "diff": [
+       -12,
+       -4,
+       -1
+      ],
+      "median_diff": -5,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "A.revenue_jpy": {
+      "base": [
+       53359,
+       293936,
+       1127915
+      ],
+      "variant": [
+       44271,
+       255265,
+       1002698
+      ],
+      "diff": [
+       -88694,
+       -30604,
+       -7146
+      ],
+      "median_diff": -38671,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "A.paying_end": {
+      "base": [
+       6,
+       25,
+       90
+      ],
+      "variant": [
+       5,
+       22,
+       80
+      ],
+      "diff": [
+       -7,
+       -3,
+       -1
+      ],
+      "median_diff": -3,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "B.installs": {
+      "base": [
+       2587,
+       8710,
+       67472
+      ],
+      "variant": [
+       2499,
+       8051,
+       62521
+      ],
+      "diff": [
+       -4680,
+       -547,
+       -88
+      ],
+      "median_diff": -659,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "B.signups": {
+      "base": [
+       1074,
+       3469,
+       25236
+      ],
+      "variant": [
+       995,
+       3169,
+       23072
+      ],
+      "diff": [
+       -2026,
+       -257,
+       -42
+      ],
+      "median_diff": -300,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "B.core_actions": {
+      "base": [
+       8,
+       68,
+       1539
+      ],
+      "variant": [
+       6,
+       60,
+       1345
+      ],
+      "diff": [
+       -194,
+       -7,
+       -1
+      ],
+      "median_diff": -8,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "B.payers": {
+      "base": [
+       1,
+       19,
+       469
+      ],
+      "variant": [
+       1,
+       16,
+       424
+      ],
+      "diff": [
+       -49,
+       -2,
+       0
+      ],
+      "median_diff": -3,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "B.revenue_jpy": {
+      "base": [
+       7905,
+       109495,
+       3091847
+      ],
+      "variant": [
+       6433,
+       91902,
+       2692744
+      ],
+      "diff": [
+       -318997,
+       -12305,
+       -1496
+      ],
+      "median_diff": -17593,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     },
+     "B.paying_end": {
+      "base": [
+       1,
+       14,
+       312
+      ],
+      "variant": [
+       1,
+       12,
+       282
+      ],
+      "diff": [
+       -32,
+       -1,
+       0
+      ],
+      "median_diff": -2,
+      "p_better": 0.0,
+      "p_worse": 1.0
+     }
+    }
+   }
+  }
+ },
+ "labeled_v2_vs_blind_t5": {
+  "desc_ja": "variant = 名札つき v2（demo_matching_v2）、base = 名札なしコピー（t5）。中身は同じで app_id だけ違う",
+  "table": {
+   "A.installs": {
+    "base": [
+     4147,
+     6302,
+     17221
+    ],
+    "variant": [
+     4160,
+     6313,
+     17274
+    ],
+    "diff": [
+     3,
+     10,
+     32
+    ],
+    "median_diff": 11,
+    "p_better": 0.967,
+    "p_worse": 0.033
+   },
+   "A.signups": {
+    "base": [
+     2088,
+     3258,
+     8354
+    ],
+    "variant": [
+     2076,
+     3248,
+     8341
+    ],
+    "diff": [
+     -29,
+     -15,
+     -4
+    ],
+    "median_diff": -10,
+    "p_better": 0.033,
+    "p_worse": 0.967
+   },
+   "A.core_actions": {
+    "base": [
+     34,
+     179,
+     533
+    ],
+    "variant": [
+     33,
+     177,
+     528
+    ],
+    "diff": [
+     -5,
+     -2,
+     0
+    ],
+    "median_diff": -2,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "A.payers": {
+    "base": [
+     15,
+     65,
+     216
+    ],
+    "variant": [
+     14,
+     63,
+     210
+    ],
+    "diff": [
+     -6,
+     -2,
+     0
+    ],
+    "median_diff": -2,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "A.revenue_jpy": {
+    "base": [
+     74367,
+     365092,
+     1230016
+    ],
+    "variant": [
+     70745,
+     354393,
+     1211136
+    ],
+    "diff": [
+     -31524,
+     -11488,
+     -2082
+    ],
+    "median_diff": -10700,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "A.paying_end": {
+    "base": [
+     10,
+     41,
+     133
+    ],
+    "variant": [
+     10,
+     40,
+     129
+    ],
+    "diff": [
+     -3,
+     -2,
+     0
+    ],
+    "median_diff": -1,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "B.installs": {
+    "base": [
+     2582,
+     8670,
+     66831
+    ],
+    "variant": [
+     2568,
+     8587,
+     66208
+    ],
+    "diff": [
+     -576,
+     -70,
+     -13
+    ],
+    "median_diff": -84,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "B.signups": {
+    "base": [
+     1108,
+     3666,
+     26075
+    ],
+    "variant": [
+     1094,
+     3592,
+     25662
+    ],
+    "diff": [
+     -395,
+     -61,
+     -12
+    ],
+    "median_diff": -74,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "B.core_actions": {
+    "base": [
+     10,
+     84,
+     1825
+    ],
+    "variant": [
+     9,
+     79,
+     1719
+    ],
+    "diff": [
+     -106,
+     -5,
+     0
+    ],
+    "median_diff": -6,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "B.payers": {
+    "base": [
+     2,
+     30,
+     629
+    ],
+    "variant": [
+     2,
+     28,
+     593
+    ],
+    "diff": [
+     -41,
+     -2,
+     0
+    ],
+    "median_diff": -3,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "B.revenue_jpy": {
+    "base": [
+     10367,
+     132108,
+     3108694
+    ],
+    "variant": [
+     9002,
+     120105,
+     2934702
+    ],
+    "diff": [
+     -196548,
+     -8339,
+     -1153
+    ],
+    "median_diff": -12004,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   },
+   "B.paying_end": {
+    "base": [
+     2,
+     22,
+     416
+    ],
+    "variant": [
+     2,
+     21,
+     392
+    ],
+    "diff": [
+     -27,
+     -1,
+     0
+    ],
+    "median_diff": -1,
+    "p_better": 0.0,
+    "p_worse": 1.0
+   }
+  }
+ }
+}

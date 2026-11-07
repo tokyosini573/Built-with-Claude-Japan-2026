@@ -1,0 +1,93 @@
+{
+ "people": 8489,
+ "rows": 135824,
+ "skipped_people_not_eligible": 1511,
+ "total": {
+  "similar": 26613,
+  "lower": 107469,
+  "higher": 1742
+ },
+ "by_group": {
+  "A|core_action": {
+   "similar": 2147,
+   "lower": 6325,
+   "higher": 17
+  },
+  "A|gate:id_verification": {
+   "lower": 7435,
+   "similar": 1054
+  },
+  "A|install|a1": {
+   "similar": 1831,
+   "lower": 6658
+  },
+  "A|install|a2": {
+   "similar": 1728,
+   "lower": 6748,
+   "higher": 13
+  },
+  "A|install|a3": {
+   "similar": 1738,
+   "higher": 352,
+   "lower": 6399
+  },
+  "A|pay": {
+   "similar": 1351,
+   "lower": 6979,
+   "higher": 159
+  },
+  "A|retention": {
+   "similar": 1741,
+   "lower": 6743,
+   "higher": 5
+  },
+  "A|signup": {
+   "similar": 2129,
+   "lower": 5964,
+   "higher": 396
+  },
+  "B|core_action": {
+   "similar": 2096,
+   "lower": 6369,
+   "higher": 24
+  },
+  "B|gate:id_verification": {
+   "lower": 7421,
+   "similar": 1068
+  },
+  "B|install|v1": {
+   "similar": 1493,
+   "lower": 6995,
+   "higher": 1
+  },
+  "B|install|v2": {
+   "similar": 1543,
+   "lower": 6835,
+   "higher": 111
+  },
+  "B|install|v3": {
+   "similar": 1394,
+   "higher": 301,
+   "lower": 6794
+  },
+  "B|pay": {
+   "similar": 1458,
+   "lower": 6893,
+   "higher": 138
+  },
+  "B|retention": {
+   "similar": 1705,
+   "lower": 6775,
+   "higher": 9
+  },
+  "B|signup": {
+   "similar": 2137,
+   "lower": 6136,
+   "higher": 216
+  }
+ },
+ "warnings": [
+  "lower が半分を超えています。判断が厳しく偏っている可能性があります。",
+  "根拠なしの higher/lower が 44 件あります。"
+ ]
+}
