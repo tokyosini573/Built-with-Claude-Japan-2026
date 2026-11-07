@@ -194,6 +194,32 @@ a { color: var(--link); text-underline-offset: 3px; text-decoration-thickness: 1
 }
 .nav a:hover { color: var(--brand-text); background: var(--brand-soft); }
 .nav a[aria-current="page"] { color: var(--on-brand); background: var(--brand-solid); }
+/* 韓国語ボタン（一時的。提出前に KoToggle.tsx と一緒に消す） */
+.ko-toggle { margin-left: auto; position: relative; flex: none; }
+.nav + .ko-toggle { margin-left: 0; }
+.ko-btn {
+  font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; border-radius: 999px; padding: 6px 14px;
+  color: var(--brand-text); background: var(--surface); border: 1px solid var(--line-0);
+}
+.ko-btn:hover { border-color: var(--brand-text); }
+.ko-btn[aria-pressed="true"] { color: var(--on-brand); background: var(--brand-solid); border-color: transparent; }
+.ko-btn:disabled { cursor: progress; opacity: .8; }
+.is-home .ko-btn { color: var(--on-brand); background: transparent; border-color: var(--on-brand-line); }
+.is-home .ko-btn[aria-pressed="true"] { color: var(--brand); background: var(--on-brand); }
+.ko-pop {
+  position: absolute; right: 0; top: calc(100% + 8px); width: min(300px, calc(100vw - 32px)); z-index: 40;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line-0); border-radius: 14px; padding: 14px 34px 14px 14px;
+  box-shadow: var(--shadow); font-size: 14px; line-height: 1.6; display: grid; gap: 8px;
+}
+.ko-pop a { color: var(--brand-text); font-weight: 700; }
+.ko-close { position: absolute; top: 6px; right: 8px; border: 0; background: none; font-size: 20px; cursor: pointer; color: var(--ink-3); }
+/* 狭い画面ではメニューを押しつぶさないよう、右下に浮かせる */
+@media (max-width: 640px) {
+  .ko-toggle { position: fixed; z-index: 50; margin: 0; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .ko-btn, .is-home .ko-btn { box-shadow: var(--shadow); color: var(--brand-text); background: var(--surface); border-color: var(--line-0); }
+  .ko-btn[aria-pressed="true"], .is-home .ko-btn[aria-pressed="true"] { color: var(--on-brand); background: var(--brand-solid); }
+  .ko-pop { top: auto; bottom: calc(100% + 8px); }
+}
 .page { position: relative; isolation: isolate; max-width: 1120px; width: 100%; margin: 0 auto; padding: 56px 24px 120px; display: grid; gap: 72px; }
 .mock-note { background: var(--warn-bg); color: var(--warn-text); font-size: 15px; text-align: center; padding: 6px 16px; }
 .footer { position: relative; z-index: 2; font-size: 14px; margin-top: 40px; }
