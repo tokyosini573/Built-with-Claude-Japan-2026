@@ -66,6 +66,25 @@
   --warn-bg: #3a2c10; --warn-text: #f3cf86; --error-bg: #3b1717; --error-text: #f4b3b3;
 }
 
+/* ---- マスコット（src/components/Mascot.tsx）の中間色。藍・若竹は --a・--b を使う ---- */
+:root {
+  --m-body: #fdfcf9; --m-shade: #ebe7df; --m-gloss: #ffffff; --m-line: #26303a; --m-ink: #26303a; --m-shine: #ffffff;
+  --m-cheek: rgba(232, 140, 128, 0.55); --m-tongue: #e8968a; --m-shoe: #6d7a84; --m-paper: #ffffff; --m-dot: #b9c3ca;
+  --m-glass: rgba(47, 79, 168, 0.12); --m-sweat: #9fd0f0; --m-speed: #9aa7b0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --m-body: #e7ebe8; --m-shade: #c9d0cc; --m-gloss: #ffffff; --m-line: #0c1114; --m-ink: #1d252b; --m-shine: #ffffff;
+    --m-cheek: rgba(226, 130, 120, 0.6); --m-tongue: #de8a7f; --m-shoe: #7d8b95; --m-paper: #f6f8f6; --m-dot: #aab4bb;
+    --m-glass: rgba(138, 164, 240, 0.18); --m-sweat: #8cc6ec; --m-speed: #6f7d87;
+  }
+}
+:root[data-theme="dark"] {
+  --m-body: #e7ebe8; --m-shade: #c9d0cc; --m-gloss: #ffffff; --m-line: #0c1114; --m-ink: #1d252b; --m-shine: #ffffff;
+  --m-cheek: rgba(226, 130, 120, 0.6); --m-tongue: #de8a7f; --m-shoe: #7d8b95; --m-paper: #f6f8f6; --m-dot: #aab4bb;
+  --m-glass: rgba(138, 164, 240, 0.18); --m-sweat: #8cc6ec; --m-speed: #6f7d87;
+}
+
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--fg); }
@@ -402,3 +421,30 @@ dialog.sheet .person { grid-template-columns: 1fr; }
   .bt-result { padding-left: 14px; }
   .cta { font-size: 20px; padding: 16px 30px; }
 }
+
+/* ---- マスコット（小さなリハーサル監督）。大きさは控えめに、内容のじゃまをしない ---- */
+.mascot { display: block; flex: none; overflow: visible; }
+@media (prefers-reduced-motion: no-preference) {
+  .mascot-busy .m-bob { animation: m-bob .5s ease-in-out infinite alternate; transform-box: view-box; }
+}
+@keyframes m-bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+/* 見出しの横に置くとき */
+.with-mascot { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; min-width: 0; }
+.with-mascot > :first-child { min-width: 0; flex: 1 1 auto; }
+.with-mascot > .mascot { width: 104px; height: 104px; }
+/* スマホ: 見出しの幅を削らないように、見出しの右上（短い eyebrow の横）に小さく置く */
+@media (max-width: 640px) {
+  .with-mascot { flex-direction: column-reverse; align-items: stretch; gap: 0; }
+  .with-mascot > .mascot { width: 64px; height: 64px; align-self: flex-end; margin-bottom: -30px; }
+}
+/* ヒーロー: 地図の右下（太平洋側の空いたところ）から、左上の本州を指す */
+.hero-stage { position: relative; min-width: 0; }
+.hero-mascot { position: absolute; right: 0; bottom: 0; width: 104px; height: 104px; transform: scaleX(-1); }
+@media (max-width: 640px) { .hero-mascot { width: 68px; height: 68px; } }
+/* 結果: 費用の行と右端をそろえる */
+.verdict > .with-mascot { max-width: 880px; }
+/* 検証: 「勝てませんでした」の文のすぐ横に、小さめに */
+.with-mascot.verify-oops { justify-content: flex-start; align-items: center; margin: -12px 0; }
+.with-mascot.verify-oops > :first-child { flex: 0 1 auto; }
+.with-mascot.verify-oops > .mascot { width: 84px; height: 84px; }
+@media (max-width: 640px) { .with-mascot.verify-oops { flex-direction: row; align-items: center; gap: 8px; margin: 0; } .with-mascot.verify-oops > .mascot { width: 60px; height: 60px; margin: 0; } }

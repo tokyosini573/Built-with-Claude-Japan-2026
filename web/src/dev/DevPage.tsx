@@ -3,6 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { JapanMap } from "../components/JapanMap";
+import { MASCOT_POSES, Mascot } from "../components/Mascot";
 import { DailyChart, canCumulate } from "../components/DailyChart";
 import { ABComparison, ExtrapolationNote, Funnel, PLAN_COLOR, PLAN_LABEL, RangeCompare, ScaleToggle, StateLegend } from "../components/Metrics";
 import { MockBanner, ReplayErrorView } from "../components/ReplayErrorView";
@@ -22,6 +23,7 @@ export function DevPage({ replayId }: { replayId: string }) {
           開発用。最終の画面ではありません。リプレイ: <code>{replayId}</code>
         </span>
       </header>
+      <MascotGallery />
       {status.kind === "loading" && <p className="muted">リプレイを読み込み中…</p>}
       {status.kind === "error" && <ReplayErrorView error={status.error} />}
       {status.kind === "ready" && <Showcase replay={status.replay} />}
@@ -187,5 +189,51 @@ function ErrorSamples() {
         })}
       </div>
     </details>
+  );
+}
+
+/** マスコットの6つのポーズを並べて見る（大きさ違いと、ライト・ダークの切り替えつき） */
+function MascotGallery() {
+  const [theme, setTheme] = useState<"auto" | "light" | "dark">(() => (document.documentElement.dataset.theme as "light" | "dark") ?? "auto");
+  const pick = (t: "auto" | "light" | "dark") => {
+    if (t === "auto") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = t;
+    setTheme(t);
+  };
+  return (
+    <section className="panel" style={{ display: "grid", gap: 16 }} aria-labelledby="mascot-h">
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "space-between" }}>
+        <h2 className="panel-title" id="mascot-h" style={{ margin: 0 }}>
+          マスコット（小さなリハーサル監督）
+        </h2>
+        <div className="seg" role="group" aria-label="配色">
+          {(["auto", "light", "dark"] as const).map((t) => (
+            <button key={t} type="button" aria-pressed={theme === t} onClick={() => pick(t)}>
+              {t === "auto" ? "端末に合わせる" : t === "light" ? "ライト" : "ダーク"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: 12 }}>
+        {MASCOT_POSES.map((m, i) => (
+          <figure key={m.pose} style={{ margin: 0, display: "grid", gap: 8, justifyItems: "center", padding: 16, borderRadius: 12, background: "var(--bg)", border: "1px solid var(--line)" }}>
+            <Mascot pose={m.pose} size={140} />
+            <figcaption style={{ display: "grid", gap: 2, textAlign: "center" }}>
+              <strong className="small">
+                {i + 1}. {m.label}
+              </strong>
+              <span className="small muted" style={{ lineHeight: 1.5 }}>
+                {m.place}
+              </span>
+            </figcaption>
+            <div style={{ display: "flex", gap: 8, alignItems: "end" }} aria-label="小さい大きさ">
+              <Mascot pose={m.pose} size={48} />
+              <Mascot pose={m.pose} size={68} />
+            </div>
+          </figure>
+        ))}
+      </div>
+      <p className="small muted">色は --a（藍）・--b（若竹）と --m-*（中間色）。飾りなので画面では aria-hidden。動くのは「走って作業中」だけで、動きを減らす設定では止まります。</p>
+    </section>
   );
 }

@@ -69,3 +69,8 @@
 .error-box { background: var(--error-bg); color: var(--error-text); border-radius: 10px; padding: 10px 14px; }
 
 .live-result { gap: 40px; padding-top: 32px; border-top: 2px solid var(--fg); }
+
+/* 読み込み中・計算中のマスコット（src/components/Mascot.tsx の busy） */
+.live-busy { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.live-busy .live-progress { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 640px) { .live-busy .mascot { width: 44px; height: 44px; } }

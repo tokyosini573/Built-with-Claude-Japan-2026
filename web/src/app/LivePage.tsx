@@ -4,6 +4,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ResultPage } from "./ResultPage";
+import { Mascot } from "../components/Mascot";
 import { PLAN_VAR, PlanName } from "./ui";
 import { href } from "../lib/router";
 import { CHANNEL_JA, regionText, yen } from "../lib/labels";
@@ -472,12 +473,17 @@ function RunBar({
           エンジンと1万人・判断のファイルは {(manifest.total_gzip_bytes / 1e6).toFixed(1)}MB（圧縮後）です。2回目からは計算だけです。
         </p>
       )}
-      {live.progress && (
-        <div className="live-progress">
-          <div className="bar">
-            <span style={{ width: `${Math.round(live.progress.ratio * 100)}%` }} />
-          </div>
-          <span className="note">{live.progress.text}</span>
+      {(busy || live.progress) && (
+        <div className="live-busy">
+          {busy && <Mascot pose="busy" size={56} />}
+          {live.progress && (
+            <div className="live-progress">
+              <div className="bar">
+                <span style={{ width: `${Math.round(live.progress.ratio * 100)}%` }} />
+              </div>
+              <span className="note">{live.progress.text}</span>
+            </div>
+          )}
         </div>
       )}
       {live.error && <p className="error-box">うまく動きませんでした: {live.error}</p>}

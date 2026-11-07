@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BACKTEST_FINDINGS_FALLBACK_JA } from "../config";
+import { Mascot } from "../components/Mascot";
 import { judge, loadBacktest, summarize, type Backtest, type BacktestCase } from "../lib/backtest";
 
 export function VerifyPage() {
@@ -33,7 +34,24 @@ export function VerifyPage() {
         <h1 className="score" id="score-h">
           {s.answered}問中 <span className="num">{s.hits}</span>問 的中
         </h1>
-        {rows.length > 1 && <p className="claim-sub">{versus(s.hits, bt.baselines)}</p>}
+        {rows.length > 1 &&
+          (s.hits <= Math.max(...bt.baselines.map((b) => b.hits)) ? (
+            <div className="with-mascot verify-oops">
+              <p className="claim-sub">
+                {/* マスコットの横で幅が狭くなるので、「、」の後で区切って語の途中で折り返さないようにする */}
+                {versus(s.hits, bt.baselines)
+                  .split(/(?<=、)/)
+                  .map((c) => (
+                    <span key={c} className="ib">
+                      {c}
+                    </span>
+                  ))}
+              </p>
+              <Mascot pose="oops" />
+            </div>
+          ) : (
+            <p className="claim-sub">{versus(s.hits, bt.baselines)}</p>
+          ))}
         <p className="lead">
           過去に条件を変えた日本のアプリについて、正解をリポジトリに入れる前に「はい／いいえ」を予測し、あとから実際と比べました。
           {s.answered < s.total && ` 残り${s.total - s.answered}問は答え合わせ待ちです。`}

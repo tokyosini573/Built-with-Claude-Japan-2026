@@ -4,6 +4,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { HeroDots, HERO_LEGEND } from "../components/HeroDots";
+import { Mascot } from "../components/Mascot";
 import { HEADLINE_METRIC, ORGANIC_VIDEO_NOTE_JA, REPO_URL, UNCLEAR_RANGE } from "../config";
 import { loadBacktest, summarize, type Backtest } from "../lib/backtest";
 import { CHANNEL_JA, metricName, regionText, yen } from "../lib/labels";
@@ -41,16 +42,26 @@ export function TopPage({ status, onPlay }: Props) {
   );
 }
 
-function Sec({ id, eyebrow, title, children, tone }: { id: string; eyebrow: string; title: ReactNode; children: ReactNode; tone?: "alt" }) {
+function Sec({ id, eyebrow, title, children, tone, aside }: { id: string; eyebrow: string; title: ReactNode; children: ReactNode; tone?: "alt"; aside?: ReactNode }) {
+  const head = (
+    <div className="tsec-head">
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="h2" id={`${id}-h`}>
+        {typeof title === "string" ? chunks(title) : title}
+      </h2>
+    </div>
+  );
   return (
     <section className={`tsec${tone === "alt" ? " alt" : ""}`} id={id} aria-labelledby={`${id}-h`}>
       <div className="tsec-in">
-        <div className="tsec-head">
-          <p className="eyebrow">{eyebrow}</p>
-          <h2 className="h2" id={`${id}-h`}>
-            {typeof title === "string" ? chunks(title) : title}
-          </h2>
-        </div>
+        {aside ? (
+          <div className="with-mascot">
+            {head}
+            {aside}
+          </div>
+        ) : (
+          head
+        )}
         {children}
       </div>
     </section>
@@ -91,7 +102,11 @@ function Hero() {
           </div>
         </div>
         <figure className="hero-fig">
-          <HeroDots onPeople={(p) => setScale({ population: p.population, perPerson: p.scale_to_japan })} />
+          {/* マスコットは地図の右下（太平洋側の空いたところ）から本州を指す */}
+          <div className="hero-stage">
+            <HeroDots onPeople={(p) => setScale({ population: p.population, perPerson: p.scale_to_japan })} />
+            <Mascot pose="point" className="hero-mascot" />
+          </div>
           <figcaption>
             <span className="hero-legend">
               {HERO_LEGEND.map((l) => (
@@ -129,7 +144,7 @@ function Problem() {
     },
   ];
   return (
-    <Sec id="problem" eyebrow="解決したいこと" title={<><span className="ib">「リリースして</span><span className="ib">みないと分からない」を、</span><span className="ib">リリース前に確かめる</span></>}>
+    <Sec id="problem" eyebrow="解決したいこと" aside={<Mascot pose="wonder" />} title={<><span className="ib">「リリースして</span><span className="ib">みないと分からない」を、</span><span className="ib">リリース前に確かめる</span></>}>
       <ol className="points">
         {items.map((x, i) => (
           <li key={x.t}>
@@ -467,7 +482,7 @@ function ClaudeUse() {
 
 function Start({ onPlay }: { onPlay: () => void }) {
   return (
-    <Sec id="start" eyebrow="はじめる" title="テプリで試す" tone="alt">
+    <Sec id="start" eyebrow="はじめる" title="テプリで試す" tone="alt" aside={<Mascot pose="action" />}>
       <div className="cards2 start">
         <a className="card start-card primary" href={href("result")} onClick={onPlay}>
           <span className="h3">
@@ -478,8 +493,8 @@ function Start({ onPlay }: { onPlay: () => void }) {
         </a>
         <a className="card start-card" href={href("live")}>
           <span className="h3">ライブで試す</span>
-          <span>自分のアプリと出し方を入れて試します。</span>
-          <span className="go">準備中 →</span>
+          <span>「ちかくに」の地域・予算・価格・動画の投稿数などを変えて、ブラウザの中でエンジンを回し直します。</span>
+          <span className="go">条件を変えて回す →</span>
         </a>
       </div>
     </Sec>

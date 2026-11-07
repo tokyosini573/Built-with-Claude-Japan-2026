@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { JapanMap } from "../components/JapanMap";
+import { Mascot } from "../components/Mascot";
 import { Timeline, usePlayback } from "../components/Timeline";
 import { ScaleToggle } from "../components/Metrics";
 import { CARD_METRICS, HEADLINE_METRIC, ORGANIC_VIDEO_NOTE_JA, UNCLEAR_RANGE } from "../config";
@@ -59,17 +60,15 @@ function Verdict({ replay }: { replay: Replay }) {
   const name = metricName(HEADLINE_METRIC, replay);
   return (
     <section className="verdict" aria-labelledby="verdict-h">
-      <p className="eyebrow">
-        {replay.meta.name_ja} ・ {periodText(replay)} ・ {replay.meta.runs}回の試行
-      </p>
-      {p === undefined ? (
-        <h1 className="claim" id="verdict-h">
-          A案と B案の結果
-        </h1>
-      ) : (
-        <>
+      <div className="with-mascot">
+        <div className="verdict">
+          <p className="eyebrow">
+            {replay.meta.name_ja} ・ {periodText(replay)} ・ {replay.meta.runs}回の試行
+          </p>
           <h1 className="claim" id="verdict-h">
-            {p >= UNCLEAR_RANGE[1] ? (
+            {p === undefined ? (
+              "A案と B案の結果"
+            ) : p >= UNCLEAR_RANGE[1] ? (
               <>
                 <span className="ib">{name}は</span>{" "}
                 <span className="ib">
@@ -91,6 +90,11 @@ function Verdict({ replay }: { replay: Replay }) {
               </>
             )}
           </h1>
+        </div>
+        <Mascot pose="inspect" />
+      </div>
+      {p !== undefined && (
+        <>
           <div className="pbar" role="img" aria-label={`B案が上回った回 ${replay.meta.runs}回中${Math.round(p * replay.meta.runs)}回`}>
             <span style={{ right: 0, width: `${p * 100}%`, background: PLAN_VAR.B }} />
           </div>
