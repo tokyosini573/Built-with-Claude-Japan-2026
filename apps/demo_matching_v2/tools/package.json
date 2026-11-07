@@ -1,0 +1,12 @@
+{
+  "name": "demo-matching-v2-tools",
+  "private": true,
+  "type": "module",
+  "description": "デモアプリ v2 の画面・広告を HTML から PNG にする",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1"
+  }
+}

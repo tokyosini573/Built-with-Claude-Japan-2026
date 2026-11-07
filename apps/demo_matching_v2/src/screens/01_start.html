@@ -1,0 +1,45 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.hero { margin: 26px 24px 0; height: 262px; border-radius: 28px; background: var(--green); position: relative; overflow: hidden; }
+.hero .road { position: absolute; background: rgba(255,255,255,.10); }
+.hero .pin { position: absolute; width: 58px; height: 58px; border-radius: 50%; border: 3px solid #fff; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+.hero .ring { position: absolute; left: 115px; top: 52px; width: 160px; height: 160px; border-radius: 50%; border: 2px dashed rgba(255,255,255,.45); }
+.hero .me { position: absolute; left: 179px; top: 116px; width: 32px; height: 32px; border-radius: 50%; background: var(--mustard); border: 4px solid #fff; }
+.hero .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.brand { text-align: center; margin-top: 24px; }
+.brand .logo-mark { transform: scale(1.5); margin-right: 10px; }
+.brand .logo-name { font-size: 36px; }
+.tag { text-align: center; font-size: 19px; font-weight: 700; margin-top: 10px; }
+ul.points { list-style: none; margin: 22px 32px 0; }
+ul.points li { display: flex; gap: 12px; align-items: flex-start; font-size: 14.5px; line-height: 1.5; margin-bottom: 10px; }
+ul.points li i { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--green-soft); color: var(--green); font-style: normal; font-weight: 900; font-size: 13px; text-align: center; line-height: 22px; margin-top: 1px; }
+.cta { position: absolute; left: 24px; right: 24px; bottom: 96px; }
+.cta .btn + .btn { margin-top: 12px; }
+.legal { position: absolute; left: 24px; right: 24px; bottom: 26px; text-align: center; }
+</style></head><body><div class="phone">
+<div class="status"><span>9:41</span><span class="icons"><span class="bar"></span><span class="bat"></span></span></div>
+<div class="hero">
+  <div class="road" style="left:0;right:0;top:118px;height:18px"></div>
+  <div class="road" style="top:0;bottom:0;left:250px;width:16px"></div>
+  <div class="road" style="top:0;bottom:0;left:70px;width:10px;transform:rotate(18deg)"></div>
+  <span class="dot" style="left:40px;top:40px"></span><span class="dot" style="left:300px;top:250px"></span>
+  <span class="dot" style="left:320px;top:60px"></span><span class="dot" style="left:30px;top:230px"></span>
+  <div class="ring"></div><div class="me"></div>
+  <div class="pin av" data-seed="1" data-kind="f" style="left:100px;top:52px"></div>
+  <div class="pin av" data-seed="4" style="left:250px;top:76px"></div>
+  <div class="pin av" data-seed="3" data-kind="f" style="left:228px;top:184px"></div>
+  <div class="pin av" data-seed="2" style="left:92px;top:176px"></div>
+</div>
+<div class="brand"><span class="logo"><span class="logo-mark"><i></i><i></i></span><span class="logo-name" data-brand="name_ja">ちかくに</span></span></div>
+<p class="tag maru" data-brand="tagline_ja">近くで、ちゃんと出会う。</p>
+<ul class="points">
+  <li><i>✓</i><span>近くの人をおすすめ。相手に見えるのは<b>都道府県とおおよその距離</b>だけ</span></li>
+  <li><i>✓</i><span>はじめの入力は<b>ニックネーム・生年月日・地域</b>だけ</span></li>
+  <li><i>✓</i><span>女性は無料。男性は月額<span data-brand="price_male_jpy">2,980</span>円</span></li>
+</ul>
+<div class="cta">
+  <div class="btn btn-primary">電話番号ではじめる</div>
+  <div class="btn btn-ghost">メールアドレスではじめる</div>
+</div>
+<p class="legal note">18歳未満の方・高校生はご利用いただけません。<br>はじめると<u>利用規約</u>と<u>プライバシーポリシー</u>に同意したことになります。</p>
+<div class="home-ind"></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script></body></html>
