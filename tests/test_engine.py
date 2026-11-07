@@ -311,6 +311,11 @@ def test_replay_contract(app, pop, rules, tmp_path):
         assert all(0 < d["share"] <= 1 for d in p["drop_reasons"])
     assert any(d["step"] == "signup" and d["reason_ja"] == "テスト" for d in r["plans"]["A"]["drop_reasons"])
     assert len(r["people"]) == pop.n and len(r["people"][0]) == 6
+    # 課金の離脱理由は払う側（who_pays: male）だけで数える。女性のクラスターは出ない
+    female_clusters = {row[5] for row in r["people"] if row[4] == "F"} - {row[5] for row in r["people"] if row[4] == "M"}
+    for key in ("A", "B"):
+        pay = [d for d in r["plans"][key]["drop_reasons"] if d["step"] == "pay"]
+        assert pay and not any(d["cluster_id"] in female_clusters for d in pay)
     cmp = r["comparison"]
     for k in ["installs", "payers", "revenue_jpy", "active_end", "core_actions"]:
         assert set(cmp["B_minus_A"][k]) == {"p10", "p50", "p90"}

@@ -1,7 +1,7 @@
 {
  "app_id": "demo_matching",
  "name_ja": "ちかくに",
- "version": "5b7896374f04b5bf",
+ "version": "49873b6f544aa6a2",
  "files": [
   "teppuri/engine/__init__.py",
   "teppuri/engine/build_replay.py",
@@ -32,7 +32,7 @@
   "teppuri/engine/inputs.py": 4242,
   "teppuri/engine/live.py": 13213,
   "teppuri/engine/organic_video.py": 11321,
-  "teppuri/engine/replay.py": 7655,
+  "teppuri/engine/replay.py": 8327,
   "teppuri/engine/rules.py": 6821,
   "teppuri/engine/run.py": 5095,
   "teppuri/engine/sample.py": 4621,
@@ -50,8 +50,8 @@
   "runs/demo_matching/decisions_levels.json": 210377,
   "runs/demo_matching/personas_interest.json": 10146
  },
- "total_bytes": 1921467,
- "total_gzip_bytes": 258967,
+ "total_bytes": 1922139,
+ "total_gzip_bytes": 259238,
  "defaults": {
   "period_days": 90,
   "runs": 10,

@@ -39,8 +39,12 @@ def _band(values: np.ndarray, runs: int) -> dict:
 
 
 def drop_reasons(result: PlanResult, pop: Population, gates: list[str], preset: str,
-                 decisions: list[dict], top: int = 5) -> list[dict]:
-    """段階ごとに、離脱数（mid 回、実人数の重み）が多いクラスターと、その判断の理由。"""
+                 decisions: list[dict], top: int = 5, who_pays: str = "both") -> list[dict]:
+    """段階ごとに、離脱数（mid 回、実人数の重み）が多いクラスターと、その判断の理由。
+
+    課金の段階は、払う側（pricing.who_pays）の人だけで数える。男性だけが払うアプリで
+    「女性は無料なので払わない」が上位に並ぶのは、離脱の理由として意味がないため（2026-11-08、表示だけの変更。
+    エンジンの数字は変わらない）。"""
     p = result.person
     pairs = [
         ("install", p["reached"] - p["installs"]),
@@ -51,7 +55,12 @@ def drop_reasons(result: PlanResult, pop: Population, gates: list[str], preset: 
     pairs.append(("core_action", p["ready"] - p["core"]))
     pairs.append(("retention", p["installs"] - p["active_end"]))
     if preset != "shopping":
-        pairs.append(("pay", p["core"] - p["pay"]))
+        pay_drop = p["core"] - p["pay"]
+        if who_pays == "male":
+            pay_drop = np.where(pop.male, pay_drop, 0.0)
+        elif who_pays == "female":
+            pay_drop = np.where(pop.male, 0.0, pay_drop)
+        pairs.append(("pay", pay_drop))
 
     index = DecisionIndex(decisions)
     clusters, inv = np.unique(pop.cluster, return_inverse=True)
@@ -145,7 +154,8 @@ def assemble_replay(app: dict, pop: Population, results: dict[str, PlanResult], 
             "daily_cumulative": cumulative,
             "totals": totals,
             "sample_run": {"events": events.get(key, [])},
-            "drop_reasons": drop_reasons(res, pop, gates, app["preset"], decisions),
+            "drop_reasons": drop_reasons(res, pop, gates, app["preset"], decisions,
+                                         who_pays=str(plan_config(app, key)["pricing"].get("who_pays", "both"))),
         }
     return {
         "meta": {
