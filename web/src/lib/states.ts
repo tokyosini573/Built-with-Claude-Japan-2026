@@ -30,7 +30,7 @@ export const STATE_LABELS_JA: Record<PersonState, string> = {
 
 /**
  * 状態の色（開発用の仮の配色。画面デザインが決まったらここだけ差し替える）。
- * 進み具合は青の濃淡、決済はオレンジで目立たせ、離脱は赤みの灰色。未接触はテーマの変数 --dot-untouched。
+ * 進み具合は青の濃淡、決済はピンク（#ff6363、トークン --pay と同じ）で目立たせ、離脱は赤みの灰色。未接触はテーマの変数 --dot-untouched。
  * 色だけに頼らず、凡例には必ずラベルと人数を出す。
  */
 export const STATE_COLORS: Record<PersonState, string> = {
@@ -39,7 +39,7 @@ export const STATE_COLORS: Record<PersonState, string> = {
   2: "#4f92e0",
   3: "#2a6fc9",
   4: "#7a6ad8",
-  5: "#eb6834",
+  5: "#ff6363",
   6: "#b5706f",
 };
 

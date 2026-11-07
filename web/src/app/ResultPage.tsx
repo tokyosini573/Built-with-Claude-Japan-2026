@@ -306,7 +306,7 @@ function PlanMap({
 }) {
   const p = replay.plans[plan]!;
   const color = useCssVar(plan === "A" ? "--a" : "--b");
-  const gold = useCssVar("--gold");
+  const gold = useCssVar("--pay");
   const muted = useCssVar("--muted");
   const untouched = useCssVar("--dot-untouched");
   const fg = useCssVar("--fg");
@@ -377,7 +377,7 @@ function MapLegend({ replay }: { replay: Replay }) {
     ["まだ届いていない", "var(--dot-untouched)", 1],
     ["インストール", "linear-gradient(90deg, var(--a) 50%, var(--b) 50%)", 0.45],
     ["初マッチ", "linear-gradient(90deg, var(--a) 50%, var(--b) 50%)", 1],
-    ["課金", "var(--gold)", 1],
+    ["課金", "var(--pay)", 1],
     ["やめた", "var(--muted)", 0.5],
   ];
   return (

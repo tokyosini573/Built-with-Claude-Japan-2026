@@ -112,7 +112,7 @@ export function PersonPanel({ replay, row, plan, onPlan, onClose }: Props) {
                   <span
                     className="dot"
                     aria-hidden
-                    style={{ background: step === "pay" ? "var(--gold)" : step === "churn" ? "var(--muted)" : PLAN_VAR[plan] }}
+                    style={{ background: step === "pay" ? "var(--pay)" : step === "churn" ? "var(--muted)" : PLAN_VAR[plan] }}
                   />
                   <span className="what">
                     {eventText(step, replay)}
