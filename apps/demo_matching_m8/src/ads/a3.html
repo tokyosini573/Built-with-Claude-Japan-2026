@@ -1,0 +1,32 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.ad { position: relative; overflow: hidden; }
+.mock { border-radius: 30px; border: 8px solid #1d2422; overflow: hidden; background: #1d2422; box-shadow: 0 18px 40px rgba(0,0,0,.25); }
+.mock img { display: block; width: 100%; }
+.fine { font-size: 11px; line-height: 1.6; }
+.store { display: inline-block; padding: 8px 14px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; }
+.qr { width: 88px; height: 88px; background: #fff; padding: 6px; display: grid; grid-template-columns: repeat(11, 1fr); gap: 0; }
+.qr i { background: #fff; } .qr i.k { background: #1d2422; }
+
+.ad { width: 540px; height: 675px; background: var(--cream); padding: 44px 40px; }
+h2 { font-size: 32px; font-weight: 900; line-height: 1.4; }
+.sub { font-size: 17px; color: var(--ink-2); margin-top: 8px; }
+.list { margin-top: 26px; }
+.item { display: flex; gap: 16px; background: #fff; border: none; border-left: 6px solid var(--mustard); border-radius: 6px; padding: 16px 18px; margin-bottom: 12px; }
+.item i { flex: none; width: 40px; height: 40px; border-radius: 8px; background: var(--green); color: #fff; font-style: normal; font-weight: 900; font-size: 18px; text-align: center; line-height: 40px; }
+.item b { display: block; font-size: 18px; }
+.item span { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.foot { position: absolute; left: 40px; right: 40px; bottom: 36px; display: flex; justify-content: space-between; align-items: flex-end; }
+.foot .logo-name { font-size: 28px; }
+</style></head><body><div class="ad">
+<h2>マッチングアプリ、<br>どこが心配ですか？</h2>
+<p class="sub">「相手が本当に本人か」が気になる方へ。</p>
+<div class="list">
+  <div class="item"><i>1</i><div><b>みんな本人確認</b><span>免許証などで確認。完了まではメッセージできません。</span></div></div>
+  <div class="item"><i>2</i><div><b>近くの人だけをおすすめ</b><span>相手に表示されるのは、だいたいの距離と市区町村だけ。</span></div></div>
+  <div class="item"><i>3</i><div><b>料金がシンプル</b><span>女性は無料。男性は月額<span data-brand="price_male_jpy">3,980</span>円だけ。</span></div></div>
+</div>
+<div class="foot"><span class="logo"><span class="logo-mark"><i></i><i></i></span><span class="logo-name" data-brand="name_ja">ちかくに</span></span><p class="fine" style="color:var(--ink-2);text-align:right">18歳以上（高校生不可）<br>審査は最大<span data-brand="review_hours">24</span>時間</p></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script><script>
+// 中づりなどの QR は見た目だけのダミー（読み取れない）
+document.querySelectorAll(".qr").forEach((q)=>{let s=7;for(let i=0;i<121;i++){s=(s*73+19)%101;const r=Math.floor(i/11),c=i%11;const f=(r<3&&c<3)||(r<3&&c>7)||(r>7&&c<3);const k=f?!(r%2===1&&c%2===1&&!(r===1&&c===1)&&!(r===1&&c===9)&&!(r===9&&c===1))||(r===1&&c===1)||(r===1&&c===9)||(r===9&&c===1):s%2===0;q.insertAdjacentHTML("beforeend",`<i class="${k?"k":""}"></i>`);}});
+</script></body></html>

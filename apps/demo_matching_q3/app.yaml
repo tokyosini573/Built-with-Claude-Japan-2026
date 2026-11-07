@@ -1,0 +1,58 @@
+# デモアプリ「ちかくに」対照実験 q3（架空の日本の恋愛マッチングアプリ）。内容は CHANGES.md。
+# A案・B案の条件（予算、チャネル、地域、期間、動画のアカウント数など）は比較のため apps/demo_matching と同じ。
+# 画面と広告は src/ の HTML から tools/render.mjs で作る。name_ja は src/brand.js から自動で書き換わる。
+# A案は広告費 5,000,000円。B案は広告費なし、動画の制作費 525,000円（1,050円 × 500本）。配分は事前に決めたもので、結果を見て変えない。
+app_id: demo_matching_q3
+name_ja: ちかくに
+preset: matching
+min_age: 18
+description_ja: >-
+  20〜30代向けの恋愛マッチングアプリ。近くに住む・働く人を、最寄り駅や勤務先のエリアと一緒におすすめする。
+  登録は4ステップで、顔写真2枚以上・住まい（市区町村）・最寄り駅・勤務先（会社名）・年収・自己紹介（100文字以上）・好きなこと5つ以上がすべて必須。
+  相手には市区町村・最寄り駅・勤務先の業種・年収が表示される。
+  全員に本人確認と勤務先の確認（運転免許証・マイナンバーカード・パスポートの写真、社員証・名刺などの写真、顔写真。審査は最大48時間）が必須で、
+  承認されるまでおすすめの表示・いいね・あいさつ・メッセージはすべてできない。
+  女性は無料、男性はメッセージに月額4,980円の有料プランが必要（無料ではおすすめを1日10人見る・いいね1日2回だけ）。18歳以上（高校生不可）。
+screens:
+  - screens/01.png   # はじめの画面
+  - screens/02.png   # プロフィール作成
+  - screens/03.png   # 本人確認
+  - screens/04.png   # 近くのおすすめ一覧
+  - screens/05.png   # 有料プラン
+gates:
+  - id: id_verification
+    name_ja: 本人確認
+    docs_ja: 運転免許証・マイナンバーカード・パスポートのどれか1つの写真と、勤務先を確認できる書類（社員証・名刺など）の写真と、顔写真
+    review_hours: 48              # 3日目以降の待ちとしてエンジンに直接効く（ceil(48/24)=2日 > 基準1日）
+pricing: {monthly_jpy: 4980, free_trial_days: 0, who_pays: male}
+
+plans:
+  A:
+    # 全国に SNS 広告を出す案
+    regions: []                     # 全国
+    period_days: 90
+    campaign_days: 30
+    target: {age: [20, 34], sex: any}
+    channels:
+      tiktok: 2000000     # 20代前半への到達が強く、CPM も安め。縦型動画が主力
+      instagram: 2000000  # 20〜30代の利用が広く、恋愛アプリの広告で一般的な媒体
+      x: 1000000          # 拡散の起点として補助的に。CTR が低めなので少なめ
+    creatives: [ads/a1.png, ads/a2.png, ads/a3.png]   # a1: TikTok 縦 / a2: Instagram ストーリーズ / a3: X 縦
+  B:
+    # 広告費を払わず、AI 動画生成で短尺動画を作り、自社アカウントから毎日投稿する案（2026-11-06 ユーザー決定）
+    # 12d263a のルール固定の後に追加したチャネル。バックテストでは未検証。値は rules/organic_video.yaml
+    regions: []                     # 全国（動画は地域を絞れない）
+    period_days: 90
+    campaign_days: 50
+    target: {age: [20, 34], sex: any}   # 広告のターゲット指定は無い。比較のため A と同じ表記
+    channels: {}
+    creatives: []
+    organic_video:
+      platforms: [tiktok, instagram, youtube]   # TikTok・リール・ショート
+      accounts: 10
+      posts_per_account_per_day: 1
+      start_day: 1
+      days: 50
+      unique_videos_per_account: true           # アカウントごとに別の動画（規約上、同じ動画の使い回しは推薦されにくい）
+      cost_per_video_jpy: 1050                  # 調査の AI 動画 1本の mid（$7、1ドル=150円）。10 × 50 = 500本 = 52.5万円
+      creative_ids: [v1, v2, v3]                # 動画の見本（絵コンテ）: ads/v1〜v3.png

@@ -1,0 +1,47 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.steps { display: flex; gap: 6px; padding: 0 24px; }
+.steps span { flex: 1; height: 5px; border-radius: 3px; background: #dcdfea; }
+.steps span.on { background: var(--green); }
+.steplabel { padding: 10px 24px 0; font-size: 13px; color: var(--ink-2); }
+h2 { padding: 6px 24px 0; font-size: 21px; font-weight: 700; }
+.lead { margin: 8px 24px 0; font-size: 14.5px; line-height: 1.6; }
+.lead b { color: var(--danger); }
+.card { margin: 12px 24px 0; background: var(--white); border-radius: 10px; border: 1px solid var(--line); padding: 13px 16px; }
+.card h3 { font-size: 14px; color: var(--ink-2); font-weight: 700; margin-bottom: 10px; }
+.docs { display: flex; gap: 8px; }
+.docs div { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; line-height: 1.35; }
+.docs div span { display: block; height: 46px; border-radius: 4px; margin-bottom: 6px; background: var(--green-soft); position: relative; }
+.docs div span::before { content: ""; position: absolute; left: 8px; top: 10px; width: 16px; height: 22px; border-radius: 3px; background: #b9c1e4; }
+.docs div span::after { content: ""; position: absolute; left: 30px; right: 8px; top: 14px; height: 4px; border-radius: 2px; background: #b9c1e4; box-shadow: 0 9px 0 #b9c1e4; }
+.flow { list-style: none; }
+.flow li { display: flex; gap: 12px; align-items: center; font-size: 15px; padding: 4px 0; }
+.flow li i { flex: none; width: 26px; height: 26px; border-radius: 6px; background: var(--green); color: #fff; font-style: normal; font-weight: 700; font-size: 13px; text-align: center; line-height: 26px; }
+.flow li small { display: block; font-size: 12px; color: var(--ink-2); }
+.info { margin: 12px 24px 0; padding: 12px 14px; border-radius: 14px; background: var(--mustard-soft); font-size: 13px; line-height: 1.6; color: #8a3a26; }
+ul.priv { margin: 8px 30px 0; font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+.cta { position: absolute; left: 24px; right: 24px; bottom: 22px; }
+.cta .later { text-align: center; font-size: 14px; color: var(--ink-2); margin-top: 10px; }
+</style></head><body><div class="phone">
+<div class="status"><span>9:41</span><span class="icons"><span class="bar"></span><span class="bat"></span></span></div>
+<div class="appbar"><span class="back">‹</span><h1>本人確認</h1><span class="sp"></span></div>
+<div class="steps"><span class="on"></span><span class="on"></span><span></span></div>
+<p class="steplabel">ステップ 2 / 3</p>
+<h2>本人確認の書類を出してください</h2>
+<p class="lead">安全に使えるように、すべての人に本人確認をお願いしています。<b>確認が完了するまで、メッセージは送信できません。</b></p>
+<div class="card">
+  <h3>手順は3つだけ</h3>
+  <ol class="flow">
+    <li><i>1</i><div>書類の表面を撮影<small>文字がはっきり読めるように</small></div></li>
+    <li><i>2</i><div>自分の顔を撮影<small>書類の写真と同じ人か確認します</small></div></li>
+    <li><i>3</i><div>審査を待つ<small>結果は通知でお知らせ（最大<span data-brand="review_hours">24</span>時間）</small></div></li>
+  </ol>
+</div>
+<div class="card">
+  <h3>使える書類（どれか1つ）</h3>
+  <div class="docs"><div><span></span>運転免許証</div><div><span></span>マイナンバー<br>カード</div><div><span></span>パスポート</div></div>
+</div>
+<div class="info">審査のあいだも、プロフィールの閲覧と「いいね」はできます。</div>
+<p class="note" style="margin:8px 26px 0">相手に表示されるのは「本人確認済み」の印と年齢だけ。書類の画像は確認のためだけに使います。</p>
+<div class="cta"><div class="btn btn-primary">撮影をはじめる</div><p class="later">あとで出す</p></div>
+<div class="home-ind"></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script></body></html>

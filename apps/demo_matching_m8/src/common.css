@@ -1,0 +1,68 @@
+/* デモアプリ共通スタイル。色・ロゴは独自（実在アプリに似せない） */
+@import url("https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=block");
+
+:root {
+  --green: #2e3b7d;      /* 主色: 藍色（変数名は共通部品のため据え置き） */
+  --green-2: #4757a6;
+  --green-soft: #e6e9f6;
+  --mustard: #ea7a62;    /* 差し色: コーラル */
+  --mustard-soft: #fde7e1;
+  --cream: #f5f6fa;      /* 背景: 薄い青みのグレー */
+  --ink: #1f2335;
+  --ink-2: #5d6278;
+  --line: #dde0ea;
+  --white: #ffffff;
+  --danger: #b5523b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--cream); color: var(--ink);
+  font-family: "BIZ UDPGothic", sans-serif; -webkit-font-smoothing: antialiased; }
+.maru { font-family: "M PLUS Rounded 1c", "BIZ UDPGothic", sans-serif; }
+
+/* ロゴ: 2つの角丸の四角が重なる印 + 名前 */
+.logo { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; flex: none; }
+.logo-mark { position: relative; width: 30px; height: 22px; }
+.logo-mark i { position: absolute; top: 4px; width: 14px; height: 14px; border-radius: 4px; transform: rotate(45deg); }
+.logo-mark i:first-child { left: 2px; background: var(--green); }
+.logo-mark i:last-child { left: 13px; background: var(--mustard); mix-blend-mode: multiply; }
+.logo-name { font-family: "M PLUS Rounded 1c", sans-serif; font-weight: 900; letter-spacing: .04em; color: var(--green); }
+
+/* スマホ画面（CSS 390×844、3倍で 1170×2532） */
+.phone { width: 390px; height: 844px; overflow: hidden; position: relative; background: var(--cream); }
+.status { height: 47px; display: flex; justify-content: space-between; align-items: center;
+  padding: 0 28px 0 34px; font-size: 15px; font-weight: 700; }
+.status .icons { display: flex; gap: 6px; align-items: center; }
+.status .bar { width: 17px; height: 11px; border-radius: 2px; background: currentColor; opacity: .85; }
+.status .bat { width: 25px; height: 12px; border-radius: 3px; border: 1.5px solid currentColor; position: relative; }
+.status .bat::after { content: ""; position: absolute; inset: 1.5px 5px 1.5px 1.5px; background: currentColor; border-radius: 1px; }
+.home-ind { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: var(--ink); opacity: .85; }
+
+.appbar { height: 52px; display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+.appbar h1 { font-size: 18px; font-weight: 700; flex: 1; text-align: center; }
+.appbar .back { width: 24px; font-size: 22px; color: var(--ink-2); }
+.appbar .sp { width: 24px; }
+
+.btn { display: block; width: 100%; height: 54px; border-radius: 12px; border: none; font-size: 17px; font-weight: 700;
+  font-family: inherit; text-align: center; line-height: 54px; }
+.btn-primary { background: var(--green); color: var(--white); }
+.btn-ghost { background: transparent; color: var(--green); border: 1.5px solid var(--green); line-height: 51px; }
+.btn-mustard { background: var(--mustard); color: var(--ink); }
+.btn-disabled { background: #d5d8e2; color: #868b9c; }
+
+.note { font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+.chip { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.chip-green { background: var(--green-soft); color: var(--green); }
+.chip-mustard { background: var(--mustard-soft); color: #9a3d28; }
+.chip-gray { background: #e8eaf1; color: var(--ink-2); }
+
+/* タブバー */
+.tabbar { position: absolute; bottom: 0; left: 0; right: 0; height: 84px; background: var(--white);
+  border-top: 1px solid var(--line); display: flex; padding-top: 8px; }
+.tabbar div { flex: 1; text-align: center; font-size: 10px; color: var(--ink-2); font-weight: 500; }
+.tabbar div b { display: block; width: 26px; height: 26px; margin: 0 auto 3px; border-radius: 50%; background: #d7dae5; }
+.tabbar div.on { color: var(--green); font-weight: 700; }
+.tabbar div.on b { background: var(--green); }
+
+/* イラストのアバター（parts.js が SVG を入れる） */
+.av { display: block; overflow: hidden; }
+.av svg { width: 100%; height: 100%; display: block; }

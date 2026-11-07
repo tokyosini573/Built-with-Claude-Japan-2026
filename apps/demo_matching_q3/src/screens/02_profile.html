@@ -1,0 +1,52 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.steps { display: flex; gap: 6px; padding: 0 24px; }
+.steps span { flex: 1; height: 5px; border-radius: 3px; background: #e2dccf; }
+.steps span.on { background: var(--green); }
+.steplabel { padding: 10px 24px 0; font-size: 13px; color: var(--ink-2); }
+h2 { padding: 4px 24px 0; font-size: 21px; font-weight: 700; }
+.photo { display: flex; gap: 10px; align-items: center; margin: 12px 24px 2px; }
+.photo .ph { width: 70px; height: 70px; border-radius: 22px; overflow: hidden; position: relative; }
+.photo .add { width: 70px; height: 70px; border-radius: 22px; border: 2px dashed #c9c0b0; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #a69b88; }
+.photo p { font-size: 12px; color: var(--ink-2); line-height: 1.5; flex: 1; }
+.field { margin: 7px 24px 0; }
+.req { color: var(--danger); font-weight: 700; font-size: 11px; margin-left: 4px; }
+.field label { display: block; font-size: 13px; color: var(--ink-2); font-weight: 500; margin-bottom: 5px; }
+.field .in { background: var(--white); border: 1px solid var(--line); border-radius: 12px; height: 40px; line-height: 38px; padding: 0 14px; font-size: 16px; display: flex; justify-content: space-between; }
+.field .in small { color: var(--ink-2); font-size: 13px; }
+.row { display: flex; gap: 10px; margin: 0 24px; } .row .field { flex: 1; margin-left: 0; margin-right: 0; }
+.field .ta { height: auto; line-height: 1.45; padding: 7px 12px; font-size: 12.5px; display: block; }
+.tags { margin: 8px 24px 0; display: flex; flex-wrap: wrap; gap: 7px; }
+.tags span { font-size: 13px; padding: 6px 12px; border-radius: 16px; background: var(--white); border: 1px solid var(--line); }
+.tags span.on { background: var(--green-soft); border-color: var(--green-soft); color: var(--green); font-weight: 700; }
+.cta { position: absolute; left: 24px; right: 24px; bottom: 34px; }
+.hint { font-size: 11px; color: var(--ink-2); margin-top: 4px; }
+</style></head><body><div class="phone">
+<div class="status"><span>9:41</span><span class="icons"><span class="bar"></span><span class="bat"></span></span></div>
+<div class="appbar"><span class="back">‹</span><h1>プロフィール作成</h1><span class="sp"></span></div>
+<div class="steps"><span class="on"></span><span></span><span></span><span></span></div>
+<p class="steplabel">ステップ 1 / 4　<span class="req">※すべて必須</span></p>
+<h2>あなたのことを教えてください</h2>
+<div class="photo">
+  <div class="ph av" data-seed="4"></div><div class="add">＋</div>
+  <p><b class="req" style="margin:0">必須</b> 顔がはっきりわかる写真を2枚以上。写真がないと次へ進めません。</p>
+</div>
+<div class="field"><label>ニックネーム<span class="req">必須</span></label><div class="in">ゆうき</div></div>
+<div class="row">
+  <div class="field"><label>生年月日</label><div class="in">1997/05/12 <small>28歳</small></div></div>
+  <div class="field" style="flex:.7"><label>性別</label><div class="in">男性</div></div>
+</div>
+<div class="row">
+  <div class="field"><label>住まい（市区町村）<span class="req">必須</span></label><div class="in">東京都 世田谷区</div></div>
+  <div class="field"><label>最寄り駅<span class="req">必須</span></label><div class="in">三軒茶屋</div></div>
+</div>
+<div class="row">
+  <div class="field"><label>勤務先（会社名）<span class="req">必須</span></label><div class="in">株式会社〇〇</div></div>
+  <div class="field" style="flex:.8"><label>年収<span class="req">必須</span></label><div class="in">400〜600万円</div></div>
+</div>
+<p class="hint" style="margin:4px 24px 0">相手には「市区町村・最寄り駅・勤務先の業種・年収」が表示されます。</p>
+<div class="field"><label>自己紹介（100文字以上）<span class="req">必須</span></label><div class="in ta">都内でメーカーの営業をしています。休日はカフェ巡りとランニング。まずは気軽にお話しできたらうれしいです。</div></div>
+<div class="field" style="margin-bottom:0"><label>好きなこと（5つ以上）<span class="req">必須</span></label></div>
+<div class="tags"><span class="on">カフェ</span><span class="on">ランニング</span><span class="on">映画</span><span>料理</span><span>旅行</span></div>
+<div class="cta"><div class="btn btn-primary">次へ（本人確認）</div></div>
+<div class="home-ind"></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script></body></html>

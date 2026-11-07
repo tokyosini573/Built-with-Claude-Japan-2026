@@ -1,0 +1,43 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.ad { position: relative; overflow: hidden; }
+.mock { border-radius: 30px; border: 8px solid #1d2422; overflow: hidden; background: #1d2422; box-shadow: 0 18px 40px rgba(0,0,0,.25); }
+.mock img { display: block; width: 100%; }
+.fine { font-size: 11px; line-height: 1.6; }
+.store { display: inline-block; padding: 8px 14px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 700; }
+.qr { width: 88px; height: 88px; background: #fff; padding: 6px; display: grid; grid-template-columns: repeat(11, 1fr); gap: 0; }
+.qr i { background: #fff; } .qr i.k { background: #1d2422; }
+
+.ad { width: 540px; height: 960px; background: var(--green); color: #fff; }
+.map { position: absolute; left: 0; right: 0; top: 0; height: 560px; }
+.road { position: absolute; background: rgba(255,255,255,.09); }
+.ring { position: absolute; border-radius: 50%; border: 2px dashed rgba(255,255,255,.35); }
+.pin { position: absolute; width: 96px; height: 96px; border-radius: 50%; border: 4px solid #fff; overflow: hidden; }
+.me { position: absolute; left: 248px; top: 258px; width: 44px; height: 44px; border-radius: 50%; background: var(--mustard); border: 6px solid #fff; }
+.lbl { position: absolute; background: #fff; color: var(--green); font-size: 14px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
+.copy { position: absolute; left: 40px; right: 40px; top: 570px; }
+.copy h2 { font-family: "Zen Maru Gothic"; font-weight: 900; font-size: 40px; line-height: 1.35; }
+.copy p { font-size: 17px; line-height: 1.65; margin-top: 14px; opacity: .92; }
+.foot { position: absolute; left: 40px; right: 40px; bottom: 56px; display: flex; align-items: flex-end; justify-content: space-between; }
+.foot .logo-name { color: #fff; font-size: 30px; } .foot .logo-mark i:first-child { background: #fff; }
+.foot .fine { opacity: .8; margin-top: 8px; }
+.foot .store { background: var(--mustard); color: var(--ink); }
+</style></head><body><div class="ad">
+<div class="map">
+  <div class="road" style="left:0;right:0;top:270px;height:26px"></div>
+  <div class="road" style="top:0;bottom:0;left:380px;width:22px"></div>
+  <div class="road" style="top:-40px;bottom:-40px;left:120px;width:14px;transform:rotate(16deg)"></div>
+  <div class="ring" style="left:150px;top:160px;width:240px;height:240px"></div>
+  <div class="ring" style="left:60px;top:70px;width:420px;height:420px;opacity:.5"></div>
+  <div class="me"></div>
+  <div class="pin av" data-seed="1" data-kind="f" style="left:160px;top:120px"></div>
+  <div class="pin av" data-seed="4" style="left:350px;top:170px"></div>
+  <div class="pin av" data-seed="3" data-kind="f" style="left:320px;top:350px"></div>
+  <div class="pin av" data-seed="2" style="left:100px;top:330px"></div>
+  <span class="lbl" style="left:150px;top:226px">約1km</span><span class="lbl" style="left:340px;top:456px">約2km</span>
+</div>
+<div class="copy"><h2>週末、近所のカフェで<br>会える人と。</h2><p>共通の好きなことがある、近くの人をおすすめ。<br>相手に見えるのは「東京都・約1km」のような<br>おおよその地域と距離だけです。</p></div>
+<div class="foot"><div><span class="logo"><span class="logo-mark"><i></i><i></i></span><span class="logo-name" data-brand="name_ja">ちかくに</span></span><p class="fine">女性無料／男性 月額<span data-brand="price_male_jpy">2,980</span>円。本人確認あり・18歳以上。</p></div><span class="store">詳しく見る</span></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script><script>
+// 中づりなどの QR は見た目だけのダミー（読み取れない）
+document.querySelectorAll(".qr").forEach((q)=>{let s=7;for(let i=0;i<121;i++){s=(s*73+19)%101;const r=Math.floor(i/11),c=i%11;const f=(r<3&&c<3)||(r<3&&c>7)||(r>7&&c<3);const k=f?!(r%2===1&&c%2===1&&!(r===1&&c===1)&&!(r===1&&c===9)&&!(r===9&&c===1))||(r===1&&c===1)||(r===1&&c===9)||(r===9&&c===1):s%2===0;q.insertAdjacentHTML("beforeend",`<i class="${k?"k":""}"></i>`);}});
+</script></body></html>

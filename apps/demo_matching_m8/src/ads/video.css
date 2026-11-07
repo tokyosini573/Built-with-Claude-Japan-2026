@@ -1,0 +1,22 @@
+/* 短尺動画の見本（絵コンテ）共通スタイル。CSS 540×960 × 2倍 = 1080×1920 */
+.sheet { width: 540px; height: 960px; background: var(--cream); padding: 22px 24px 0; position: relative; overflow: hidden; }
+.kind { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--ink-2); font-weight: 700; }
+.kind .tag { background: var(--ink); color: #fff; padding: 3px 9px; border-radius: 5px; }
+.title { font-size: 21px; font-weight: 900; line-height: 1.35; margin-top: 8px; }
+.meta { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+.cut { display: flex; gap: 14px; margin-top: 8px; background: #fff; border: none; border-left: 5px solid var(--green-2); border-radius: 6px; padding: 10px; }
+.frame { flex: none; width: 88px; height: 156px; border-radius: 4px; overflow: hidden; position: relative; background: var(--green-soft); }
+.frame .no { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,.55); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; z-index: 3; }
+.frame .ai { position: absolute; right: 4px; top: 5px; background: rgba(255,255,255,.85); color: var(--ink); font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 3px; z-index: 3; }
+.frame .telop { position: absolute; left: 4px; right: 4px; top: 22px; background: var(--ink); color: #fff; font-size: 9.5px; font-weight: 900; line-height: 1.3; text-align: center; padding: 3px 2px; border-radius: 4px; z-index: 3; }
+.frame img { position: absolute; left: 9px; top: 14px; width: 70px; border-radius: 8px; border: 3px solid #1d2422; }
+.frame .av { position: absolute; border-radius: 50%; overflow: hidden; border: 2px solid #fff; }
+.txt { flex: 1; min-width: 0; }
+.txt .sec { font-size: 11px; color: var(--ink-2); font-weight: 700; }
+.txt .tl { font-size: 14.5px; font-weight: 900; line-height: 1.4; margin-top: 2px; color: var(--mustard); }
+.txt .na { font-size: 12.5px; line-height: 1.55; margin-top: 4px; }
+.txt .na::before { content: "ナレーション: "; color: var(--ink-2); font-weight: 700; font-size: 11px; }
+.txt .sc { font-size: 11px; color: var(--ink-2); margin-top: 4px; line-height: 1.5; }
+.foot { position: absolute; left: 24px; right: 24px; bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+.foot .logo-name { font-size: 20px; }
+.foot .ai-all { font-size: 11px; color: var(--ink-2); text-align: right; line-height: 1.5; }

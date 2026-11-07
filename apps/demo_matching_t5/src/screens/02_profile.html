@@ -1,0 +1,48 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="../common.css"><style>
+.steps { display: flex; gap: 6px; padding: 0 24px; }
+.steps span { flex: 1; height: 5px; border-radius: 3px; background: #e2dccf; }
+.steps span.on { background: var(--green); }
+.steplabel { padding: 10px 24px 0; font-size: 13px; color: var(--ink-2); }
+h2 { padding: 6px 24px 0; font-size: 23px; font-weight: 700; }
+.photo { display: flex; gap: 14px; align-items: center; margin: 18px 24px 4px; }
+.photo .ph { width: 86px; height: 86px; border-radius: 22px; overflow: hidden; position: relative; }
+.photo .add { width: 86px; height: 86px; border-radius: 22px; border: 2px dashed #c9c0b0; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #a69b88; }
+.photo p { font-size: 12px; color: var(--ink-2); line-height: 1.5; flex: 1; }
+.field { margin: 10px 24px 0; }
+.field label { display: block; font-size: 13px; color: var(--ink-2); font-weight: 500; margin-bottom: 5px; }
+.field .in { background: var(--white); border: 1px solid var(--line); border-radius: 12px; height: 46px; line-height: 44px; padding: 0 14px; font-size: 16px; display: flex; justify-content: space-between; }
+.field .in small { color: var(--ink-2); font-size: 13px; }
+.row { display: flex; gap: 10px; margin: 0 24px; } .row .field { flex: 1; margin-left: 0; margin-right: 0; }
+.field .ta { height: auto; line-height: 1.55; padding: 10px 14px; font-size: 14px; display: block; }
+.tags { margin: 8px 24px 0; display: flex; flex-wrap: wrap; gap: 7px; }
+.tags span { font-size: 13px; padding: 6px 12px; border-radius: 16px; background: var(--white); border: 1px solid var(--line); }
+.tags span.on { background: var(--green-soft); border-color: var(--green-soft); color: var(--green); font-weight: 700; }
+.cta { position: absolute; left: 24px; right: 24px; bottom: 34px; }
+.hint { font-size: 11px; color: var(--ink-2); margin-top: 4px; }
+.vis { margin: 10px 24px 0; padding: 11px 14px; border-radius: 14px; background: var(--green-soft); font-size: 12.5px; line-height: 1.6; color: var(--green); }
+.vis b { font-size: 13px; }
+.later { margin: 12px 24px 0; background: var(--white); border: 1px dashed #c9c0b0; border-radius: 14px; padding: 10px 14px; }
+.later h3 { font-size: 13px; color: var(--ink-2); font-weight: 700; }
+.later p { font-size: 12.5px; color: var(--ink-2); line-height: 1.55; margin-top: 3px; }
+.opt { font-size: 11px; font-weight: 700; color: var(--ink-2); background: #ece7dd; padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
+</style></head><body><div class="phone">
+<div class="status"><span>9:41</span><span class="icons"><span class="bar"></span><span class="bat"></span></span></div>
+<div class="appbar"><span class="back">‹</span><h1>プロフィール作成</h1><span class="sp"></span></div>
+<div class="steps"><span class="on"></span><span></span></div>
+<p class="steplabel">ステップ 1 / 2</p>
+<h2>まずは、これだけでOKです</h2>
+<div class="photo">
+  <div class="ph av" data-seed="4"></div><div class="add">＋</div>
+  <p>写真<span class="opt">あとからでもOK</span><br>顔がわかる写真があると、マッチしやすくなります。</p>
+</div>
+<div class="field"><label>ニックネーム</label><div class="in">ゆうき</div></div>
+<div class="row">
+  <div class="field"><label>生年月日</label><div class="in">1997/05/12 <small>28歳</small></div></div>
+  <div class="field" style="flex:.7"><label>性別</label><div class="in">男性</div></div>
+</div>
+<div class="field"><label>住まいの地域（おおよそ）</label><div class="in">東京都 ・ 世田谷区あたり <small>選ぶだけ</small></div></div>
+<div class="vis"><b>相手に見えるのは「東京都」と「約2km」だけ。</b><br>市区町村・駅名・番地は表示しません。距離のおすすめにだけ使います。</div>
+<div class="later"><h3>あとから追加できます（任意）</h3><p>職業・自己紹介・好きなこと。入力しなくても使えます。</p></div>
+<div class="cta"><div class="btn btn-primary">次へ</div></div>
+<div class="home-ind"></div>
+</div><script src="../brand.js"></script><script src="../parts.js"></script></body></html>
