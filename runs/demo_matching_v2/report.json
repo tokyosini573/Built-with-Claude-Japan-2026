@@ -1,0 +1,1544 @@
+{
+ "app_id": "demo_matching_v2",
+ "model": "claude-opus-5-5",
+ "headline_ja": "B案（動画の投稿）は費用が小さくインストール単価も低いが、インストール・課金者・売上の範囲はA案（広告）と大きく重なり、差ははっきりしない",
+ "report_ja": "B案（動画の投稿）は費用が小さくインストール単価も低いが、インストール・課金者・売上の範囲はA案（広告）と大きく重なり、差ははっきりしない\n\n【結論】\nA案（広告）とB案（動画の投稿）は、インストール・課金者・売上のどれも範囲が大きく重なっており、差ははっきりしません。インストールの中央値はA案 6,310件（幅 4,160〜17,300）、B案 8,590件（幅 2,570〜66,200）です。B案が上回った回の割合は 50% でした。課金者と売上でB案が上回った回の割合は 40%・40% で、中央値ではA案がやや多めです（売上の差の中央値 -62,800円、幅 -732,000〜2,360,000円）。費用はA案 5,000,000円、B案 525,000円です。インストール単価の中央値はA案 793.1円、B案 61.9円、ROASの中央値はA案 0.0709、B案 0.229でした。B案は安く済む反面、結果のぶれが大きい案です。\n\n【ファネルで人が離れた場所】\nA案は、会員登録 3,250人、本人確認の段階 1,670人、核となる行動 177人、課金者 63人と進みます。B案も同じ形で、会員登録 3,590人、本人確認の段階 1,590人、核となる行動 79人、課金者 28人でした。両案とも、本人確認から核となる行動へ進むところと、課金のところで大きく減っています。\n\n【離脱理由のテーマ】\n目立ったのは次の三つです。男性の月額料金と無料お試しがないこと、身分証と顔写真の提出と審査待ち、承認前は定型のあいさつしか送れない会話の制限です。加えて、A案では広告の押しの強さ、B案では既婚の人や年齢が合わない人に動画が届いたことも離脱につながっています。女性は無料のため、支払いの壁はほぼ感じていません。\n\n【次に試すとよいこと】\n・男性向けに短い無料お試しや初回割引を用意し、料金の見え方を比べる。\n・提出画面で「書類は確認だけに使い、審査後に削除」を目立たせ、審査待ちの間にできることを案内する。\n・B案の動画は、独身の若い層に届く内容と投稿先に絞る。そのうえで少額で何度か試し、結果の幅を確かめる。\n・A案は広告の文言を控えめにし、安心できる距離表示を前に出す。\n\n【読み方の注意】\n結果は中央値だけでなく、下側から上側までの幅で見てください。判断は一万人それぞれについてClaudeが出したもの（ペルソナの要約はグループ単位）で、数字はエンジンが計算したものです。",
+ "drop_themes": [
+  {
+   "theme_ja": "男性の月額料金と無料お試しなしが重い",
+   "plan": "A,B",
+   "step": "install,retention,pay",
+   "drop_reason_ids": [
+    "A.dr1",
+    "A.dr2",
+    "A.dr3",
+    "A.dr23",
+    "A.dr24",
+    "A.dr25",
+    "A.dr28",
+    "A.dr29",
+    "B.dr1",
+    "B.dr4",
+    "B.dr22",
+    "B.dr23",
+    "B.dr25",
+    "B.dr29"
+   ],
+   "summary_ja": "価格に敏感な人や所得の低い人ほど、お試しなしの月額料金を理由に、入れる前・使い続ける段階・支払いの段階で離れています。"
+  },
+  {
+   "theme_ja": "本人確認の書類提出と審査待ちへの抵抗",
+   "plan": "A,B",
+   "step": "gate:id_verification",
+   "drop_reason_ids": [
+    "A.dr10",
+    "A.dr11",
+    "A.dr12",
+    "A.dr13",
+    "A.dr14",
+    "B.dr10",
+    "B.dr11",
+    "B.dr12",
+    "B.dr13",
+    "B.dr14"
+   ],
+   "summary_ja": "身分証と顔写真を出す警戒感と審査を待つ面倒さが重なり、待つ間に他のアプリへ移りそうという声が出ています。"
+  },
+  {
+   "theme_ja": "承認前の会話制限と定型あいさつの物足りなさ",
+   "plan": "A,B",
+   "step": "core_action",
+   "drop_reason_ids": [
+    "A.dr15",
+    "A.dr17",
+    "A.dr19",
+    "B.dr16",
+    "B.dr18"
+   ],
+   "summary_ja": "共通の好きなことは話しやすいと評価される一方、審査中は定型のあいさつだけで盛り上がりにくいと感じられています。"
+  },
+  {
+   "theme_ja": "他の出会いアプリとの差や評判が見えない",
+   "plan": "A,B",
+   "step": "core_action,retention",
+   "drop_reason_ids": [
+    "A.dr16",
+    "A.dr20",
+    "A.dr21",
+    "A.dr22",
+    "B.dr15",
+    "B.dr17",
+    "B.dr19",
+    "B.dr20",
+    "B.dr21",
+    "B.dr24"
+   ],
+   "summary_ja": "新しもの好きは試してみるものの、同系統のアプリと大差がなく、評判やマッチの続き方次第で飽きそうだと考えています。"
+  },
+  {
+   "theme_ja": "広告の押しの強さへの反発",
+   "plan": "A,B",
+   "step": "install",
+   "drop_reason_ids": [
+    "A.dr0",
+    "A.dr4",
+    "B.dr0"
+   ],
+   "summary_ja": "広告嫌いの人には売り込みの文句やPR表示が押しつけがましく映り、入れる理由が弱くなっています。"
+  },
+  {
+   "theme_ja": "動画が対象外の人に届いた",
+   "plan": "B",
+   "step": "install,signup",
+   "drop_reason_ids": [
+    "B.dr2",
+    "B.dr3",
+    "B.dr8"
+   ],
+   "summary_ja": "既婚の人や年齢が合わない人に恋人探しの動画が届き、自分事と感じられないまま進んでいません。"
+  },
+  {
+   "theme_ja": "登録の入力は手軽で平均並み",
+   "plan": "A,B",
+   "step": "signup",
+   "drop_reason_ids": [
+    "A.dr5",
+    "A.dr6",
+    "A.dr7",
+    "A.dr8",
+    "A.dr9",
+    "B.dr5",
+    "B.dr6",
+    "B.dr7",
+    "B.dr9"
+   ],
+   "summary_ja": "入力項目が少なく手間は小さいと評価されていますが、登録する必要性が弱いことや個人情報への警戒から、進み方は平均並みにとどまっています。"
+  },
+  {
+   "theme_ja": "女性は無料で支払いの壁を感じない",
+   "plan": "A,B",
+   "step": "core_action,pay",
+   "drop_reason_ids": [
+    "A.dr18",
+    "A.dr26",
+    "A.dr27",
+    "B.dr26",
+    "B.dr27",
+    "B.dr28"
+   ],
+   "summary_ja": "女性は無料で使えるため、料金画面を見ても自分には関係ないと受け止めており、最初の行動も起こしやすいと感じています。"
+  }
+ ],
+ "facts": {
+  "meta.period_days": {
+   "value": "90",
+   "label": "期間（日）"
+  },
+  "meta.runs": {
+   "value": "30",
+   "label": "実行回数"
+  },
+  "meta.population": {
+   "value": "10,000",
+   "label": "人口（人）"
+  },
+  "A.japan.impressions.p10": {
+   "value": "5,030,000",
+   "label": "A案 広告表示 p10（日本全体換算）"
+  },
+  "A.totals.impressions.p10": {
+   "value": "519.1",
+   "label": "A案 広告表示 p10（一万人あたり）"
+  },
+  "A.japan.impressions.p50": {
+   "value": "8,130,000",
+   "label": "A案 広告表示 p50（日本全体換算）"
+  },
+  "A.totals.impressions.p50": {
+   "value": "840",
+   "label": "A案 広告表示 p50（一万人あたり）"
+  },
+  "A.japan.impressions.p90": {
+   "value": "10,800,000",
+   "label": "A案 広告表示 p90（日本全体換算）"
+  },
+  "A.totals.impressions.p90": {
+   "value": "1,111",
+   "label": "A案 広告表示 p90（一万人あたり）"
+  },
+  "A.japan.reached.p10": {
+   "value": "4,260,000",
+   "label": "A案 広告が届いた人数 p10（日本全体換算）"
+  },
+  "A.totals.reached.p10": {
+   "value": "439.7",
+   "label": "A案 広告が届いた人数 p10（一万人あたり）"
+  },
+  "A.japan.reached.p50": {
+   "value": "6,280,000",
+   "label": "A案 広告が届いた人数 p50（日本全体換算）"
+  },
+  "A.totals.reached.p50": {
+   "value": "649",
+   "label": "A案 広告が届いた人数 p50（一万人あたり）"
+  },
+  "A.japan.reached.p90": {
+   "value": "7,500,000",
+   "label": "A案 広告が届いた人数 p90（日本全体換算）"
+  },
+  "A.totals.reached.p90": {
+   "value": "774.6",
+   "label": "A案 広告が届いた人数 p90（一万人あたり）"
+  },
+  "A.japan.spend_jpy.p10": {
+   "value": "5,000,000",
+   "label": "A案 費用（広告費・制作費、円） p10（日本全体換算）"
+  },
+  "A.totals.spend_jpy.p10": {
+   "value": "516.5",
+   "label": "A案 費用（広告費・制作費、円） p10（一万人あたり）"
+  },
+  "A.japan.spend_jpy.p50": {
+   "value": "5,000,000",
+   "label": "A案 費用（広告費・制作費、円） p50（日本全体換算）"
+  },
+  "A.totals.spend_jpy.p50": {
+   "value": "516.5",
+   "label": "A案 費用（広告費・制作費、円） p50（一万人あたり）"
+  },
+  "A.japan.spend_jpy.p90": {
+   "value": "5,000,000",
+   "label": "A案 費用（広告費・制作費、円） p90（日本全体換算）"
+  },
+  "A.totals.spend_jpy.p90": {
+   "value": "516.5",
+   "label": "A案 費用（広告費・制作費、円） p90（一万人あたり）"
+  },
+  "A.japan.installs.p10": {
+   "value": "4,160",
+   "label": "A案 インストール p10（日本全体換算）"
+  },
+  "A.totals.installs.p10": {
+   "value": "0.43",
+   "label": "A案 インストール p10（一万人あたり）"
+  },
+  "A.japan.installs.p50": {
+   "value": "6,310",
+   "label": "A案 インストール p50（日本全体換算）"
+  },
+  "A.totals.installs.p50": {
+   "value": "0.652",
+   "label": "A案 インストール p50（一万人あたり）"
+  },
+  "A.japan.installs.p90": {
+   "value": "17,300",
+   "label": "A案 インストール p90（日本全体換算）"
+  },
+  "A.totals.installs.p90": {
+   "value": "1.8",
+   "label": "A案 インストール p90（一万人あたり）"
+  },
+  "A.japan.installs_ad.p10": {
+   "value": "3,500",
+   "label": "A案 広告経由のインストール p10（日本全体換算）"
+  },
+  "A.totals.installs_ad.p10": {
+   "value": "0.361",
+   "label": "A案 広告経由のインストール p10（一万人あたり）"
+  },
+  "A.japan.installs_ad.p50": {
+   "value": "5,250",
+   "label": "A案 広告経由のインストール p50（日本全体換算）"
+  },
+  "A.totals.installs_ad.p50": {
+   "value": "0.542",
+   "label": "A案 広告経由のインストール p50（一万人あたり）"
+  },
+  "A.japan.installs_ad.p90": {
+   "value": "14,500",
+   "label": "A案 広告経由のインストール p90（日本全体換算）"
+  },
+  "A.totals.installs_ad.p90": {
+   "value": "1.5",
+   "label": "A案 広告経由のインストール p90（一万人あたり）"
+  },
+  "A.japan.installs_wom.p10": {
+   "value": "666",
+   "label": "A案 口コミ経由のインストール p10（日本全体換算）"
+  },
+  "A.totals.installs_wom.p10": {
+   "value": "0.0688",
+   "label": "A案 口コミ経由のインストール p10（一万人あたり）"
+  },
+  "A.japan.installs_wom.p50": {
+   "value": "1,410",
+   "label": "A案 口コミ経由のインストール p50（日本全体換算）"
+  },
+  "A.totals.installs_wom.p50": {
+   "value": "0.145",
+   "label": "A案 口コミ経由のインストール p50（一万人あたり）"
+  },
+  "A.japan.installs_wom.p90": {
+   "value": "2,970",
+   "label": "A案 口コミ経由のインストール p90（日本全体換算）"
+  },
+  "A.totals.installs_wom.p90": {
+   "value": "0.307",
+   "label": "A案 口コミ経由のインストール p90（一万人あたり）"
+  },
+  "A.japan.installs_wom_local.p10": {
+   "value": "230",
+   "label": "A案 installs_wom_local p10（日本全体換算）"
+  },
+  "A.totals.installs_wom_local.p10": {
+   "value": "0.0237",
+   "label": "A案 installs_wom_local p10（一万人あたり）"
+  },
+  "A.japan.installs_wom_local.p50": {
+   "value": "694",
+   "label": "A案 installs_wom_local p50（日本全体換算）"
+  },
+  "A.totals.installs_wom_local.p50": {
+   "value": "0.0717",
+   "label": "A案 installs_wom_local p50（一万人あたり）"
+  },
+  "A.japan.installs_wom_local.p90": {
+   "value": "2,080",
+   "label": "A案 installs_wom_local p90（日本全体換算）"
+  },
+  "A.totals.installs_wom_local.p90": {
+   "value": "0.215",
+   "label": "A案 installs_wom_local p90（一万人あたり）"
+  },
+  "A.japan.installs_wom_x.p10": {
+   "value": "184",
+   "label": "A案 installs_wom_x p10（日本全体換算）"
+  },
+  "A.totals.installs_wom_x.p10": {
+   "value": "0.019",
+   "label": "A案 installs_wom_x p10（一万人あたり）"
+  },
+  "A.japan.installs_wom_x.p50": {
+   "value": "388",
+   "label": "A案 installs_wom_x p50（日本全体換算）"
+  },
+  "A.totals.installs_wom_x.p50": {
+   "value": "0.0401",
+   "label": "A案 installs_wom_x p50（一万人あたり）"
+  },
+  "A.japan.installs_wom_x.p90": {
+   "value": "1,320",
+   "label": "A案 installs_wom_x p90（日本全体換算）"
+  },
+  "A.totals.installs_wom_x.p90": {
+   "value": "0.136",
+   "label": "A案 installs_wom_x p90（一万人あたり）"
+  },
+  "A.japan.signups.p10": {
+   "value": "2,080",
+   "label": "A案 会員登録 p10（日本全体換算）"
+  },
+  "A.totals.signups.p10": {
+   "value": "0.214",
+   "label": "A案 会員登録 p10（一万人あたり）"
+  },
+  "A.japan.signups.p50": {
+   "value": "3,250",
+   "label": "A案 会員登録 p50（日本全体換算）"
+  },
+  "A.totals.signups.p50": {
+   "value": "0.336",
+   "label": "A案 会員登録 p50（一万人あたり）"
+  },
+  "A.japan.signups.p90": {
+   "value": "8,340",
+   "label": "A案 会員登録 p90（日本全体換算）"
+  },
+  "A.totals.signups.p90": {
+   "value": "0.862",
+   "label": "A案 会員登録 p90（一万人あたり）"
+  },
+  "A.japan.core_actions.p10": {
+   "value": "33",
+   "label": "A案 核となる行動 p10（日本全体換算）"
+  },
+  "A.totals.core_actions.p10": {
+   "value": "0.00345",
+   "label": "A案 核となる行動 p10（一万人あたり）"
+  },
+  "A.japan.core_actions.p50": {
+   "value": "177",
+   "label": "A案 核となる行動 p50（日本全体換算）"
+  },
+  "A.totals.core_actions.p50": {
+   "value": "0.0183",
+   "label": "A案 核となる行動 p50（一万人あたり）"
+  },
+  "A.japan.core_actions.p90": {
+   "value": "528",
+   "label": "A案 核となる行動 p90（日本全体換算）"
+  },
+  "A.totals.core_actions.p90": {
+   "value": "0.0545",
+   "label": "A案 核となる行動 p90（一万人あたり）"
+  },
+  "A.japan.payers.p10": {
+   "value": "14",
+   "label": "A案 課金者（期間中に一度でも決済） p10（日本全体換算）"
+  },
+  "A.totals.payers.p10": {
+   "value": "0.00146",
+   "label": "A案 課金者（期間中に一度でも決済） p10（一万人あたり）"
+  },
+  "A.japan.payers.p50": {
+   "value": "63",
+   "label": "A案 課金者（期間中に一度でも決済） p50（日本全体換算）"
+  },
+  "A.totals.payers.p50": {
+   "value": "0.00651",
+   "label": "A案 課金者（期間中に一度でも決済） p50（一万人あたり）"
+  },
+  "A.japan.payers.p90": {
+   "value": "210",
+   "label": "A案 課金者（期間中に一度でも決済） p90（日本全体換算）"
+  },
+  "A.totals.payers.p90": {
+   "value": "0.0217",
+   "label": "A案 課金者（期間中に一度でも決済） p90（一万人あたり）"
+  },
+  "A.japan.revenue_jpy.p10": {
+   "value": "70,700",
+   "label": "A案 売上（円） p10（日本全体換算）"
+  },
+  "A.totals.revenue_jpy.p10": {
+   "value": "7.3",
+   "label": "A案 売上（円） p10（一万人あたり）"
+  },
+  "A.japan.revenue_jpy.p50": {
+   "value": "354,000",
+   "label": "A案 売上（円） p50（日本全体換算）"
+  },
+  "A.totals.revenue_jpy.p50": {
+   "value": "36.6",
+   "label": "A案 売上（円） p50（一万人あたり）"
+  },
+  "A.japan.revenue_jpy.p90": {
+   "value": "1,210,000",
+   "label": "A案 売上（円） p90（日本全体換算）"
+  },
+  "A.totals.revenue_jpy.p90": {
+   "value": "125.1",
+   "label": "A案 売上（円） p90（一万人あたり）"
+  },
+  "A.japan.active_end.p10": {
+   "value": "169",
+   "label": "A案 最終日のアクティブ p10（日本全体換算）"
+  },
+  "A.totals.active_end.p10": {
+   "value": "0.0175",
+   "label": "A案 最終日のアクティブ p10（一万人あたり）"
+  },
+  "A.japan.active_end.p50": {
+   "value": "350",
+   "label": "A案 最終日のアクティブ p50（日本全体換算）"
+  },
+  "A.totals.active_end.p50": {
+   "value": "0.0362",
+   "label": "A案 最終日のアクティブ p50（一万人あたり）"
+  },
+  "A.japan.active_end.p90": {
+   "value": "1,070",
+   "label": "A案 最終日のアクティブ p90（日本全体換算）"
+  },
+  "A.totals.active_end.p90": {
+   "value": "0.11",
+   "label": "A案 最終日のアクティブ p90（一万人あたり）"
+  },
+  "A.japan.paying_end.p10": {
+   "value": "10",
+   "label": "A案 paying_end p10（日本全体換算）"
+  },
+  "A.totals.paying_end.p10": {
+   "value": "0.00101",
+   "label": "A案 paying_end p10（一万人あたり）"
+  },
+  "A.japan.paying_end.p50": {
+   "value": "40",
+   "label": "A案 paying_end p50（日本全体換算）"
+  },
+  "A.totals.paying_end.p50": {
+   "value": "0.00409",
+   "label": "A案 paying_end p50（一万人あたり）"
+  },
+  "A.japan.paying_end.p90": {
+   "value": "129",
+   "label": "A案 paying_end p90（日本全体換算）"
+  },
+  "A.totals.paying_end.p90": {
+   "value": "0.0133",
+   "label": "A案 paying_end p90（一万人あたり）"
+  },
+  "A.japan.gate:id_verification.p10": {
+   "value": "993",
+   "label": "A案 gate:id_verification p10（日本全体換算）"
+  },
+  "A.totals.gate:id_verification.p10": {
+   "value": "0.103",
+   "label": "A案 gate:id_verification p10（一万人あたり）"
+  },
+  "A.japan.gate:id_verification.p50": {
+   "value": "1,670",
+   "label": "A案 gate:id_verification p50（日本全体換算）"
+  },
+  "A.totals.gate:id_verification.p50": {
+   "value": "0.172",
+   "label": "A案 gate:id_verification p50（一万人あたり）"
+  },
+  "A.japan.gate:id_verification.p90": {
+   "value": "5,080",
+   "label": "A案 gate:id_verification p90（日本全体換算）"
+  },
+  "A.totals.gate:id_verification.p90": {
+   "value": "0.525",
+   "label": "A案 gate:id_verification p90（一万人あたり）"
+  },
+  "A.totals.cpi_jpy.p10": {
+   "value": "289.5",
+   "label": "A案 インストール単価（円） p10（一万人あたり）"
+  },
+  "A.totals.cpi_jpy.p50": {
+   "value": "793.1",
+   "label": "A案 インストール単価（円） p50（一万人あたり）"
+  },
+  "A.totals.cpi_jpy.p90": {
+   "value": "1,207",
+   "label": "A案 インストール単価（円） p90（一万人あたり）"
+  },
+  "A.totals.roas.p10": {
+   "value": "0.0141",
+   "label": "A案 ROAS p10（一万人あたり）"
+  },
+  "A.totals.roas.p50": {
+   "value": "0.0709",
+   "label": "A案 ROAS p50（一万人あたり）"
+  },
+  "A.totals.roas.p90": {
+   "value": "0.242",
+   "label": "A案 ROAS p90（一万人あたり）"
+  },
+  "A.dr0.share": {
+   "value": "3%",
+   "label": "A案 install の離脱理由 A.dr0 の割合"
+  },
+  "A.dr1.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr1 の割合"
+  },
+  "A.dr2.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr2 の割合"
+  },
+  "A.dr3.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr3 の割合"
+  },
+  "A.dr4.share": {
+   "value": "2%",
+   "label": "A案 install の離脱理由 A.dr4 の割合"
+  },
+  "A.dr5.share": {
+   "value": "3%",
+   "label": "A案 signup の離脱理由 A.dr5 の割合"
+  },
+  "A.dr6.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr6 の割合"
+  },
+  "A.dr7.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr7 の割合"
+  },
+  "A.dr8.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr8 の割合"
+  },
+  "A.dr9.share": {
+   "value": "2%",
+   "label": "A案 signup の離脱理由 A.dr9 の割合"
+  },
+  "A.dr10.share": {
+   "value": "3%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr10 の割合"
+  },
+  "A.dr11.share": {
+   "value": "3%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr11 の割合"
+  },
+  "A.dr12.share": {
+   "value": "3%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr12 の割合"
+  },
+  "A.dr13.share": {
+   "value": "2%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr13 の割合"
+  },
+  "A.dr14.share": {
+   "value": "2%",
+   "label": "A案 gate:id_verification の離脱理由 A.dr14 の割合"
+  },
+  "A.dr15.share": {
+   "value": "4%",
+   "label": "A案 core_action の離脱理由 A.dr15 の割合"
+  },
+  "A.dr16.share": {
+   "value": "3%",
+   "label": "A案 core_action の離脱理由 A.dr16 の割合"
+  },
+  "A.dr17.share": {
+   "value": "3%",
+   "label": "A案 core_action の離脱理由 A.dr17 の割合"
+  },
+  "A.dr18.share": {
+   "value": "3%",
+   "label": "A案 core_action の離脱理由 A.dr18 の割合"
+  },
+  "A.dr19.share": {
+   "value": "3%",
+   "label": "A案 core_action の離脱理由 A.dr19 の割合"
+  },
+  "A.dr20.share": {
+   "value": "3%",
+   "label": "A案 retention の離脱理由 A.dr20 の割合"
+  },
+  "A.dr21.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr21 の割合"
+  },
+  "A.dr22.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr22 の割合"
+  },
+  "A.dr23.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr23 の割合"
+  },
+  "A.dr24.share": {
+   "value": "2%",
+   "label": "A案 retention の離脱理由 A.dr24 の割合"
+  },
+  "A.dr25.share": {
+   "value": "7%",
+   "label": "A案 pay の離脱理由 A.dr25 の割合"
+  },
+  "A.dr26.share": {
+   "value": "5%",
+   "label": "A案 pay の離脱理由 A.dr26 の割合"
+  },
+  "A.dr27.share": {
+   "value": "5%",
+   "label": "A案 pay の離脱理由 A.dr27 の割合"
+  },
+  "A.dr28.share": {
+   "value": "4%",
+   "label": "A案 pay の離脱理由 A.dr28 の割合"
+  },
+  "A.dr29.share": {
+   "value": "4%",
+   "label": "A案 pay の離脱理由 A.dr29 の割合"
+  },
+  "B.japan.impressions.p10": {
+   "value": "0",
+   "label": "B案 広告表示 p10（日本全体換算）"
+  },
+  "B.totals.impressions.p10": {
+   "value": "0",
+   "label": "B案 広告表示 p10（一万人あたり）"
+  },
+  "B.japan.impressions.p50": {
+   "value": "0",
+   "label": "B案 広告表示 p50（日本全体換算）"
+  },
+  "B.totals.impressions.p50": {
+   "value": "0",
+   "label": "B案 広告表示 p50（一万人あたり）"
+  },
+  "B.japan.impressions.p90": {
+   "value": "0",
+   "label": "B案 広告表示 p90（日本全体換算）"
+  },
+  "B.totals.impressions.p90": {
+   "value": "0",
+   "label": "B案 広告表示 p90（一万人あたり）"
+  },
+  "B.japan.reached.p10": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p10（日本全体換算）"
+  },
+  "B.totals.reached.p10": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p10（一万人あたり）"
+  },
+  "B.japan.reached.p50": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p50（日本全体換算）"
+  },
+  "B.totals.reached.p50": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p50（一万人あたり）"
+  },
+  "B.japan.reached.p90": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p90（日本全体換算）"
+  },
+  "B.totals.reached.p90": {
+   "value": "0",
+   "label": "B案 広告が届いた人数 p90（一万人あたり）"
+  },
+  "B.japan.spend_jpy.p10": {
+   "value": "525,000",
+   "label": "B案 費用（広告費・制作費、円） p10（日本全体換算）"
+  },
+  "B.totals.spend_jpy.p10": {
+   "value": "54.2",
+   "label": "B案 費用（広告費・制作費、円） p10（一万人あたり）"
+  },
+  "B.japan.spend_jpy.p50": {
+   "value": "525,000",
+   "label": "B案 費用（広告費・制作費、円） p50（日本全体換算）"
+  },
+  "B.totals.spend_jpy.p50": {
+   "value": "54.2",
+   "label": "B案 費用（広告費・制作費、円） p50（一万人あたり）"
+  },
+  "B.japan.spend_jpy.p90": {
+   "value": "525,000",
+   "label": "B案 費用（広告費・制作費、円） p90（日本全体換算）"
+  },
+  "B.totals.spend_jpy.p90": {
+   "value": "54.2",
+   "label": "B案 費用（広告費・制作費、円） p90（一万人あたり）"
+  },
+  "B.japan.installs.p10": {
+   "value": "2,570",
+   "label": "B案 インストール p10（日本全体換算）"
+  },
+  "B.totals.installs.p10": {
+   "value": "0.265",
+   "label": "B案 インストール p10（一万人あたり）"
+  },
+  "B.japan.installs.p50": {
+   "value": "8,590",
+   "label": "B案 インストール p50（日本全体換算）"
+  },
+  "B.totals.installs.p50": {
+   "value": "0.887",
+   "label": "B案 インストール p50（一万人あたり）"
+  },
+  "B.japan.installs.p90": {
+   "value": "66,200",
+   "label": "B案 インストール p90（日本全体換算）"
+  },
+  "B.totals.installs.p90": {
+   "value": "6.8",
+   "label": "B案 インストール p90（一万人あたり）"
+  },
+  "B.japan.installs_ad.p10": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p10（日本全体換算）"
+  },
+  "B.totals.installs_ad.p10": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p10（一万人あたり）"
+  },
+  "B.japan.installs_ad.p50": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p50（日本全体換算）"
+  },
+  "B.totals.installs_ad.p50": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p50（一万人あたり）"
+  },
+  "B.japan.installs_ad.p90": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p90（日本全体換算）"
+  },
+  "B.totals.installs_ad.p90": {
+   "value": "0",
+   "label": "B案 広告経由のインストール p90（一万人あたり）"
+  },
+  "B.japan.installs_wom.p10": {
+   "value": "315",
+   "label": "B案 口コミ経由のインストール p10（日本全体換算）"
+  },
+  "B.totals.installs_wom.p10": {
+   "value": "0.0326",
+   "label": "B案 口コミ経由のインストール p10（一万人あたり）"
+  },
+  "B.japan.installs_wom.p50": {
+   "value": "1,000",
+   "label": "B案 口コミ経由のインストール p50（日本全体換算）"
+  },
+  "B.totals.installs_wom.p50": {
+   "value": "0.104",
+   "label": "B案 口コミ経由のインストール p50（一万人あたり）"
+  },
+  "B.japan.installs_wom.p90": {
+   "value": "8,890",
+   "label": "B案 口コミ経由のインストール p90（日本全体換算）"
+  },
+  "B.totals.installs_wom.p90": {
+   "value": "0.918",
+   "label": "B案 口コミ経由のインストール p90（一万人あたり）"
+  },
+  "B.japan.installs_wom_local.p10": {
+   "value": "215",
+   "label": "B案 installs_wom_local p10（日本全体換算）"
+  },
+  "B.totals.installs_wom_local.p10": {
+   "value": "0.0222",
+   "label": "B案 installs_wom_local p10（一万人あたり）"
+  },
+  "B.japan.installs_wom_local.p50": {
+   "value": "461",
+   "label": "B案 installs_wom_local p50（日本全体換算）"
+  },
+  "B.totals.installs_wom_local.p50": {
+   "value": "0.0476",
+   "label": "B案 installs_wom_local p50（一万人あたり）"
+  },
+  "B.japan.installs_wom_local.p90": {
+   "value": "7,460",
+   "label": "B案 installs_wom_local p90（日本全体換算）"
+  },
+  "B.totals.installs_wom_local.p90": {
+   "value": "0.771",
+   "label": "B案 installs_wom_local p90（一万人あたり）"
+  },
+  "B.japan.installs_wom_x.p10": {
+   "value": "70",
+   "label": "B案 installs_wom_x p10（日本全体換算）"
+  },
+  "B.totals.installs_wom_x.p10": {
+   "value": "0.00726",
+   "label": "B案 installs_wom_x p10（一万人あたり）"
+  },
+  "B.japan.installs_wom_x.p50": {
+   "value": "319",
+   "label": "B案 installs_wom_x p50（日本全体換算）"
+  },
+  "B.totals.installs_wom_x.p50": {
+   "value": "0.0329",
+   "label": "B案 installs_wom_x p50（一万人あたり）"
+  },
+  "B.japan.installs_wom_x.p90": {
+   "value": "4,060",
+   "label": "B案 installs_wom_x p90（日本全体換算）"
+  },
+  "B.totals.installs_wom_x.p90": {
+   "value": "0.42",
+   "label": "B案 installs_wom_x p90（一万人あたり）"
+  },
+  "B.japan.signups.p10": {
+   "value": "1,090",
+   "label": "B案 会員登録 p10（日本全体換算）"
+  },
+  "B.totals.signups.p10": {
+   "value": "0.113",
+   "label": "B案 会員登録 p10（一万人あたり）"
+  },
+  "B.japan.signups.p50": {
+   "value": "3,590",
+   "label": "B案 会員登録 p50（日本全体換算）"
+  },
+  "B.totals.signups.p50": {
+   "value": "0.371",
+   "label": "B案 会員登録 p50（一万人あたり）"
+  },
+  "B.japan.signups.p90": {
+   "value": "25,700",
+   "label": "B案 会員登録 p90（日本全体換算）"
+  },
+  "B.totals.signups.p90": {
+   "value": "2.7",
+   "label": "B案 会員登録 p90（一万人あたり）"
+  },
+  "B.japan.core_actions.p10": {
+   "value": "9",
+   "label": "B案 核となる行動 p10（日本全体換算）"
+  },
+  "B.totals.core_actions.p10": {
+   "value": "0.000969",
+   "label": "B案 核となる行動 p10（一万人あたり）"
+  },
+  "B.japan.core_actions.p50": {
+   "value": "79",
+   "label": "B案 核となる行動 p50（日本全体換算）"
+  },
+  "B.totals.core_actions.p50": {
+   "value": "0.00813",
+   "label": "B案 核となる行動 p50（一万人あたり）"
+  },
+  "B.japan.core_actions.p90": {
+   "value": "1,720",
+   "label": "B案 核となる行動 p90（日本全体換算）"
+  },
+  "B.totals.core_actions.p90": {
+   "value": "0.178",
+   "label": "B案 核となる行動 p90（一万人あたり）"
+  },
+  "B.japan.payers.p10": {
+   "value": "2",
+   "label": "B案 課金者（期間中に一度でも決済） p10（日本全体換算）"
+  },
+  "B.totals.payers.p10": {
+   "value": "0.000219",
+   "label": "B案 課金者（期間中に一度でも決済） p10（一万人あたり）"
+  },
+  "B.japan.payers.p50": {
+   "value": "28",
+   "label": "B案 課金者（期間中に一度でも決済） p50（日本全体換算）"
+  },
+  "B.totals.payers.p50": {
+   "value": "0.00286",
+   "label": "B案 課金者（期間中に一度でも決済） p50（一万人あたり）"
+  },
+  "B.japan.payers.p90": {
+   "value": "593",
+   "label": "B案 課金者（期間中に一度でも決済） p90（日本全体換算）"
+  },
+  "B.totals.payers.p90": {
+   "value": "0.0613",
+   "label": "B案 課金者（期間中に一度でも決済） p90（一万人あたり）"
+  },
+  "B.japan.revenue_jpy.p10": {
+   "value": "9,000",
+   "label": "B案 売上（円） p10（日本全体換算）"
+  },
+  "B.totals.revenue_jpy.p10": {
+   "value": "0.93",
+   "label": "B案 売上（円） p10（一万人あたり）"
+  },
+  "B.japan.revenue_jpy.p50": {
+   "value": "120,000",
+   "label": "B案 売上（円） p50（日本全体換算）"
+  },
+  "B.totals.revenue_jpy.p50": {
+   "value": "12.4",
+   "label": "B案 売上（円） p50（一万人あたり）"
+  },
+  "B.japan.revenue_jpy.p90": {
+   "value": "2,940,000",
+   "label": "B案 売上（円） p90（日本全体換算）"
+  },
+  "B.totals.revenue_jpy.p90": {
+   "value": "303.2",
+   "label": "B案 売上（円） p90（一万人あたり）"
+  },
+  "B.japan.active_end.p10": {
+   "value": "87",
+   "label": "B案 最終日のアクティブ p10（日本全体換算）"
+  },
+  "B.totals.active_end.p10": {
+   "value": "0.00903",
+   "label": "B案 最終日のアクティブ p10（一万人あたり）"
+  },
+  "B.japan.active_end.p50": {
+   "value": "399",
+   "label": "B案 最終日のアクティブ p50（日本全体換算）"
+  },
+  "B.totals.active_end.p50": {
+   "value": "0.0412",
+   "label": "B案 最終日のアクティブ p50（一万人あたり）"
+  },
+  "B.japan.active_end.p90": {
+   "value": "3,810",
+   "label": "B案 最終日のアクティブ p90（日本全体換算）"
+  },
+  "B.totals.active_end.p90": {
+   "value": "0.393",
+   "label": "B案 最終日のアクティブ p90（一万人あたり）"
+  },
+  "B.japan.paying_end.p10": {
+   "value": "2",
+   "label": "B案 paying_end p10（日本全体換算）"
+  },
+  "B.totals.paying_end.p10": {
+   "value": "0.000165",
+   "label": "B案 paying_end p10（一万人あたり）"
+  },
+  "B.japan.paying_end.p50": {
+   "value": "21",
+   "label": "B案 paying_end p50（日本全体換算）"
+  },
+  "B.totals.paying_end.p50": {
+   "value": "0.00213",
+   "label": "B案 paying_end p50（一万人あたり）"
+  },
+  "B.japan.paying_end.p90": {
+   "value": "392",
+   "label": "B案 paying_end p90（日本全体換算）"
+  },
+  "B.totals.paying_end.p90": {
+   "value": "0.0405",
+   "label": "B案 paying_end p90（一万人あたり）"
+  },
+  "B.japan.video_posts.p10": {
+   "value": "1,500",
+   "label": "B案 video_posts p10（日本全体換算）"
+  },
+  "B.totals.video_posts.p10": {
+   "value": "0.155",
+   "label": "B案 video_posts p10（一万人あたり）"
+  },
+  "B.japan.video_posts.p50": {
+   "value": "1,500",
+   "label": "B案 video_posts p50（日本全体換算）"
+  },
+  "B.totals.video_posts.p50": {
+   "value": "0.155",
+   "label": "B案 video_posts p50（一万人あたり）"
+  },
+  "B.japan.video_posts.p90": {
+   "value": "1,500",
+   "label": "B案 video_posts p90（日本全体換算）"
+  },
+  "B.totals.video_posts.p90": {
+   "value": "0.155",
+   "label": "B案 video_posts p90（一万人あたり）"
+  },
+  "B.japan.video_views.p10": {
+   "value": "7,270,000",
+   "label": "B案 video_views p10（日本全体換算）"
+  },
+  "B.totals.video_views.p10": {
+   "value": "751.4",
+   "label": "B案 video_views p10（一万人あたり）"
+  },
+  "B.japan.video_views.p50": {
+   "value": "19,000,000",
+   "label": "B案 video_views p50（日本全体換算）"
+  },
+  "B.totals.video_views.p50": {
+   "value": "1,966",
+   "label": "B案 video_views p50（一万人あたり）"
+  },
+  "B.japan.video_views.p90": {
+   "value": "150,000,000",
+   "label": "B案 video_views p90（日本全体換算）"
+  },
+  "B.totals.video_views.p90": {
+   "value": "15,530",
+   "label": "B案 video_views p90（一万人あたり）"
+  },
+  "B.japan.video_reached.p10": {
+   "value": "5,690,000",
+   "label": "B案 video_reached p10（日本全体換算）"
+  },
+  "B.totals.video_reached.p10": {
+   "value": "588.1",
+   "label": "B案 video_reached p10（一万人あたり）"
+  },
+  "B.japan.video_reached.p50": {
+   "value": "13,800,000",
+   "label": "B案 video_reached p50（日本全体換算）"
+  },
+  "B.totals.video_reached.p50": {
+   "value": "1,424",
+   "label": "B案 video_reached p50（一万人あたり）"
+  },
+  "B.japan.video_reached.p90": {
+   "value": "43,800,000",
+   "label": "B案 video_reached p90（日本全体換算）"
+  },
+  "B.totals.video_reached.p90": {
+   "value": "4,526",
+   "label": "B案 video_reached p90（一万人あたり）"
+  },
+  "B.japan.installs_video.p10": {
+   "value": "1,940",
+   "label": "B案 installs_video p10（日本全体換算）"
+  },
+  "B.totals.installs_video.p10": {
+   "value": "0.2",
+   "label": "B案 installs_video p10（一万人あたり）"
+  },
+  "B.japan.installs_video.p50": {
+   "value": "7,580",
+   "label": "B案 installs_video p50（日本全体換算）"
+  },
+  "B.totals.installs_video.p50": {
+   "value": "0.783",
+   "label": "B案 installs_video p50（一万人あたり）"
+  },
+  "B.japan.installs_video.p90": {
+   "value": "58,300",
+   "label": "B案 installs_video p90（日本全体換算）"
+  },
+  "B.totals.installs_video.p90": {
+   "value": "6.0",
+   "label": "B案 installs_video p90（一万人あたり）"
+  },
+  "B.japan.spend_video_jpy.p10": {
+   "value": "525,000",
+   "label": "B案 spend_video_jpy p10（日本全体換算）"
+  },
+  "B.totals.spend_video_jpy.p10": {
+   "value": "54.2",
+   "label": "B案 spend_video_jpy p10（一万人あたり）"
+  },
+  "B.japan.spend_video_jpy.p50": {
+   "value": "525,000",
+   "label": "B案 spend_video_jpy p50（日本全体換算）"
+  },
+  "B.totals.spend_video_jpy.p50": {
+   "value": "54.2",
+   "label": "B案 spend_video_jpy p50（一万人あたり）"
+  },
+  "B.japan.spend_video_jpy.p90": {
+   "value": "525,000",
+   "label": "B案 spend_video_jpy p90（日本全体換算）"
+  },
+  "B.totals.spend_video_jpy.p90": {
+   "value": "54.2",
+   "label": "B案 spend_video_jpy p90（一万人あたり）"
+  },
+  "B.japan.gate:id_verification.p10": {
+   "value": "483",
+   "label": "B案 gate:id_verification p10（日本全体換算）"
+  },
+  "B.totals.gate:id_verification.p10": {
+   "value": "0.0499",
+   "label": "B案 gate:id_verification p10（一万人あたり）"
+  },
+  "B.japan.gate:id_verification.p50": {
+   "value": "1,590",
+   "label": "B案 gate:id_verification p50（日本全体換算）"
+  },
+  "B.totals.gate:id_verification.p50": {
+   "value": "0.164",
+   "label": "B案 gate:id_verification p50（一万人あたり）"
+  },
+  "B.japan.gate:id_verification.p90": {
+   "value": "11,600",
+   "label": "B案 gate:id_verification p90（日本全体換算）"
+  },
+  "B.totals.gate:id_verification.p90": {
+   "value": "1.2",
+   "label": "B案 gate:id_verification p90（一万人あたり）"
+  },
+  "B.totals.cpi_jpy.p10": {
+   "value": "8.2",
+   "label": "B案 インストール単価（円） p10（一万人あたり）"
+  },
+  "B.totals.cpi_jpy.p50": {
+   "value": "61.9",
+   "label": "B案 インストール単価（円） p50（一万人あたり）"
+  },
+  "B.totals.cpi_jpy.p90": {
+   "value": "205.1",
+   "label": "B案 インストール単価（円） p90（一万人あたり）"
+  },
+  "B.totals.roas.p10": {
+   "value": "0.0171",
+   "label": "B案 ROAS p10（一万人あたり）"
+  },
+  "B.totals.roas.p50": {
+   "value": "0.229",
+   "label": "B案 ROAS p50（一万人あたり）"
+  },
+  "B.totals.roas.p90": {
+   "value": "5.6",
+   "label": "B案 ROAS p90（一万人あたり）"
+  },
+  "B.dr0.share": {
+   "value": "0.8%",
+   "label": "B案 install の離脱理由 B.dr0 の割合"
+  },
+  "B.dr1.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr1 の割合"
+  },
+  "B.dr2.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr2 の割合"
+  },
+  "B.dr3.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr3 の割合"
+  },
+  "B.dr4.share": {
+   "value": "0.6%",
+   "label": "B案 install の離脱理由 B.dr4 の割合"
+  },
+  "B.dr5.share": {
+   "value": "0.9%",
+   "label": "B案 signup の離脱理由 B.dr5 の割合"
+  },
+  "B.dr6.share": {
+   "value": "0.7%",
+   "label": "B案 signup の離脱理由 B.dr6 の割合"
+  },
+  "B.dr7.share": {
+   "value": "0.7%",
+   "label": "B案 signup の離脱理由 B.dr7 の割合"
+  },
+  "B.dr8.share": {
+   "value": "0.6%",
+   "label": "B案 signup の離脱理由 B.dr8 の割合"
+  },
+  "B.dr9.share": {
+   "value": "0.6%",
+   "label": "B案 signup の離脱理由 B.dr9 の割合"
+  },
+  "B.dr10.share": {
+   "value": "1%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr10 の割合"
+  },
+  "B.dr11.share": {
+   "value": "1%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr11 の割合"
+  },
+  "B.dr12.share": {
+   "value": "1%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr12 の割合"
+  },
+  "B.dr13.share": {
+   "value": "0.9%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr13 の割合"
+  },
+  "B.dr14.share": {
+   "value": "0.9%",
+   "label": "B案 gate:id_verification の離脱理由 B.dr14 の割合"
+  },
+  "B.dr15.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr15 の割合"
+  },
+  "B.dr16.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr16 の割合"
+  },
+  "B.dr17.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr17 の割合"
+  },
+  "B.dr18.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr18 の割合"
+  },
+  "B.dr19.share": {
+   "value": "1%",
+   "label": "B案 core_action の離脱理由 B.dr19 の割合"
+  },
+  "B.dr20.share": {
+   "value": "1%",
+   "label": "B案 retention の離脱理由 B.dr20 の割合"
+  },
+  "B.dr21.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr21 の割合"
+  },
+  "B.dr22.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr22 の割合"
+  },
+  "B.dr23.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr23 の割合"
+  },
+  "B.dr24.share": {
+   "value": "0.8%",
+   "label": "B案 retention の離脱理由 B.dr24 の割合"
+  },
+  "B.dr25.share": {
+   "value": "4%",
+   "label": "B案 pay の離脱理由 B.dr25 の割合"
+  },
+  "B.dr26.share": {
+   "value": "3%",
+   "label": "B案 pay の離脱理由 B.dr26 の割合"
+  },
+  "B.dr27.share": {
+   "value": "3%",
+   "label": "B案 pay の離脱理由 B.dr27 の割合"
+  },
+  "B.dr28.share": {
+   "value": "3%",
+   "label": "B案 pay の離脱理由 B.dr28 の割合"
+  },
+  "B.dr29.share": {
+   "value": "2%",
+   "label": "B案 pay の離脱理由 B.dr29 の割合"
+  },
+  "cmp.japan.B_minus_A.installs.p10": {
+   "value": "-10,800",
+   "label": "B案−A案 インストール の差 p10（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.installs.p10": {
+   "value": "-1.1",
+   "label": "B案−A案 インストール の差 p10（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.installs.p50": {
+   "value": "933",
+   "label": "B案−A案 インストール の差 p50（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.installs.p50": {
+   "value": "0.0963",
+   "label": "B案−A案 インストール の差 p50（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.installs.p90": {
+   "value": "55,600",
+   "label": "B案−A案 インストール の差 p90（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.installs.p90": {
+   "value": "5.7",
+   "label": "B案−A案 インストール の差 p90（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.payers.p10": {
+   "value": "-121",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p10（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.payers.p10": {
+   "value": "-0.0125",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p10（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.payers.p50": {
+   "value": "-8",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p50（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.payers.p50": {
+   "value": "-0.000781",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p50（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.payers.p90": {
+   "value": "487",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p90（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.payers.p90": {
+   "value": "0.0503",
+   "label": "B案−A案 課金者（期間中に一度でも決済） の差 p90（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.revenue_jpy.p10": {
+   "value": "-732,000",
+   "label": "B案−A案 売上（円） の差 p10（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.revenue_jpy.p10": {
+   "value": "-75.6",
+   "label": "B案−A案 売上（円） の差 p10（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.revenue_jpy.p50": {
+   "value": "-62,800",
+   "label": "B案−A案 売上（円） の差 p50（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.revenue_jpy.p50": {
+   "value": "-6.5",
+   "label": "B案−A案 売上（円） の差 p50（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.revenue_jpy.p90": {
+   "value": "2,360,000",
+   "label": "B案−A案 売上（円） の差 p90（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.revenue_jpy.p90": {
+   "value": "244.3",
+   "label": "B案−A案 売上（円） の差 p90（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.active_end.p10": {
+   "value": "-408",
+   "label": "B案−A案 最終日のアクティブ の差 p10（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.active_end.p10": {
+   "value": "-0.0422",
+   "label": "B案−A案 最終日のアクティブ の差 p10（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.active_end.p50": {
+   "value": "15",
+   "label": "B案−A案 最終日のアクティブ の差 p50（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.active_end.p50": {
+   "value": "0.00152",
+   "label": "B案−A案 最終日のアクティブ の差 p50（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.active_end.p90": {
+   "value": "3,150",
+   "label": "B案−A案 最終日のアクティブ の差 p90（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.active_end.p90": {
+   "value": "0.326",
+   "label": "B案−A案 最終日のアクティブ の差 p90（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.core_actions.p10": {
+   "value": "-352",
+   "label": "B案−A案 核となる行動 の差 p10（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.core_actions.p10": {
+   "value": "-0.0364",
+   "label": "B案−A案 核となる行動 の差 p10（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.core_actions.p50": {
+   "value": "-28",
+   "label": "B案−A案 核となる行動 の差 p50（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.core_actions.p50": {
+   "value": "-0.00289",
+   "label": "B案−A案 核となる行動 の差 p50（同じ回どうし）"
+  },
+  "cmp.japan.B_minus_A.core_actions.p90": {
+   "value": "1,490",
+   "label": "B案−A案 核となる行動 の差 p90（同じ回どうし、日本全体換算）"
+  },
+  "cmp.B_minus_A.core_actions.p90": {
+   "value": "0.154",
+   "label": "B案−A案 核となる行動 の差 p90（同じ回どうし）"
+  },
+  "cmp.p_B_better.installs": {
+   "value": "50%",
+   "label": "インストール でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.payers": {
+   "value": "40%",
+   "label": "課金者（期間中に一度でも決済） でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.revenue_jpy": {
+   "value": "40%",
+   "label": "売上（円） でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.active_end": {
+   "value": "50%",
+   "label": "最終日のアクティブ でB案がA案を上回った回の割合"
+  },
+  "cmp.p_B_better.core_actions": {
+   "value": "40%",
+   "label": "核となる行動 でB案がA案を上回った回の割合"
+  }
+ },
+ "template": {
+  "headline_ja": "B案（動画の投稿）は費用が小さくインストール単価も低いが、インストール・課金者・売上の範囲はA案（広告）と大きく重なり、差ははっきりしない",
+  "report_ja": "【結論】\nA案（広告）とB案（動画の投稿）は、インストール・課金者・売上のどれも範囲が大きく重なっており、差ははっきりしません。インストールの中央値はA案 {{A.japan.installs.p50}}件（幅 {{A.japan.installs.p10}}〜{{A.japan.installs.p90}}）、B案 {{B.japan.installs.p50}}件（幅 {{B.japan.installs.p10}}〜{{B.japan.installs.p90}}）です。B案が上回った回の割合は {{cmp.p_B_better.installs}} でした。課金者と売上でB案が上回った回の割合は {{cmp.p_B_better.payers}}・{{cmp.p_B_better.revenue_jpy}} で、中央値ではA案がやや多めです（売上の差の中央値 {{cmp.japan.B_minus_A.revenue_jpy.p50}}円、幅 {{cmp.japan.B_minus_A.revenue_jpy.p10}}〜{{cmp.japan.B_minus_A.revenue_jpy.p90}}円）。費用はA案 {{A.japan.spend_jpy.p50}}円、B案 {{B.japan.spend_jpy.p50}}円です。インストール単価の中央値はA案 {{A.totals.cpi_jpy.p50}}円、B案 {{B.totals.cpi_jpy.p50}}円、ROASの中央値はA案 {{A.totals.roas.p50}}、B案 {{B.totals.roas.p50}}でした。B案は安く済む反面、結果のぶれが大きい案です。\n\n【ファネルで人が離れた場所】\nA案は、会員登録 {{A.japan.signups.p50}}人、本人確認の段階 {{A.japan.gate:id_verification.p50}}人、核となる行動 {{A.japan.core_actions.p50}}人、課金者 {{A.japan.payers.p50}}人と進みます。B案も同じ形で、会員登録 {{B.japan.signups.p50}}人、本人確認の段階 {{B.japan.gate:id_verification.p50}}人、核となる行動 {{B.japan.core_actions.p50}}人、課金者 {{B.japan.payers.p50}}人でした。両案とも、本人確認から核となる行動へ進むところと、課金のところで大きく減っています。\n\n【離脱理由のテーマ】\n目立ったのは次の三つです。男性の月額料金と無料お試しがないこと、身分証と顔写真の提出と審査待ち、承認前は定型のあいさつしか送れない会話の制限です。加えて、A案では広告の押しの強さ、B案では既婚の人や年齢が合わない人に動画が届いたことも離脱につながっています。女性は無料のため、支払いの壁はほぼ感じていません。\n\n【次に試すとよいこと】\n・男性向けに短い無料お試しや初回割引を用意し、料金の見え方を比べる。\n・提出画面で「書類は確認だけに使い、審査後に削除」を目立たせ、審査待ちの間にできることを案内する。\n・B案の動画は、独身の若い層に届く内容と投稿先に絞る。そのうえで少額で何度か試し、結果の幅を確かめる。\n・A案は広告の文言を控えめにし、安心できる距離表示を前に出す。\n\n【読み方の注意】\n結果は中央値だけでなく、下側から上側までの幅で見てください。判断は一万人それぞれについてClaudeが出したもの（ペルソナの要約はグループ単位）で、数字はエンジンが計算したものです。",
+  "themes": [
+   {
+    "theme_ja": "男性の月額料金と無料お試しなしが重い",
+    "plan": "A,B",
+    "step": "install,retention,pay",
+    "drop_reason_ids": [
+     "A.dr1",
+     "A.dr2",
+     "A.dr3",
+     "A.dr23",
+     "A.dr24",
+     "A.dr25",
+     "A.dr28",
+     "A.dr29",
+     "B.dr1",
+     "B.dr4",
+     "B.dr22",
+     "B.dr23",
+     "B.dr25",
+     "B.dr29"
+    ],
+    "summary_ja": "価格に敏感な人や所得の低い人ほど、お試しなしの月額料金を理由に、入れる前・使い続ける段階・支払いの段階で離れています。"
+   },
+   {
+    "theme_ja": "本人確認の書類提出と審査待ちへの抵抗",
+    "plan": "A,B",
+    "step": "gate:id_verification",
+    "drop_reason_ids": [
+     "A.dr10",
+     "A.dr11",
+     "A.dr12",
+     "A.dr13",
+     "A.dr14",
+     "B.dr10",
+     "B.dr11",
+     "B.dr12",
+     "B.dr13",
+     "B.dr14"
+    ],
+    "summary_ja": "身分証と顔写真を出す警戒感と審査を待つ面倒さが重なり、待つ間に他のアプリへ移りそうという声が出ています。"
+   },
+   {
+    "theme_ja": "承認前の会話制限と定型あいさつの物足りなさ",
+    "plan": "A,B",
+    "step": "core_action",
+    "drop_reason_ids": [
+     "A.dr15",
+     "A.dr17",
+     "A.dr19",
+     "B.dr16",
+     "B.dr18"
+    ],
+    "summary_ja": "共通の好きなことは話しやすいと評価される一方、審査中は定型のあいさつだけで盛り上がりにくいと感じられています。"
+   },
+   {
+    "theme_ja": "他の出会いアプリとの差や評判が見えない",
+    "plan": "A,B",
+    "step": "core_action,retention",
+    "drop_reason_ids": [
+     "A.dr16",
+     "A.dr20",
+     "A.dr21",
+     "A.dr22",
+     "B.dr15",
+     "B.dr17",
+     "B.dr19",
+     "B.dr20",
+     "B.dr21",
+     "B.dr24"
+    ],
+    "summary_ja": "新しもの好きは試してみるものの、同系統のアプリと大差がなく、評判やマッチの続き方次第で飽きそうだと考えています。"
+   },
+   {
+    "theme_ja": "広告の押しの強さへの反発",
+    "plan": "A,B",
+    "step": "install",
+    "drop_reason_ids": [
+     "A.dr0",
+     "A.dr4",
+     "B.dr0"
+    ],
+    "summary_ja": "広告嫌いの人には売り込みの文句やPR表示が押しつけがましく映り、入れる理由が弱くなっています。"
+   },
+   {
+    "theme_ja": "動画が対象外の人に届いた",
+    "plan": "B",
+    "step": "install,signup",
+    "drop_reason_ids": [
+     "B.dr2",
+     "B.dr3",
+     "B.dr8"
+    ],
+    "summary_ja": "既婚の人や年齢が合わない人に恋人探しの動画が届き、自分事と感じられないまま進んでいません。"
+   },
+   {
+    "theme_ja": "登録の入力は手軽で平均並み",
+    "plan": "A,B",
+    "step": "signup",
+    "drop_reason_ids": [
+     "A.dr5",
+     "A.dr6",
+     "A.dr7",
+     "A.dr8",
+     "A.dr9",
+     "B.dr5",
+     "B.dr6",
+     "B.dr7",
+     "B.dr9"
+    ],
+    "summary_ja": "入力項目が少なく手間は小さいと評価されていますが、登録する必要性が弱いことや個人情報への警戒から、進み方は平均並みにとどまっています。"
+   },
+   {
+    "theme_ja": "女性は無料で支払いの壁を感じない",
+    "plan": "A,B",
+    "step": "core_action,pay",
+    "drop_reason_ids": [
+     "A.dr18",
+     "A.dr26",
+     "A.dr27",
+     "B.dr26",
+     "B.dr27",
+     "B.dr28"
+    ],
+    "summary_ja": "女性は無料で使えるため、料金画面を見ても自分には関係ないと受け止めており、最初の行動も起こしやすいと感じています。"
+   }
+  ]
+ }
+}

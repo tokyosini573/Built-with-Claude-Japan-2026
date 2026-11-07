@@ -19,3 +19,4 @@ runs/*/engine.json
 
 # 採用しなかったレポートの下書き（記録として手元に残す）
 runs/demo_matching/report_rejected.json
+runs/*/.rejected_attempts/
