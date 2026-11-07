@@ -30,7 +30,15 @@ function proxyUrl(): string {
   return `https://tokyosini573-github-io.translate.goog${path}?_x_tr_sl=ja&_x_tr_tl=ko&_x_tr_hl=ko${window.location.hash}`;
 }
 
+// 画面を録画するときは URL に ?rec を付けるとボタンを出さない（デモ動画用）
+const HIDDEN = new URLSearchParams(window.location.search).has("rec");
+
 export function KoToggle() {
+  if (HIDDEN) return null;
+  return <KoToggleInner />;
+}
+
+function KoToggleInner() {
   const [phase, setPhase] = useState<Phase>("off");
   const [progress, setProgress] = useState(0);
   const translator = useRef<TranslatorLike | null>(null);
