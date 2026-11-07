@@ -69,7 +69,7 @@ function clipToPeriod(o: LiveOverrides, d: number): LiveOverrides {
 
 // ワンクリックの例。元の条件（app.yaml）から1つだけ変える。両案に同じ変更を入れる
 const SCENARIOS: { id: string; label: string; hint: string; apply: (p: LivePlanInput) => LivePlanInput }[] = [
-  { id: "tokyo", label: "広告を東京都だけに", hint: "両案とも、出荷も東京都だけになります", apply: (p) => ({ ...p, regions: [13] }) },
+  { id: "tokyo", label: "広告を東京都だけに", hint: "両案とも、アプリを出す地域も東京都だけになります", apply: (p) => ({ ...p, regions: [13] }) },
   { id: "price", label: "男性の月額を2,980円に", hint: "両案とも 3,980円 → 2,980円", apply: (p) => ({ ...p, monthly_jpy: 2980 }) },
   {
     id: "video",
@@ -154,7 +154,7 @@ export function LivePage() {
           <p className="lead live-intro">
             <span className="ib">デモアプリ「{manifest.name_ja}」の条件を変えて、あなたのブラウザの中でエンジンを回します。</span>
             <span className="ib">
-              Claude の判断は事前に取ったものを使い、どこにも送りません。
+              Claude の判断は事前に出したものを使います。入力した条件は外部に送りません。
               <InfoTip label="判断と数字について">
                 1万人のうちインストールできる {manifest.decisions.people.toLocaleString("ja-JP")}人に Claude が出した「平均より進みやすいか」の判断（
                 {manifest.decisions.rows.toLocaleString("ja-JP")}
@@ -413,7 +413,7 @@ function PlanForm({ id, plan, period, creatives, videoCreatives, videoTemplate, 
       </legend>
 
       <label className="live-num">
-        <span className="live-label">地域（出荷地域 ＝ 広告の地域）</span>
+        <span className="live-label">地域（アプリを出す地域 ＝ 広告の地域）</span>
         <select
           value={rid}
           onChange={(e) => {
@@ -428,7 +428,7 @@ function PlanForm({ id, plan, period, creatives, videoCreatives, videoTemplate, 
           ))}
           {rid === "custom" && <option value="custom">{regionText(plan.regions)}</option>}
         </select>
-        <span className="note">地域の外ではアプリを使えません。動画は地域を絞れず全国に届きますが、地域の外の人は設置しません。</span>
+        <span className="note">地域の外ではアプリを使えません。動画は地域を絞れず全国に届きますが、地域の外の人はインストールしません。</span>
       </label>
 
       <div className="live-group">
@@ -504,7 +504,7 @@ function PlanForm({ id, plan, period, creatives, videoCreatives, videoTemplate, 
             </div>
             <label className="live-check">
               <input type="checkbox" checked={!v.unique_videos_per_account} onChange={(e) => setVideo({ unique_videos_per_account: !e.target.checked })} />
-              <span>同じ動画を全アカウントで使い回す（制作は少なくて済むが、推薦されにくくなる）</span>
+              <span>同じ動画を全アカウントで使い回す（制作は少なくて済むが、おすすめに載りにくくなる）</span>
             </label>
             <p className="note">
               TikTok・リール・ショートに投稿。動画の見本:{" "}

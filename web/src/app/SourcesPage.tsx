@@ -47,9 +47,9 @@ const TABLE: [string, string, string, string][] = [
 
 // 数字の出発点: デモアプリ（matching プリセット）の主な値。rules/presets.yaml・rules/channels.yaml の mid（括弧は範囲）と source をそのまま写す
 const BENCH: { what: string; value: string; range?: string; src: string }[] = [
-  { what: "設置した人が登録する割合", value: "46.6%", range: "46.6〜58.4%", src: "[LD22] p.18 / [L19] p.9" },
-  { what: "設置から 1日後・7日後・30日後に使っている割合", value: "26%・15%・9%", range: "30日後は 2.7〜9%", src: "[L19] p.19（30日後の下限は [Braze]）" },
-  { what: "設置した人が有料会員になる割合", value: "5.4%", range: "5.4〜6.3%", src: "[L19] p.9" },
+  { what: "インストールした人が登録する割合", value: "46.6%", range: "46.6〜58.4%", src: "[LD22] p.18 / [L19] p.9" },
+  { what: "インストールから 1日後・7日後・30日後に使っている割合", value: "26%・15%・9%", range: "30日後は 2.7〜9%", src: "[L19] p.19（30日後の下限は [Braze]）" },
+  { what: "インストールした人が有料会員になる割合", value: "5.4%", range: "5.4〜6.3%", src: "[L19] p.9" },
   { what: "Instagram 広告 1,000回表示の費用", value: "750円", range: "500〜3,000円", src: "[3-F] 代理店の相場" },
 ];
 
@@ -103,7 +103,7 @@ export function SourcesPage() {
           <h2 className="h2" id="bench-h">
             数字の出発点（業界の平均値）
           </h2>
-          <p className="lead">エンジンは、出典のあるカテゴリの平均値から計算を始め、Claude の判断でそれを上下させます。</p>
+          <p className="lead">エンジンは、出典のある「同じ種類のアプリの平均値」から計算を始め、Claude の判断でそれを上げ下げします。</p>
         </div>
         <div className="src-flow" aria-label="数字の作り方">
           <span className="src-flow-box">業界の平均値（出典つき）</span>
@@ -128,7 +128,7 @@ export function SourcesPage() {
           ))}
         </div>
         <p className="note">
-          デモアプリ（マッチング）の値です。出典のない値は「仮定」と明記しています（例: 初めてのマッチの起きやすさ、90日後に使っている割合）。略称の中身は
+          デモアプリ（マッチング）の値です。出典のない値は「仮定」と明記しています（例: 初マッチの起きやすさ、90日後に使っている割合）。略称の中身は
           <a href={href("sources-full")}>DATA_SOURCES</a>
           {REPO_URL && (
             <>

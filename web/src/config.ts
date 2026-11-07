@@ -53,7 +53,7 @@ export const UNCLEAR_RANGE: [number, number] = [0.4, 0.6];
 
 /** 動画の案（plans.X.config.organic_video）のそばに出す注記 */
 export const ORGANIC_VIDEO_NOTE_JA =
-  "動画の案は、ルールを固定した後に追加した機能で、バックテストでは検証していません。値の多くは仮定です。外部の成功例を比例換算した目安より、再生数が多めに出ています。";
+  "動画の案は、ルールを固定した後に足した機能で、バックテストでは検証していません。値の多くは仮定で、外部の成功例を比例換算した目安より再生数が多めに出ます。";
 
 /** backtest.json に findings_ja がないときに出す考察の要点（backtest/report.md「結果の読み方」から） */
 export const BACKTEST_FINDINGS_FALLBACK_JA = [

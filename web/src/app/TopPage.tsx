@@ -167,7 +167,7 @@ function Hero() {
               ))}
             </span>
             <HeroRegionList shown={revealed} />
-            <span className="note">地方ごとの%は、全国の合計のうちその地方が占める割合です。地方別の割合は、デモ（ちかくに・A案）の1回分の結果です。</span>
+            <span className="note">地方ごとの%は全国の合計に占める割合で、デモ（ちかくに・A案）の1回分の結果です。</span>
             <span className="note">
               点1つが架空の1人で、人の多い都道府県ほど点が密になります。
               <InfoTip label="1人が表す人数と、色づき方について">
@@ -186,8 +186,8 @@ function Hero() {
 
 function Problem() {
   const items = [
-    { t: "試せるのは、発売のあと", d: "全国に広告を出すか、東京に絞るか。A/B テストも、お金を使って発売してからしかできません。" },
-    { t: "同じ予算でも、結果は違う", d: "どの地域の、どの年代に、どの SNS で届くかで、インストールから課金までが変わります。" },
+    { t: "試せるのは、発売のあと", d: "全国に広告を出すか、東京に絞るか。A/B テストも、お金をかけて発売した後でしかできません。" },
+    { t: "同じ予算でも、結果は違う", d: "どの地域の、どの年代に、どの SNS で届くかで、インストールから課金までの流れが変わります。" },
     { t: "アンケートは「地図」を見落とす", d: "マッチングアプリは、近くに相手がいないと続きません。一人に聞いても、まわりに誰がいるかは分かりません。" },
   ];
   return (
@@ -226,7 +226,7 @@ function planSummary(replay: Replay, id: PlanId): { title: string; detail: strin
   if (video) {
     return {
       title: "AI 動画の大量投稿",
-      detail: `広告は出さず、AI で作った短い動画を${video.accounts}アカウントから毎日${video.posts_per_account_per_day}本、${video.days}日投稿`,
+      detail: `広告は出さず、AI で作った短い動画を${video.accounts}アカウントから毎日${video.posts_per_account_per_day}本、${video.days}日間投稿`,
       cost: spend && `制作費 ${spend}`,
       video: true,
     };
@@ -249,7 +249,7 @@ function demoHeadline(replay: Replay): { parts: string[]; unclear: boolean; sub:
   const name = metricName(HEADLINE_METRIC, replay);
   const runs = replay.meta.runs;
   const wins = Math.round(p * runs);
-  const sub = `同じ条件で${runs}回ずつ試し、${name}で B案が上回ったのは${runs}回中${wins}回でした。`;
+  const sub = `同じ条件で${runs}回ずつ試し、${name}の数で B案が上回ったのは${runs}回中${wins}回でした。`;
   if (p >= UNCLEAR_RANGE[1]) return { parts: [`${name}は、`, `B案のほうが多い確率 ${Math.round(p * 100)}%。`], unclear: false, sub };
   if (p <= UNCLEAR_RANGE[0]) return { parts: [`${name}は、`, `A案のほうが多い確率 ${Math.round((1 - p) * 100)}%。`], unclear: false, sub };
   return { parts: [`${name}は、`, "どちらが多いか", "はっきりしない。"], unclear: true, sub };
@@ -268,7 +268,7 @@ function Demo({ replay, loading }: { replay: Replay | null; loading: boolean }) 
       id="demo"
       eyebrow="例えば"
       tone="tint"
-      title={<><span className="ib">架空のマッチングアプリ</span><span className="ib">「{replay?.meta.name_ja ?? "ちかくに"}」を、</span><span className="ib">2通りで発売してみた</span></>}
+      title={<><span className="ib">架空のマッチングアプリ</span><span className="ib">「{replay?.meta.name_ja ?? "ちかくに"}」を、</span><span className="ib">2通りの出し方で発売してみた</span></>}
     >
       <p className="lead">20〜30代向けで本人確認が必須の、架空の恋愛マッチングアプリです。</p>
       {replay ? (
@@ -351,7 +351,7 @@ function Demo({ replay, loading }: { replay: Replay | null; loading: boolean }) 
 function How() {
   const steps = [
     { n: "1", name: "人口", sub: "統計から1万人", ai: "AI を使わない", d: "国勢調査2025などの政府統計から、年齢・性別・都道府県・仕事・収入・スマホ・SNS・性格の傾向を持つ1万人を作ります。" },
-    { n: "2", name: "判断", sub: "Claude が1万人全員の立場で", ai: "Claude", d: "広告を見て、入れて、登録して、本人確認して、使って、払うかを「このカテゴリの平均より 高い / 同じ / 低い」と理由で答えます。" },
+    { n: "2", name: "判断", sub: "Claude が一人ひとりの立場で", ai: "Claude", d: "広告を見て、入れて、登録して、本人確認して、使って、払うかどうかを、「同じ種類のアプリの平均より 高い / 同じ / 低い」とその理由で答えます。" },
     { n: "3", name: "エンジン", sub: "人数を数えるのはエンジン", ai: "AI を使わない", d: "実際のアプリの平均（例: マッチングアプリでは、入れた人の約47%が登録する。出典つき）を出発点に、Claude の「高い / 低い」で上げ下げして、毎日何人が先へ進むかを数えます。30回くり返すので、結果は「◯人〜◯人」の幅で出ます。" },
     { n: "4", name: "結果", sub: "見て、読んで、聞ける", ai: "Claude は文章だけ", d: "1万人が日本地図の上で動く様子を再生できます。どこで何人が離れたか、なぜやめたかを Claude がまとめ、気になる一人に「なぜやめたの？」と聞くこともできます。数字はすべてエンジンが数えたものです。" },
   ];
@@ -424,10 +424,10 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
   const name = replay?.meta.name_ja ?? "ちかくに";
 
   const jp = [
-    { t: "X のクチコミ", d: "X の拡散は全国へ、身近な人づては地域の中で広がります。" },
+    { t: "X のクチコミ", d: "X での拡散は全国へ、身近な人からのクチコミは地域の中で広がります。" },
     { t: "電車広告", d: "都道府県ごとの鉄道通勤率で、届く人が変わります。" },
     { t: "本人確認", d: "書類と審査待ちで、何人が離れるかを数えます。" },
-    { t: "地域の密度", d: "近くに相手がいるかで、初マッチの起きやすさが変わります。", link: "解決したいこと③の「地図」は、ここで入ります。" },
+    { t: "地域の密度", d: "近くに相手がいるかで、初マッチの起きやすさが変わります。", link: "解決したいこと③（アンケートが見落とす「地図」）への答えです。" },
   ];
 
   return (
@@ -486,7 +486,7 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
                 <div className="t-eq-box">
                   <span className="t-eq-tag">出典のある平均</span>
                   <span className="t-eq-num num">{pct(SIGNUP_BASE)}</span>
-                  <span className="t-eq-d">日本のマッチングアプリで、入れた人が登録する平均（出典 [LD22]）</span>
+                  <span className="t-eq-d">日本のマッチングアプリで、インストールした人が登録する割合の平均（出典 [LD22]）</span>
                 </div>
                 <span className="t-eq-op" aria-label="かける">×</span>
                 <div className="t-eq-box is-claude">
@@ -560,20 +560,20 @@ function Trust() {
   const n = (v: number) => v.toLocaleString("ja-JP", { maximumFractionDigits: 1 });
   const pastLine = !bt
     ? "過去の事例を、名前を伏せて予測させた"
-    : `過去の事例 ${bt.total}問中${n(bt.hits)}問。${
+    : `過去の事例で ${bt.total}問中${n(bt.hits)}問的中。${
         bt.hits === bt.best ? "単純な予想と同じで、勝てなかった" : bt.hits < bt.best ? "単純な予想に届かなかった" : "単純な予想より多く当たった"
       }`;
   const checks: { k: string; t: string; sub: string; tip: string; link?: boolean }[] = [
     {
       k: "入力",
       t: "すべての数字に出典がある",
-      sub: "データ調査を4回、別々に検証。157か所を元資料で確かめて直し、作り話の数字は0件。",
+      sub: "データ調査を独立して4回検証。157か所を元資料で確かめて直し、作り話の数字は0件。",
       tip: "出典は調査名・表番号・年まで一覧で公開しています。出典のない値は「仮定」と書き、理由を添えます。",
     },
     {
       k: "出力",
       t: "Claude は数字を書けない",
-      sub: "レポートの数字は、エンジンの表の ID で引用。本文に直接の数字があると、コードが止まる。",
+      sub: "レポートの数字は、エンジンの表の ID で引用。本文に数字を直接書くと、コードが止める。",
       tip: "Claude は数字の代わりに表の ID を書き、コードがそれを数字に置き換えます。画面に出る数字は、すべてエンジンが数えたものです。",
     },
     {

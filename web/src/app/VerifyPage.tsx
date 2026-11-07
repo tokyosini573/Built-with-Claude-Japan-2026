@@ -108,13 +108,13 @@ export function VerifyPage() {
         {!bt.is_mock && answered.length > 0 && (
           <p className="vf-honest">
             テプリは{answered.length}問中{saidDown}
-            問で「減る」と答えました。運営中のサービスの予測には、まだ信頼できません。新しく発売する場面はこの点検の対象外です。
+            問で「減る」と答えました。運営中のサービスの予測としては、まだ信頼できる水準ではありません。新しく発売する場面はこの点検の対象外です。
           </p>
         )}
 
         <div className="vf-order" aria-label="答え合わせの順番">
           <p className="vf-order-title">
-            順番を守りました
+            この順番で記録しました
             <InfoTip label="コミットの番号">
               それぞれ別のコミットで記録しました。
               {ORDER.map((o, i) => (
@@ -166,7 +166,7 @@ export function VerifyPage() {
           <p className="note">アプリの名前は伏せています。カードを押すと質問ごとの結果が出ます。</p>
           {hasRecognized && (
             <p className="note">
-              <span className="vf-badge">記憶の可能性</span> 予測のあとで聞くと、Claude がアプリを言い当てた事例です。結果を覚えていた可能性があります。
+              <span className="vf-badge">記憶の可能性</span> 予測のあとに尋ねたところ、Claude がアプリ名を言い当てた事例です。結果を覚えていた可能性があります。
             </p>
           )}
         </div>
@@ -269,10 +269,10 @@ function CaseDetail({ c, onClose }: { c: BacktestCase; onClose: () => void }) {
 
 const CONTROL_COLS = ["名札なし改善版", "見た目だけ", "わざと悪く"] as const;
 const CONTROL_ROWS: { label: string; v1: number; diffs: [number, number, number] }[] = [
-  { label: "設置", v1: 6091, diffs: [213, 198, -652] },
+  { label: "インストール", v1: 6091, diffs: [213, 198, -652] },
   { label: "登録", v1: 2862, diffs: [414, 82, -648] },
-  { label: "初めてのマッチ", v1: 129, diffs: [47, 8, -53] },
-  { label: "決済者", v1: 40, diffs: [25, 2, -20] },
+  { label: "初マッチ", v1: 129, diffs: [47, 8, -53] },
+  { label: "課金者", v1: 40, diffs: [25, 2, -20] },
 ];
 const signed = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : "±"}${Math.abs(n).toLocaleString("ja-JP")}`;
 
@@ -297,7 +297,7 @@ function ControlExperiment() {
           </div>
           <div>
             <strong>わざと悪く</strong>
-            <span>入力項目を増やし、月額と審査時間を上げたもの</span>
+            <span>入力項目を増やし、月額を上げ、審査時間を延ばしたもの</span>
           </div>
         </div>
         <p className="note">3つとも ID は無作為で、入力は判断の前にコミットしました（b4ada89）。</p>
@@ -337,11 +337,11 @@ function ControlExperiment() {
         <ul className="vf-findings">
           <li>名前の影響はほぼありませんでした。</li>
           <li>わざと悪くした版は、30回すべてで、すべての段階が下がりました。</li>
-          <li>見た目だけの版でも、設置は +198 で、本物の改善（+213）とほぼ同じだけ増えました。</li>
-          <li>登録より後の段階では見分けられました（決済者 +2 と +25）。</li>
+          <li>見た目だけの版でも、インストールは +198 と、本物の改善（+213）とほぼ同じだけ増えました。</li>
+          <li>登録より後の段階では見分けられました（課金者 +2 と +25）。</li>
         </ul>
-        <p className="vf-conclusion">設置数が増えただけでは、改善の根拠になりません。</p>
-        <p className="note">限界: 判断も変更づくりも同じ系統のモデル（Claude）です。本物の利用者では確かめていません。</p>
+        <p className="vf-conclusion">インストール数が増えただけでは、改善の根拠になりません。</p>
+        <p className="note">限界: 判断も、変更案を作ったのも、同じ系統のモデル（Claude）です。本物の利用者では確かめていません。</p>
         <p className="note">
           数字: <code>runs/controls/compare_controls.json</code>（v1 と同じ乱数で30回ずつ回し、回ごとの差の中央値）。
           {REPO_URL && (

@@ -159,7 +159,7 @@ export function PersonPanel({ replay, row, plan, onPlan, onClose }: Props) {
           ) : (
             <p className="note">この人の判断の理由は、このリプレイには入っていません。</p>
           )}
-          <p className="note">判断は「カテゴリの平均と比べて進みやすいか」と理由だけ。人数はエンジンが計算します。</p>
+          <p className="note">判断は「同じ種類のアプリの平均と比べて進みやすいか」とその理由だけ。人数はエンジンが計算します。</p>
         </div>
       </div>
 
