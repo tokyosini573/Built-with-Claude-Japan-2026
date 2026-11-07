@@ -131,13 +131,16 @@ function Hero() {
       <Decor kind="hero" />
       <div className="hero-in">
         <div className="hero-text">
-          <h1 className="hero-title" id="hero-h">
-            <span className="ib">アプリを出す前に、</span>
-            <span className="ib">架空の日本で</span>
-            <span className="ib">一度「発売」してみる。</span>
-          </h1>
+          <div className="hero-head">
+            <h1 className="hero-name" id="hero-h">テプリ</h1>
+            <p className="hero-title">
+              <span className="ib">アプリを出す前に、</span>
+              <span className="ib">架空の日本で</span>
+              <span className="ib">一度「発売」してみる。</span>
+            </p>
+          </div>
           <p className="lead">
-            日本の統計から作った架空の日本人1万人の前でアプリを発売し、広告の出し方を2通り試して、結果を幅つきで比べるシミュレーターです。
+            日本の統計から作った架空の日本人1万人の前でアプリを発売し、出し方2通り（A案とB案）の結果を、幅つきで比べるシミュレーターです。
           </p>
           {/* マスコットはボタンの横で大きく、右の地図を指す */}
           <div className="hero-cta">
