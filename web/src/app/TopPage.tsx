@@ -560,6 +560,8 @@ interface BacktestLine {
   hits: number;
   total: number;
   best: number;
+  /** 「いつも増える」と答える基準の的中数 */
+  up: number;
   cases: number;
 }
 
@@ -571,7 +573,7 @@ function useBacktestLine(): BacktestLine | null {
       .then((bt) => {
         const s = summarize(bt);
         const best = bt.baselines.reduce((m, b) => Math.max(m, b.hits), 0);
-        if (s.answered > 0) setV({ hits: s.hits, total: s.answered, best, cases: bt.cases.length });
+        if (s.answered > 0) setV({ hits: s.hits, total: s.answered, best, up: bt.baselines.find((b) => b.id === "always_up")?.hits ?? best, cases: bt.cases.length });
       })
       .catch(() => setV(null));
     return () => ac.abort();
@@ -582,11 +584,11 @@ function useBacktestLine(): BacktestLine | null {
 function Trust() {
   const bt = useBacktestLine();
   const n = (v: number) => v.toLocaleString("ja-JP", { maximumFractionDigits: 1 });
-  const pastLine = !bt
-    ? "過去の事例を、名前を伏せて予測させた"
-    : `過去の事例で ${bt.total}問中${n(bt.hits)}問的中。${
-        bt.hits === bt.best ? "単純な予想と同じで、勝てなかった" : bt.hits < bt.best ? "単純な予想に届かなかった" : "単純な予想より多く当たった"
-      }`;
+  // 見出しは結論（当てられたか）だけ。何を試して何問当たったかは下の一文で言う
+  const pastLine = !bt ? "過去の実例で試した" : bt.hits <= bt.best ? "過去の実例は、まだ当てられない" : "過去の実例で、単純な予想より多く当たった";
+  const pastSub = !bt
+    ? "名前を伏せた実在のサービスの過去を予測し、正解は予測のあとで入れた。"
+    : `名前を伏せた実在のサービス${bt.cases}\u2060つの過去を${bt.total}\u2060問予測し、${n(bt.hits)}\u2060問的中。「いつも増える」と答えるだけの予想は${n(bt.up)}\u2060問。正解は予測のあとで入れた。`;
   const checks: { k: string; t: string; sub: string; tip: string; link?: boolean }[] = [
     {
       k: "入力",
@@ -603,8 +605,8 @@ function Trust() {
     {
       k: "過去",
       t: pastLine,
-      sub: "名前を伏せた実在のサービスで、ルールを固定してから予測し、正解は後から入れた。",
-      tip: `${bt ? `事例は${bt.cases}つ、問題は${bt.total}問と少ないので、方法の点検であって精度の測定ではありません。` : ""}「いつも増える」と答えるだけの単純な予想${bt ? `も${n(bt.best)}問当たります` : "と比べています"}。結果を見てからルールを直すと検証にならないので、直さずにそのまま公開しています。`,
+      sub: pastSub,
+      tip: `すでに運営しているサービスの値上げや広告費の増減のあと、売上や会員数が増えたかを当てる試験です。テプリの使い方（新しいアプリを出す前に A案と B案を比べる）とは別の場面です。問題が少ないので、方法の点検であって精度の測定ではありません。結果を見てからルールを直すと検証にならないので、直さずにそのまま公開しています。`,
       link: true,
     },
   ];
@@ -618,8 +620,12 @@ function Trust() {
               {c.k}
             </span>
             <p className="t-check-t">
-              {c.t}
-              <InfoTip label={`${c.k}の確かめ方`}>{c.tip}</InfoTip>
+              {/* 最後の「、」の後ろと「?」を1つにまとめて、「?」だけが次の行に落ちないようにする */}
+              {c.t.includes("、") ? c.t.slice(0, c.t.lastIndexOf("、") + 1) : ""}
+              <span className="ib">
+                {c.t.includes("、") ? c.t.slice(c.t.lastIndexOf("、") + 1) : c.t}
+                <InfoTip label={`${c.k}の確かめ方`}>{c.tip}</InfoTip>
+              </span>
             </p>
             <p className="t-check-sub">{c.sub}</p>
             {c.link && (
