@@ -70,7 +70,7 @@ function Site({ replayParam }: { replayParam: string | null }) {
           <TopPage status={status} onPlay={() => setAutoplay(true)} />
         </main>
       ) : (
-        <main className="page" id="main">
+        <main className={`page${route === "result" ? " page-result" : ""}`} id="main">
           <Decor kind="page" />
           {route === "live" ? (
             <LivePage />

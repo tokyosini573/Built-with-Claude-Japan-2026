@@ -204,3 +204,54 @@
 .r-dotcount b { font-family: var(--display); font-weight: 900; }
 .r-dotcount i { font-style: normal; color: var(--muted); }
 .r-dots-sum { max-width: 920px; padding: 14px 18px; border-radius: 14px; background: var(--error-bg); color: var(--fg); font-weight: 700; line-height: 1.75; }
+
+/* ==== 結果ページの余白（数字と文が多いので、節・箱・文のあいだを広めにとる） ==== */
+/* 節と節: 72 → 112px。節の中の要素: 24 → 32px。見出しと説明: 6 → 10px */
+.page-result { gap: 112px; }
+.page-result .section { gap: 32px; }
+.r-head { display: grid; gap: 10px; }
+.page-result .r-verdict { gap: 26px; }
+.page-result .r-context { line-height: 1.85; }
+
+/* 地図と話を聞いた人 */
+.page-result .player { gap: 26px; }
+.page-result .maps { gap: 28px; }
+.page-result .legend { gap: 10px 22px; }
+.page-result .r-talk { gap: 16px; }
+.page-result .r-talk-row { gap: 10px 16px; }
+.page-result .r-dots-sum { padding: 16px 20px; }
+
+/* 30回の結果 */
+.page-result .r-runs { gap: 44px; }
+.page-result .r-runs-part { gap: 18px; }
+.page-result .r-runs-part + .r-runs-part { padding-top: 40px; }
+.page-result .r-runs-cap { gap: 8px; }
+.page-result .r-spread { gap: 10px; }
+.page-result .dx { gap: 16px; }
+.page-result .dx-body { gap: 20px; }
+
+/* 費用 */
+.page-result .costs { gap: 20px; margin-top: 0; }
+.page-result .cost { gap: 6px; padding: 20px 24px; }
+
+/* どこで減ったか */
+.page-result .r-funnel { gap: 24px; }
+.page-result .r-callout { gap: 12px; padding: 22px 24px; }
+
+/* 離れた理由と次の一手 */
+.page-result .r-pairs { gap: 22px; }
+.page-result .r-pair { gap: 16px; }
+.page-result .theme { padding: 18px 20px; }
+.r-why-body { display: grid; gap: 8px; min-width: 0; }
+.page-result .theme-sum { line-height: 1.8; }
+.page-result .r-next { padding: 18px 20px; }
+.page-result .next-list { gap: 16px; }
+
+@media (max-width: 640px) {
+  .page-result { gap: 84px; }
+  .page-result .section { gap: 26px; }
+  .page-result .r-runs { gap: 36px; }
+  .page-result .r-runs-part + .r-runs-part { padding-top: 32px; }
+  .page-result .r-pairs { gap: 20px; }
+  .page-result .r-pair { gap: 10px; }
+}

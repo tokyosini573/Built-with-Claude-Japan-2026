@@ -120,7 +120,7 @@ function Verdict({ replay }: { replay: Replay }) {
 function RunsSection({ replay }: { replay: Replay }) {
   return (
     <section className="section r-verdict" aria-labelledby="runs-h">
-      <div style={{ display: "grid", gap: 6 }}>
+      <div className="r-head">
         <h2 className="h2" id="runs-h">
           {replay.meta.runs}回くり返した結果
         </h2>
@@ -440,7 +440,7 @@ function FunnelSection({ replay }: { replay: Replay }) {
 
   return (
     <section className="section" aria-labelledby="funnel-h">
-      <div style={{ display: "grid", gap: 6 }}>
+      <div className="r-head">
         <h2 className="h2" id="funnel-h">
           どこで減ったか
         </h2>
@@ -626,7 +626,7 @@ function ReasonsAndNext({ replay }: { replay: Replay }) {
   const anyNext = pairs.some(Boolean);
   return (
     <section className="section" aria-labelledby="themes-h">
-      <div style={{ display: "grid", gap: 6 }}>
+      <div className="r-head">
         <h2 className="h2" id="themes-h">
           {anyNext ? "離れた理由と、次に試すこと" : "離れた理由"}
         </h2>
@@ -647,7 +647,7 @@ function ReasonsAndNext({ replay }: { replay: Replay }) {
                 <span className="next-no num" aria-hidden>
                   {i + 1}
                 </span>
-                <div style={{ display: "grid", gap: 6, minWidth: 0 }}>
+                <div className="r-why-body">
                   <strong className="theme-title">{t.theme_ja}</strong>
                   {nonEmpty(t.summary_ja) && <span className="theme-sum">{t.summary_ja}</span>}
                   {(st || only) && (
@@ -767,7 +767,7 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
 
   return (
     <section className="section player" aria-labelledby="player-h" ref={sectionRef}>
-      <div style={{ display: "grid", gap: 6 }}>
+      <div className="r-head">
         <h2 className="h2" id="player-h">
           地図で見る: 同じ1万人に、{replay.meta.period_days}日間で起きたこと
         </h2>
