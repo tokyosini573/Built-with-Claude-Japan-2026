@@ -144,17 +144,14 @@ function RunsChart({ replay, metric }: { replay: Replay; metric: TotalKey }) {
   const ticks: number[] = [];
   for (let t = 1; t <= top * 1.0001; t *= 10) ticks.push(t);
   const per = { A: a.slice(0, n), B: b.slice(0, n) } as Record<PlanId, number[]>;
-  const lo = (v: number[]) => count(Math.min(...v));
-  const hi = (v: number[]) => count(Math.max(...v));
-  const video = ids.find((id) => replay.plans[id]!.config.organic_video);
   return (
     <figure className="card r-runs">
       <div className="r-runs-part">
         <figcaption className="r-runs-cap">
           <strong>
-            {n}回の試しで、{name}が多かったのはどっち？
+            {n}回のシミュレーションで、{name}が多かったのはどっち？
           </strong>
-          <span className="note">マス1つが1回の試し。色は、その回に{name}が多かった案です。</span>
+          <span className="note">マス1つが1回のシミュレーション。色は、その回に{name}が多かった案です。</span>
         </figcaption>
         <div className="r-legend">
           {ids.map((id) => (
@@ -190,8 +187,9 @@ function RunsChart({ replay, metric }: { replay: Replay; metric: TotalKey }) {
       <div className="r-runs-part">
         <figcaption className="r-runs-cap">
           <strong>1回ごとの{name}の人数（日本全体）</strong>
-          <span className="note">点1つが1回の試し。右へ行くほど多い。目盛りは1つ右へ進むごとに10倍になります。</span>
+          <span className="note">点1つが1回のシミュレーション。右へ行くほど多い。目盛りは1つ右へ進むごとに10倍になります。</span>
         </figcaption>
+        <DotExplainer replay={replay} name={name} />
         <div className="r-strip">
           {ids.map((id) => (
             <div className="r-srow" key={id}>
@@ -214,14 +212,79 @@ function RunsChart({ replay, metric }: { replay: Replay; metric: TotalKey }) {
             ))}
           </div>
         </div>
-        <p className="r-read">
-          A案は {lo(per.A)}〜{hi(per.A)}人、B案は {lo(per.B)}〜{hi(per.B)}人。
-          {video
-            ? `${video}案は、動画がどれだけ広がるかで、回ごとの人数が大きくぶれます。`
-            : "回ごとの人数が大きくぶれます。"}
-        </p>
+        <SpreadText replay={replay} per={per} />
       </div>
     </figure>
+  );
+}
+
+/** 回ごとの人数の広がりを、言葉で。広がりの小さい案と大きい案を比べ、広告と動画の違いで説明する */
+function SpreadText({ replay, per }: { replay: Replay; per: Record<PlanId, number[]> }) {
+  const ids = planIds(replay);
+  const spread = (id: PlanId) => Math.max(...per[id]) / Math.max(1, Math.min(...per[id]));
+  const [calm, wild] = [...ids].sort((x, y) => spread(x) - spread(y));
+  const range = (id: PlanId) => `${count(Math.min(...per[id]))}〜${count(Math.max(...per[id]))}人`;
+  const isVideo = (id: PlanId) => !!replay.plans[id]!.config.organic_video;
+  const isAds = (id: PlanId) => !isVideo(id) && Object.keys(replay.plans[id]!.config.channels ?? {}).length > 0;
+  return (
+    <div className="r-spread">
+      <p className="r-read">
+        {calm}案の人数は{range(calm)}で、比較的まとまっています。{wild}案は{range(wild)}と、回によって極端に分かれました。
+      </p>
+      {(isAds(calm) || isVideo(wild)) && (
+        <p className="note">
+          {isAds(calm) && `${calm}案は、払った広告費の分だけ広告が表示されるので、結果が比較的安定します。`}
+          {isVideo(wild) && `${wild}案は、動画が大きく広がった回と、あまり広がらなかった回とで、結果が極端に分かれます。`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** 「点1つ＝シミュレーション1回の結果」とは？ キャラクターの吹き出しを押すと説明が開く */
+function DotExplainer({ replay, name }: { replay: Replay; name: string }) {
+  const [open, setOpen] = useState(false);
+  const runs = replay.meta.runs;
+  const steps = ["広告や動画を見る", "インストール", "会員登録", ...(replay.meta.gates ?? []).map((g) => g.name_ja || g.id), name];
+  return (
+    <div className="dx">
+      <div className="dx-head">
+        <Mascot pose="point" size={72} />
+        <button type="button" className="dx-bubble" aria-expanded={open} aria-controls="dx-body" onClick={() => setOpen(!open)}>
+          <span>「点1つ＝シミュレーション1回の結果」とは？</span>
+          <span className="dx-hint">{open ? "閉じる ▲" : "クリック ▼"}</span>
+        </button>
+      </div>
+      {open && (
+        <div className="dx-body" id="dx-body">
+          <p className="dx-lead">
+            点1つは、アプリを発売して{replay.meta.period_days}日間運営するまでを、架空の日本人1万人で、最初から最後まで1回シミュレーションした結果です。
+          </p>
+          <div className="dx-flow-wrap">
+            <p className="dx-flow-cap">1回のシミュレーションの中で、架空の人たちはこの順に進み、段階ごとに一部の人が離れていきます。</p>
+            <ol className="dx-flow">
+              {steps.map((st, i) => (
+                <li key={st} className={i === steps.length - 1 ? "is-goal" : undefined}>
+                  {st}
+                </li>
+              ))}
+            </ol>
+          </div>
+          <dl className="dx-notes">
+            <div>
+              <dt>点の位置</dt>
+              <dd>そのシミュレーションで、{name}までたどり着いた人の数です。1人は1回だけ数え、日本全体の人数（15〜79歳）に換算しています。</dd>
+            </div>
+            <div>
+              <dt>毎回、結果がちがう理由</dt>
+              <dd>
+                広告が押される割合、動画がどれだけ広がるか、マッチの起きやすさなど、データだけでは1つに決めきれない数字があります。テプリはこうした数字を、毎回、出典や仮定で決めた範囲の中から選び直します。だから、同じ1万人・同じ条件でも、回ごとに結果が変わります。サイコロを{runs}回振るのと同じで、{runs}回分を並べると、起こりうる結果の広がりが見えます。
+              </dd>
+            </div>
+          </dl>
+        </div>
+      )}
+    </div>
   );
 }
 

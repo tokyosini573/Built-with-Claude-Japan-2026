@@ -134,3 +134,46 @@
 .r-saxis { position: relative; height: 24px; margin-left: 3em; border-top: 1px solid var(--line); }
 .r-saxis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; }
 .r-saxis span:first-child { transform: none; }
+
+/* 回ごとの広がりの説明 */
+.r-spread { display: grid; gap: 6px; }
+.r-spread .note { line-height: 1.75; }
+
+/* 「点1つ＝シミュレーション1回の結果」とは？（キャラクターの吹き出し → 説明の箱） */
+.dx { display: grid; gap: 12px; }
+.dx-head { display: flex; align-items: center; gap: 4px; }
+.dx-head .mascot { flex: none; width: 72px; height: 72px; }
+.dx-bubble {
+  position: relative; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-left: 14px;
+  padding: 12px 18px; border-radius: 18px; border: 2px solid var(--brand-text); background: var(--surface);
+  color: var(--fg); font: inherit; font-family: var(--display); font-weight: 900; font-size: 16px; text-align: left; cursor: pointer;
+  box-shadow: 0 2px 0 var(--brand-soft-2, var(--line)); transition: background .15s, transform .15s;
+}
+.dx-bubble::before, .dx-bubble::after { content: ""; position: absolute; top: 50%; border-style: solid; transform: translateY(-50%); }
+.dx-bubble::before { left: -12px; border-width: 9px 12px 9px 0; border-color: transparent var(--brand-text) transparent transparent; }
+.dx-bubble::after { left: -8px; border-width: 7px 10px 7px 0; border-color: transparent var(--surface) transparent transparent; }
+.dx-bubble:hover { background: var(--brand-soft); transform: translateY(-1px); }
+.dx-bubble:hover::after { border-right-color: var(--brand-soft); }
+.dx-bubble[aria-expanded="true"] { background: var(--brand-soft); }
+.dx-bubble[aria-expanded="true"]::after { border-right-color: var(--brand-soft); }
+.dx-hint { font-family: var(--body); font-weight: 700; font-size: 13px; color: var(--brand-text); white-space: nowrap; }
+.dx-body {
+  display: grid; gap: 16px; padding: 20px 22px; border-radius: 18px; background: var(--tint); border: 1px solid var(--card-line);
+
+}
+@media (prefers-reduced-motion: reduce) { .dx-bubble { transition: none; } }
+.dx-lead { font-weight: 700; line-height: 1.8; max-width: 46em; }
+.dx-flow-wrap { display: grid; gap: 8px; }
+.dx-flow-cap { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+.dx-flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 6px; }
+.dx-flow li { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--card-line); font-size: 14px; font-weight: 700; }
+.dx-flow li + li::before { content: "→"; margin: 0 4px 0 -2px; color: var(--muted); font-weight: 400; }
+.dx-flow li { position: relative; }
+.dx-flow li + li { margin-left: 18px; }
+.dx-flow li + li::before { position: absolute; left: -19px; }
+.dx-flow li.is-goal { background: var(--brand-solid); border-color: var(--brand-solid); color: var(--on-brand); }
+.dx-notes { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.dx-notes > div { display: grid; gap: 6px; align-content: start; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--card-line); }
+.dx-notes dt { font-family: var(--display); font-weight: 900; font-size: 15px; color: var(--brand-text); }
+.dx-notes dd { margin: 0; font-size: 15px; line-height: 1.75; }
+@media (max-width: 640px) { .dx-notes { grid-template-columns: 1fr; } .dx-body { padding: 16px; } .dx-head .mascot { width: 60px; height: 60px; } }
