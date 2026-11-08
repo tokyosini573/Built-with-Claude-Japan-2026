@@ -153,6 +153,8 @@ def assemble_replay(app: dict, pop: Population, results: dict[str, PlanResult], 
             "daily": daily,
             "daily_cumulative": cumulative,
             "totals": totals,
+            # 回ごとの合計（1万人基準）。結果の画面で「1回の試し = 点1つ」として並べる（2026-11-08 追加。数字の計算は変えない）
+            "per_run": {k: [_sig(x) for x in np.asarray(res.totals[k])[:runs]] for k in COMPARISON_KEYS if k in res.totals},
             "sample_run": {"events": events.get(key, [])},
             "drop_reasons": drop_reasons(res, pop, gates, app["preset"], decisions,
                                          who_pays=str(plan_config(app, key)["pricing"].get("who_pays", "both"))),

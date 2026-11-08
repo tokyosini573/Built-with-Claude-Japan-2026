@@ -125,6 +125,8 @@ export interface PlanResult {
   daily: DailyMetrics;
   daily_cumulative: DailyCumulative;
   totals: TotalMetrics;
+  /** 回ごとの合計（1万人基準）。比べる指標だけ。古いリプレイにはない */
+  per_run?: Partial<Record<string, number[]>>;
   sample_run: { events: ReplayEvent[] };
   drop_reasons: DropReason[];
   drop_themes: DropTheme[];

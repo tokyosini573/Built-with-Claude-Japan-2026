@@ -60,7 +60,6 @@ function Verdict({ replay }: { replay: Replay }) {
   const ids = planIds(replay);
   const cheap = cheaperPlan(replay);
   const unclear = p !== undefined && p > UNCLEAR_RANGE[0] && p < UNCLEAR_RANGE[1];
-  const wins = p === undefined ? 0 : Math.round(p * runs);
   return (
     <section className="verdict r-verdict" aria-labelledby="verdict-h">
       <p className="r-context">
@@ -108,15 +107,121 @@ function Verdict({ replay }: { replay: Replay }) {
         </h1>
         <Mascot pose="inspect" />
       </div>
-      {p !== undefined && (
-        <p className="r-sub">
-          {name === "初マッチ" ? "初マッチ（はじめて相手とマッチした人）" : name}の数で B案が上回ったのは、{runs}回中<strong className="num">{wins}回</strong>。
-          {unclear ? "ほぼ半々なので、どちらが多いとは言えません。" : ""}
-        </p>
-      )}
-      <RangeChart replay={replay} metric={HEADLINE_METRIC} />
+      {name === "初マッチ" && <p className="r-sub">初マッチ＝アプリで、はじめて相手とマッチした人。</p>}
+      {hasRuns(replay, HEADLINE_METRIC) ? <RunsChart replay={replay} metric={HEADLINE_METRIC} /> : <RangeChart replay={replay} metric={HEADLINE_METRIC} />}
       <CostRow replay={replay} />
     </section>
+  );
+}
+
+function hasRuns(replay: Replay, metric: string): boolean {
+  return planIds(replay).length === 2 && planIds(replay).every((id) => (replay.plans[id]!.per_run?.[metric]?.length ?? 0) > 0);
+}
+
+/** 30回の試しを1回ずつ見せる。上: 回ごとにどちらが多かったか（勝ち負けのマス）。下: 回ごとの人数（点1つ = 1回） */
+function RunsChart({ replay, metric }: { replay: Replay; metric: TotalKey }) {
+  const ids = planIds(replay);
+  const k = replay.meta.scale_to_japan;
+  const a = replay.plans.A!.per_run![metric]!.map((v) => v * k);
+  const b = replay.plans.B!.per_run![metric]!.map((v) => v * k);
+  const n = Math.min(a.length, b.length);
+  const name = metricName(metric, replay);
+  // エンジンの比較（comparison.p_B_better）と同じく、丸める前の値で比べる
+  const win = Array.from({ length: n }, (_, i) => (b[i] > a[i] ? "B" : a[i] > b[i] ? "A" : "="));
+  // 丸めると同じ数に見える回だけ、小数1桁まで出す
+  const pair = (i: number) =>
+    Math.round(a[i]) === Math.round(b[i]) && a[i] !== b[i]
+      ? `A案 ${a[i].toFixed(1)}人・B案 ${b[i].toFixed(1)}人`
+      : `A案 ${count(a[i])}人・B案 ${count(b[i])}人`;
+  const nA = win.filter((w) => w === "A").length;
+  const nB = win.filter((w) => w === "B").length;
+  const nTie = n - nA - nB;
+  const close = Math.abs(nA - nB) <= Math.round(n * 0.2);
+  // 下の図: 1人〜最大の人数を、10倍ずつの目盛りで
+  const all = [...a, ...b].filter((v) => v >= 0.5);
+  const top = 10 ** Math.max(1, Math.ceil(Math.log10(Math.max(1, ...all))));
+  const x = (v: number) => (Math.log10(Math.max(v, 1)) / Math.log10(top)) * 100;
+  const ticks: number[] = [];
+  for (let t = 1; t <= top * 1.0001; t *= 10) ticks.push(t);
+  const per = { A: a.slice(0, n), B: b.slice(0, n) } as Record<PlanId, number[]>;
+  const lo = (v: number[]) => count(Math.min(...v));
+  const hi = (v: number[]) => count(Math.max(...v));
+  const video = ids.find((id) => replay.plans[id]!.config.organic_video);
+  return (
+    <figure className="card r-runs">
+      <div className="r-runs-part">
+        <figcaption className="r-runs-cap">
+          <strong>
+            {n}回の試しで、{name}が多かったのはどっち？
+          </strong>
+          <span className="note">マス1つが1回の試し。色は、その回に{name}が多かった案です。</span>
+        </figcaption>
+        <div className="r-legend">
+          {ids.map((id) => (
+            <span key={id}>
+              <i style={{ background: PLAN_VAR[id] }} />
+              {id}案のほうが多かった回 <b className="num">{id === "A" ? nA : nB}回</b>
+            </span>
+          ))}
+          {nTie > 0 && (
+            <span>
+              <i style={{ background: "var(--surface-2)" }} />
+              同じだった回 <b className="num">{nTie}回</b>
+            </span>
+          )}
+        </div>
+        <ol className="r-tiles" aria-label={`A案が多かった回 ${nA}回、B案が多かった回 ${nB}回`}>
+          {win.map((w, i) => (
+            <li
+              key={i}
+              className="r-tile"
+              style={{ background: w === "=" ? "var(--surface-2)" : PLAN_VAR[w as PlanId], color: w === "=" ? "var(--muted)" : "#fff" }}
+              title={`${i + 1}回目: ${pair(i)}`}
+            >
+              {w === "=" ? "＝" : w}
+            </li>
+          ))}
+        </ol>
+        <p className="r-read">
+          {nA}回 対 {nB}回。{close ? "ほぼ半々なので、どちらが多いとは言えません。" : `${nA > nB ? "A" : "B"}案のほうが多い回が多めです。`}
+        </p>
+      </div>
+
+      <div className="r-runs-part">
+        <figcaption className="r-runs-cap">
+          <strong>1回ごとの{name}の人数（日本全体）</strong>
+          <span className="note">点1つが1回の試し。右へ行くほど多い。目盛りは1つ右へ進むごとに10倍になります。</span>
+        </figcaption>
+        <div className="r-strip">
+          {ids.map((id) => (
+            <div className="r-srow" key={id}>
+              <span className="plan-tag r-stag" style={{ color: PLAN_VAR[id] }}>
+                {id}案
+              </span>
+              <div className="r-sline">
+                {per[id].map((v, i) => (
+                  <span key={i} className="r-dot" style={{ left: `${x(v)}%`, background: PLAN_VAR[id] }} title={`${i + 1}回目: ${count(v)}人`} />
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="r-saxis" aria-hidden>
+            {ticks.map((t) => (
+              <span key={t} style={{ left: `${x(t)}%` }}>
+                {count(t)}
+                {t === ticks[ticks.length - 1] ? "人" : ""}
+              </span>
+            ))}
+          </div>
+        </div>
+        <p className="r-read">
+          A案は {lo(per.A)}〜{hi(per.A)}人、B案は {lo(per.B)}〜{hi(per.B)}人。
+          {video
+            ? `${video}案は、動画がどれだけ広がるかで、回ごとの人数が大きくぶれます。`
+            : "回ごとの人数が大きくぶれます。"}
+        </p>
+      </div>
+    </figure>
   );
 }
 
@@ -261,7 +366,7 @@ function FunnelSection({ replay }: { replay: Replay }) {
         <p className="note">
           インストールした人が、段階ごとに何人残ったか（日本全体・{replay.meta.runs}回の中央値）。右の%は、ひとつ前の段階から進んだ人の割合です。
           <InfoTip label="人数の読み方">
-            どの段階の人数も、{replay.meta.runs}回の幅は大きく重なります{winsText ? `（B案が多かった回: ${winsText}）` : ""}。ここで見てほしいのは、両案に共通する「減り方」です。
+            どの段階の人数も、回ごとのばらつきが大きく、A案と B案の人数は大きく重なります{winsText ? `（B案が多かった回: ${winsText}）` : ""}。ここで見てほしいのは、両案に共通する「減り方」です。
           </InfoTip>
         </p>
       </div>
