@@ -388,8 +388,9 @@ button.card:hover .more, button.card[aria-expanded="true"] .more { text-decorati
 .shot figcaption { font-size: 15px; text-align: center; color: var(--text-secondary); }
 .placeholder { color: var(--muted); font-size: 14px; text-align: center; padding: 12px; }
 /* 案のカード: 上に案の色の帯 */
-.plan-card { position: relative; overflow: hidden; padding-top: 34px; }
-.plan-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8px; background: var(--c); }
+/* 帯はカードの角に沿わせる（overflow: hidden にすると「?」の説明が切れるため、枠いっぱいの上辺だけの線で描く） */
+.plan-card { position: relative; padding-top: 34px; }
+.plan-card::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; border-top: 8px solid var(--c); pointer-events: none; }
 .kv { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 10px 16px; margin: 0; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; }

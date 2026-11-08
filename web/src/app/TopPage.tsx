@@ -259,7 +259,7 @@ function demoHeadline(replay: Replay): { parts: string[]; unclear: boolean; sub:
   return {
     parts: [`${name}の数は、`, "引き分け。"],
     unclear: true,
-    sub: `同じ条件で${runs}回試すと、B案のほうが多かったのは${wins}回。半分前後なので、どちらが多いとは言えません。`,
+    sub: `1回だけの試しでは、偶然の差が「勝ち」に見えます。テプリは同じ条件で${runs}回くり返すので（B案が多かったのは${wins}回）、その偶然を見分けられます。`,
   };
 }
 
@@ -437,6 +437,8 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
   const picked = FOLLOW_PICK.map(([step, cr]) => all.find((d) => d.step === step && (cr === null || d.creative === cr))).filter(
     (d): d is PersonDecision => !!d,
   );
+  // 上に並べた判断を除いた残り（「ほかの判断も見る」に入れる）
+  const rest = all.filter((d) => !picked.includes(d));
   const signup = all.find((d) => d.step === "signup");
   const label = row ? replay?.clusters.find((c) => c.cluster_id === row[5])?.label_ja : undefined;
   const marital = label?.match(/未婚|既婚/)?.[0];
@@ -447,7 +449,7 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
     { t: "X のクチコミ", d: "X での拡散は全国へ、身近な人からのクチコミは地域の中で広がります。" },
     { t: "電車広告", d: "都道府県ごとの鉄道通勤率で、届く人が変わります。" },
     { t: "本人確認", d: "書類と審査待ちで、何人が離れるかを数えます。" },
-    { t: "地域の密度", d: "近くに相手がいるかで、初マッチの起きやすさが変わります。", link: "問題3（アンケートが見落とす「地図」）への答えです。" },
+    { t: "地域の密度", d: "近くに相手がいるかで、初マッチの起きやすさが変わります。" },
   ];
 
   return (
@@ -485,11 +487,11 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
                   </li>
                 ))}
               </ol>
-              {all.length > picked.length && (
+              {rest.length > 0 && (
                 <details className="t-more">
-                  <summary>この人の判断をすべて見る（{all.length}つ）</summary>
+                  <summary>この人の、ほかの判断も見る（{rest.length}つ）</summary>
                   <ol className="t-steps t-steps-sm">
-                    {all.map((d) => (
+                    {rest.map((d) => (
                       <li key={`${d.step}-${d.creative ?? ""}`}>
                         <span className="t-step-name">{decisionLabel(d, replay)}</span>
                         <LevelPill level={d.level} />
@@ -541,10 +543,9 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
         <h3 className="h3">日本の市場の条件も、エンジンのルールに入っている</h3>
         <ul className="t-jp-row">
           {jp.map((x) => (
-            <li key={x.t} className={x.link ? "is-key" : undefined}>
+            <li key={x.t}>
               <strong>{x.t}</strong>
               <span>{x.d}</span>
-              {x.link && <span className="t-jp-link">{x.link}</span>}
             </li>
           ))}
         </ul>
