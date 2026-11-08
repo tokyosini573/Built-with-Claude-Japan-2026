@@ -399,26 +399,6 @@ button.card:hover .more, button.card[aria-expanded="true"] .more { text-decorati
 .creatives .frame { aspect-ratio: auto; display: block; border-radius: 14px; min-width: 112px; min-height: 120px; box-shadow: none; }
 .creatives .frame img { width: auto; height: 200px; max-width: 100%; object-fit: contain; }
 
-/* ---- 検証（白黒。主役色は見出しのラベルだけ） ---- */
-.mono { --c: var(--fg); }
-.mono button.card:hover { border-color: var(--line); }
-.mono button.card[aria-expanded="true"] { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg), var(--shadow); }
-.mono .more { color: var(--fg); }
-.score { font-family: var(--display); font-weight: 900; font-size: clamp(42px, 7vw, 76px); line-height: 1.1; }
-.cmp { display: grid; gap: 10px; max-width: 640px; }
-.cmp-row { display: grid; grid-template-columns: 13em minmax(0, 1fr) 4.5em; gap: 12px; align-items: center; font-size: 16px; }
-.cmp-row .track { height: 14px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
-.cmp-row .fill { height: 100%; background: var(--muted); border-radius: 999px; }
-.cmp-row.me .fill { background: var(--fg); }
-.cmp-row.me { font-weight: 700; }
-@media (max-width: 640px) { .cmp-row { grid-template-columns: 1fr 4em; } .cmp-row .track { grid-column: 1 / -1; grid-row: 2; } }
-.qlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-.qitem { display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); }
-.prob { position: relative; height: 22px; border: 1px solid var(--muted); border-radius: 4px; }
-.prob .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--fg); opacity: .8; }
-.prob .mid { position: absolute; left: 50%; top: -4px; bottom: -4px; border-left: 1px dashed var(--muted); }
-.mark { display: inline-block; font-weight: 900; min-width: 1.6em; font-family: var(--display); }
-
 /* ---- 根拠 ---- */
 .layers { display: grid; gap: 12px; }
 .layer {
@@ -450,7 +430,6 @@ details.fold { border: 1px solid var(--card-line); border-radius: 18px; backgrou
 details.fold > summary { cursor: pointer; padding: 20px 24px; font-weight: 700; font-size: 18px; list-style-position: inside; }
 details.fold > summary::marker { color: var(--brand-text); }
 details.fold > div { padding: 0 24px 26px; }
-.mono a { color: var(--fg); }
 /* 上の固定メニューに隠れないように */
 .section, .detail, [id] { scroll-margin-top: 112px; }
 .detail:focus, .detail:focus-visible { outline: none; }
@@ -675,8 +654,3 @@ dialog.sheet .person { grid-template-columns: 1fr; }
 .verdict > .with-mascot { max-width: 880px; }
 /* 結果のラベルは長いので、スマホではマスコットを重ねずに上に置く */
 @media (max-width: 640px) { .verdict > .with-mascot > .mascot { margin-bottom: 4px; width: 80px; height: 80px; } }
-/* 検証: 「勝てませんでした」の文のすぐ横に */
-.with-mascot.verify-oops { justify-content: flex-start; align-items: center; margin: -12px 0; }
-.with-mascot.verify-oops > :first-child { flex: 0 1 auto; }
-.with-mascot.verify-oops > .mascot { width: 104px; height: 104px; }
-@media (max-width: 640px) { .with-mascot.verify-oops { flex-direction: row; align-items: center; gap: 8px; margin: 0; } .with-mascot.verify-oops > .mascot { width: 68px; height: 68px; margin: 0; } }

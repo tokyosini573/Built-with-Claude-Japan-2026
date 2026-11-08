@@ -25,19 +25,18 @@
 npm run build-hero   # public/replays/demo_matching.json → public/hero/people.json
 ```
 
-メニューは4つで、どれも「最初は要点だけ、押すと詳しく」の3段です。
+メニューは3つで、どれも「最初は要点だけ、押すと詳しく」の3段です。
 
 | メニュー | 1段目 | 2段目（押すと） | 3段目 |
 |---|---|---|---|
 | 結果 `#/result` | 一行の結論（`comparison.p_B_better`）、再生される地図（A/B 並べて。スマホは切り替え）、数字カード3枚 | カード → ファネル・日ごとの推移・離れた理由の上位3つ | 地図の点か「話を聞いた人」→ 一人のシート（プロフィール、たどった道、Claude の判断、インタビュー）。Esc で閉じる |
 | 入力 `#/input` | アプリ画面5枚、A案・B案の条件カード | 広告費の内訳・広告素材・関門・価格・途中の変更 | — |
-| 検証 `#/verify`（白黒） | 「◯問中◯問的中」と比較の基準 | 事例カード | 質問ごとの「はい」の確率と実際、出典 |
-| 根拠 `#/sources` | 「1万人は何からできているか」の図 | 属性ごとの出典表 | 限界の全文（`data/population/README.md` と `data/DATA_SOURCES.md` 5章をそのまま読み込む）、`#/sources-full` で DATA_SOURCES 全文 |
+| 根拠 `#/sources` | 「1万人は何からできているか」の図 | 属性ごとの出典表 | テプリ自身を試した結果（過去の実例・対照実験）の短いまとめと、限界の全文（`data/population/README.md` と `data/DATA_SOURCES.md` 5章をそのまま読み込む）、`#/sources-full` で DATA_SOURCES 全文 |
 
 - リプレイは `?replay=<id>`。なければ `demo_matching` → `mock` の順に探します（`src/config.ts`）。モックのときは上に注意を出します。
 - 結論に使う指標、カードの指標、指標の呼び名（core_actions =「初マッチ」）、画像の置き場所も `src/config.ts`。
 - アプリ画面と広告素材: `npm run sync-apps` で `apps/<app_id>/` の `screens/`・`ads/` を `public/apps/<app_id>/` に写し、`app.yaml` から `app.json`（名前・説明・関門の詳細）を作ります（PyYAML は `../.venv`）。
-- バックテスト: `public/backtest.json`（今はモック。形は `src/lib/backtest.ts`）。
+- バックテスト: `public/backtest.json`（形は `src/lib/backtest.ts`）。根拠の「限界」の先頭とトップの「過去」で使います。前の `#/verify` は `#/sources/backtest` に向けます。
 - 一人の判断の理由: リプレイに任意の `person_decisions: [{plan, person_id, step, level, reason_ja}]` があれば使い、なければ同じグループの `drop_reasons` を出します。
 - 色は `src/index.css` のトークンだけ。主役色は深い藍（`--brand`）で、ヒーロー・しくみ・はじめる・下の帯の大きな面に敷く（相棒は若竹 `--b`）。白いカード（やわらかい影・角丸）、節の上のラベルは主役色。背景の形（波・しずく・リボン）は `src/components/Shapes.tsx`。検証は白黒のまま（主役色はラベルだけ）。A案 = 藍、B案 = 若竹。
 - 結果の地図はトップの図と同じ「点だけ」の見た目（`JapanMap` の `variant="dots"`。県の境界と塗りは描かない）。点の色は 未接触（灰）→ インストール（案の色・薄）→ 初マッチ（案の色・濃）→ 課金（ピンク `--pay`）、やめた（灰）。出稿地域があるときは地域の中の点を濃く、外を薄くする。

@@ -1,12 +1,15 @@
 // 根拠: 1段目 = 「1万人は何からできているか」の図。2段目 = 数字の出発点（業界の平均値）。3段目 = 属性ごとの出典表。
-// 4段目 = 限界の全文と DATA_SOURCES。最後に出典表記（小さく、ただし見える形で）。
+// 4段目 = 限界。先頭にテプリ自身を試した結果（過去の実例・対照実験）を短く置き、続けて限界の全文と DATA_SOURCES。
+// 最後に出典表記（小さく、ただし見える形で）。
 // 限界と出典表記は data/ の文書をそのまま読み込んで出す（画面側で数字を書き写さない）。
 
+import { useEffect, useRef, useState } from "react";
 import dataSources from "../../../data/DATA_SOURCES.md?raw";
 import populationReadme from "../../../data/population/README.md?raw";
 import { REPO_URL } from "../config";
 import { Markdown, extractSection } from "../lib/markdown";
-import { href } from "../lib/router";
+import { href, routeAnchor } from "../lib/router";
+import { judge, loadBacktest, summarize } from "../lib/backtest";
 import "./sources.css";
 
 // 図の中身は data/population/README.md の「作り方」「列と出典」と DATA_SOURCES.md 1章から
@@ -182,6 +185,7 @@ export function SourcesPage() {
           </h2>
           <p className="note">分かっている弱点を、文書のまま全部載せています。</p>
         </div>
+        <SelfTests />
         <details className="fold">
           <summary>1万人の作り方の限界（{popLimits.split("\n").filter((l) => /^\d+\./.test(l)).length}項目）</summary>
           <div>
@@ -215,6 +219,88 @@ export function SourcesPage() {
         </section>
       )}
     </>
+  );
+}
+
+// ---- テプリ自身を試した結果 ----
+// 過去の実例: public/backtest.json から数える（画面に数字を書き写さない）。
+// 対照実験: runs/controls/compare_controls.json の A案、結果画面と同じ30回の「回ごとの差」の真ん中の値（日本全体の人数）。
+const CONTROL = { realInstalls: 213, looksInstalls: 198, realPayers: 25, looksPayers: 2 };
+
+function SelfTests() {
+  const [bt, setBt] = useState<{ n: number; hits: number; best: number; saidNo: number; cases: number } | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  // トップの「詳しく見る」や古い「検証」のリンクから来たときは、読み込みが終わって高さが決まってから、ここまで送る
+  useEffect(() => {
+    // 「限界」の見出しごと見えるように、入っている節の先頭に合わせる
+    if (loaded && routeAnchor() === "backtest") (ref.current?.closest("section") ?? ref.current)?.scrollIntoView();
+  }, [loaded]);
+  useEffect(() => {
+    const ac = new AbortController();
+    loadBacktest(ac.signal)
+      .then((b) => {
+        const s = summarize(b);
+        const answered = b.cases.flatMap((c) => c.questions.map(judge)).filter((q) => q.hit !== null);
+        if (s.answered === 0 || b.is_mock) return;
+        setBt({
+          n: s.answered,
+          hits: s.hits,
+          best: b.baselines.reduce((m, x) => Math.max(m, x.hits), 0),
+          saidNo: answered.filter((q) => !q.predicted).length,
+          cases: b.cases.length,
+        });
+      })
+      .catch(() => setBt(null))
+      .finally(() => !ac.signal.aborted && setLoaded(true));
+    return () => ac.abort();
+  }, []);
+  const n = (v: number) => v.toLocaleString("ja-JP", { maximumFractionDigits: 1 });
+  const gh = (path: string) => (REPO_URL ? `${REPO_URL}/blob/main/${path}` : null);
+  const report = gh("backtest/report.md");
+  const controls = gh("runs/controls/compare_controls.json");
+
+  return (
+    <div className="src-tests" id="backtest" ref={ref}>
+      {bt && (
+        <div className="src-test">
+          <h3>過去の実例は、まだ当てられない</h3>
+          <p>
+            すでに運営している実在のサービス{bt.cases}つ（名前は伏せています）の過去で、値上げや広告費の増減のあと売上や会員数が前より多いかを、{bt.n}問予測しました。当たったのは{n(bt.hits)}問で、
+            {bt.hits <= bt.best ? `「いつも『増える』と答える」だけの予想（${n(bt.best)}問）を超えませんでした。` : `「いつも『増える』と答える」だけの予想（${n(bt.best)}問）より多く当たりました。`}
+            テプリは{bt.n}問中{bt.saidNo}問で「減る」と答えていました。
+          </p>
+          <p className="note">
+            テプリの使い方（新しいアプリを出す前に A案と B案を比べる）とは別の場面での試験です。正解は予測を記録したあとで入れ、結果を見たあともルールは直していません。
+            {report && (
+              <>
+                {" "}
+                <a href={report} target="_blank" rel="noreferrer">
+                  詳しい結果（GitHub）
+                </a>
+              </>
+            )}
+          </p>
+        </div>
+      )}
+      <div className="src-test">
+        <h3>インストールの数だけでは、良くなったとは言えない</h3>
+        <p>
+          デモアプリの見た目（色・書体・イラストなど）だけを変えた版でも、インストールは、中身を直した版とほぼ同じだけ増えました（+{CONTROL.looksInstalls}人と +{CONTROL.realInstalls}人）。課金した人まで見ると違いが出ました（+{CONTROL.looksPayers}人と +{CONTROL.realPayers}人）。
+        </p>
+        <p className="note">
+          どちらも結果画面の A案との差で、30回の真ん中の値です。判断したのも版を作ったのも Claude で、本物の利用者では確かめていません。
+          {controls && (
+            <>
+              {" "}
+              <a href={controls} target="_blank" rel="noreferrer">
+                数字（GitHub）
+              </a>
+            </>
+          )}
+        </p>
+      </div>
+    </div>
   );
 }
 

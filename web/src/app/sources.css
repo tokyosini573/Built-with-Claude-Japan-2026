@@ -28,3 +28,14 @@
 .src-credit .md { max-width: none; gap: 6px; }
 .src-credit pre { margin: 0; padding: 0; background: transparent; font-family: var(--body); font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--muted); }
 .src-credit p, .src-credit li { font-size: 13px; }
+
+/* 限界の先頭: テプリ自身を試した結果（2つの短い箱） */
+.src-tests { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 980px; }
+@media (max-width: 760px) { .src-tests { grid-template-columns: 1fr; } }
+.src-test {
+  display: grid; gap: 10px; align-content: start; padding: 20px 22px; min-width: 0;
+  background: var(--surface); border: 1px solid var(--card-line); border-radius: 18px; box-shadow: var(--shadow);
+}
+.src-test h3 { font-family: var(--display); font-weight: 900; font-size: 19px; line-height: 1.5; }
+.src-test p { font-size: 16px; line-height: 1.8; }
+.src-test p.note { font-size: 14px; line-height: 1.7; }

@@ -1,4 +1,4 @@
-// 入口。?dev なら開発用ページ、それ以外は公開画面（トップ → 結果 / 入力 / 検証 / 根拠、ライブで試す）。
+// 入口。?dev なら開発用ページ、それ以外は公開画面（トップ → 結果 / 入力 / 根拠、ライブで試す）。
 
 import { useState } from "react";
 import { DevPage } from "./dev/DevPage";
@@ -6,7 +6,6 @@ import { ReplayErrorView } from "./components/ReplayErrorView";
 import { Decor, Wave } from "./components/Shapes";
 import { ResultPage } from "./app/ResultPage";
 import { InputPage } from "./app/InputPage";
-import { VerifyPage } from "./app/VerifyPage";
 import { SourcesFullPage, SourcesPage } from "./app/SourcesPage";
 import { TopPage } from "./app/TopPage";
 import { LivePage } from "./app/LivePage";
@@ -21,10 +20,9 @@ function readParams() {
 }
 
 const NAV: { route: Route; label: string }[] = [
-  // 「何を試したか → どうなったか → 当たるのか → 何からできているか」の順
+  // 「何を試したか → どうなったか → 何からできているか」の順
   { route: "input", label: "入力" },
   { route: "result", label: "結果" },
-  { route: "verify", label: "検証" },
   { route: "sources", label: "根拠" },
 ];
 
@@ -52,7 +50,7 @@ function Site({ replayParam }: { replayParam: string | null }) {
             <img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={36} height={36} />
             テプリ
           </a>
-          {/* トップはロゴだけ。「デモを再生」の後のページ（結果・入力・検証・根拠・ライブ）でメニューを出す */}
+          {/* トップはロゴだけ。「デモを再生」の後のページ（結果・入力・根拠・ライブ）でメニューを出す */}
           {route !== "home" && (
             <nav className="nav" aria-label="メニュー">
               {NAV.map((n) => (
@@ -72,13 +70,10 @@ function Site({ replayParam }: { replayParam: string | null }) {
           <TopPage status={status} onPlay={() => setAutoplay(true)} />
         </main>
       ) : (
-        <main className={`page${route === "verify" ? " page-mono" : ""}`} id="main">
-          {/* 検証は白黒の約束なので、主役色の飾りは置かない */}
-          {route !== "verify" && <Decor kind="page" />}
+        <main className="page" id="main">
+          <Decor kind="page" />
           {route === "live" ? (
             <LivePage />
-          ) : route === "verify" ? (
-            <VerifyPage />
           ) : route === "sources" ? (
             <SourcesPage />
           ) : route === "sources-full" ? (

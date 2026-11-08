@@ -15,7 +15,7 @@ export const MASCOT_POSES: { pose: MascotPose; label: string; place: string }[] 
   { pose: "action", label: "カチンコを持って意気込む", place: "トップ「テプリで試す」の節" },
   { pose: "busy", label: "走って作業中", place: "ライブで試すの読み込み中・実行中" },
   { pose: "inspect", label: "虫めがねで結果をのぞく", place: "結果画面の見出しのそば" },
-  { pose: "oops", label: "頭をかいて苦笑い", place: "検証画面「基準に勝てませんでした」のそば" },
+  { pose: "oops", label: "頭をかいて苦笑い", place: "今は使っていない（検証の画面は根拠の「限界」に移した）" },
 ];
 
 interface Props {

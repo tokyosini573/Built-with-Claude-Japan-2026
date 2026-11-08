@@ -623,8 +623,8 @@ function Trust() {
             </p>
             <p className="t-check-sub">{c.sub}</p>
             {c.link && (
-              <a className="t-check-link" href={href("verify")}>
-                検証を見る →
+              <a className="t-check-link" href={href("sources", "backtest")}>
+                詳しく見る →
               </a>
             )}
           </li>
