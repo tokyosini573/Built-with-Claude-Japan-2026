@@ -108,7 +108,7 @@ function sprite(color: string, r: number, dpr: number, alpha: number): HTMLCanva
  * 吹き出しの置き場所（地図の正規化座標、吹き出しの中心）。線は地方の点の重心へ引く。
  * 海の空いたところに置き、互いに重ならないように手で決めた。沖縄のはめ込み（左上）とマスコット（右下）を避ける
  */
-const BUBBLE_AT: Record<string, { x: number; y: number; small?: boolean }> = {
+export const BUBBLE_AT: Record<string, { x: number; y: number; small?: boolean }> = {
   hokkaido: { x: 0.46, y: 0.11, small: true },
   tohoku: { x: 0.88, y: 0.42, small: true },
   kanto: { x: 0.83, y: 0.64 },
@@ -129,7 +129,7 @@ interface Layout {
   centers: Record<string, [number, number]>;
 }
 
-function centersOf(pos: Float32Array, pref: number[], regions: HeroRegion[]): Record<string, [number, number]> {
+export function centersOf(pos: Float32Array, pref: number[], regions: Pick<HeroRegion, "id" | "prefs">[]): Record<string, [number, number]> {
   const out: Record<string, [number, number]> = {};
   for (const r of regions) {
     const set = new Set(r.prefs.filter((p) => p !== OKINAWA_CODE));

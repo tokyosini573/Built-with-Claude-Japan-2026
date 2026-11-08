@@ -3,7 +3,7 @@
 // variant="dots" のときは県の境界も塗りも描かず、トップの図（HeroDots）と同じく丸い点だけで形を出す。
 // そのときの地域の強調は、出稿地域の中の点を濃く、外の点を薄くして見せる（全国のときは強調しない）。
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { loadJapanMap, makeProjection, placePeople, type JapanMapData, type Projection } from "../lib/geo";
 import type { PersonRow } from "../lib/replay";
 import { PersonState, STATE_COLORS, STATE_COUNT } from "../lib/states";
@@ -37,6 +37,8 @@ export interface JapanMapProps {
   selectedColor?: string;
   /** "dots" = 県の形を描かず、丸い点だけ（トップの図と同じ見た目）。size は幅に合わせて少し大きくなる */
   variant?: "fill" | "dots";
+  /** 地図の上に重ねるもの（吹き出しなど）。点の位置（正規化座標、people の行の順）を受け取る */
+  overlay?: (positions: Float32Array) => ReactNode;
 }
 
 /** 1色の丸を小さなキャンバスに描いておく（1万個を毎フレーム描くため。HeroDots と同じやり方） */
@@ -78,6 +80,7 @@ export function JapanMap({
   selectedRow = null,
   selectedColor = "#000",
   variant = "fill",
+  overlay,
 }: JapanMapProps) {
   const dots = variant === "dots";
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -284,13 +287,16 @@ export function JapanMap({
       ) : !map ? (
         <p className="small muted">地図を読み込み中…</p>
       ) : null}
-      <canvas
-        ref={canvasRef}
-        role="img"
-        aria-label={ariaLabel}
-        onClick={onPick ? handleClick : undefined}
-        style={{ display: map ? "block" : "none", width: cssWidth, height: cssHeight, margin: "0 auto", cursor: onPick ? "pointer" : undefined }}
-      />
+      <div style={{ position: "relative", width: cssWidth, margin: "0 auto" }}>
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label={ariaLabel}
+          onClick={onPick ? handleClick : undefined}
+          style={{ display: map ? "block" : "none", width: cssWidth, height: cssHeight, cursor: onPick ? "pointer" : undefined }}
+        />
+        {map && positions && overlay?.(positions)}
+      </div>
       {map && showCredit && (
         <p className="muted" style={{ fontSize: 12, margin: "4px 0 0", textAlign: "right" }}>
           「国土数値情報（行政区域データ）」（国土交通省）をもとにテプリ作成

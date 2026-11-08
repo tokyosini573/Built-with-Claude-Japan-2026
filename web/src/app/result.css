@@ -177,3 +177,23 @@
 .dx-notes dt { font-family: var(--display); font-weight: 900; font-size: 15px; color: var(--brand-text); }
 .dx-notes dd { margin: 0; font-size: 15px; line-height: 1.75; }
 @media (max-width: 640px) { .dx-notes { grid-template-columns: 1fr; } .dx-body { padding: 16px; } .dx-head .mascot { width: 60px; height: 60px; } }
+
+/* 地図: 地方ごとの割合（吹き出し）と、点を押せる案内 */
+.map-card { container-type: inline-size; grid-template-columns: minmax(0, 1fr); }
+.map-card > * { min-width: 0; }
+.r-bubbles .hb { font-size: 11px; }
+.r-regtable { display: none; width: 100%; font-size: 13px; border-collapse: collapse; }
+.r-regtable th, .r-regtable td { padding: 2px 6px; border: 0; line-height: 1.5; text-align: right; white-space: nowrap; }
+.r-regtable th:first-child { text-align: left; font-weight: 700; }
+.r-regtable thead th { color: var(--muted); font-size: 12px; font-weight: 400; }
+.r-regtable tbody tr:nth-child(odd) { background: var(--tint); }
+@container (max-width: 420px) {
+  .r-bubbles { display: none; }
+  .r-regtable { display: table; }
+}
+.r-maphint {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin: 2px 0 0; padding: 8px 12px;
+  border-radius: 999px; background: var(--brand-soft); color: var(--brand-text); font-size: 14px; font-weight: 700; text-align: center;
+}
+.r-maphint svg { width: 18px; height: 18px; flex: none; fill: currentColor; stroke: currentColor; }
+.r-legend-note { flex-basis: 100%; }

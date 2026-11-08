@@ -2,7 +2,7 @@
 // 数字はすべて日本全体（1万人の数に scale_to_japan を掛けたもの）。細かい説明は「?」の吹き出しと折りたたみに入れる。
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { InfoTip } from "../components/HeroDots";
+import { BUBBLE_AT, centersOf, InfoTip } from "../components/HeroDots";
 import { JapanMap } from "../components/JapanMap";
 import { Mascot } from "../components/Mascot";
 import { Timeline, usePlayback } from "../components/Timeline";
@@ -613,7 +613,7 @@ function ReasonsAndNext({ replay }: { replay: Replay }) {
           {anyNext ? "離れた理由と、次に試すこと" : "離れた理由"}
         </h2>
         <p className="note">
-          途中でやめた人の理由を Claude がテーマにまとめ、多い順に{themes.length}つ並べました。{anyNext && "右は、それぞれに対して Claude のレポートが挙げた次の一手です。"}
+          途中でやめた人の理由を Claude がテーマにまとめ、多い順に{themes.length}つ並べました。{anyNext && "緑の箱は、それぞれに対して Claude のレポートが挙げた次の一手です。"}
           <InfoTip label="まとめ方">
             1万人それぞれの判断の理由を、似たものどうしでまとめたものです。「出た段階」は、その理由で離れた人がいた段階です。数字はエンジンが計算したもので、Claude は理由の言葉だけをまとめています。
           </InfoTip>
@@ -750,6 +750,7 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
             replay={replay}
             plan={id}
             day={playback.day}
+            ended={playback.day >= maxDay}
             states={id === "A" ? tA : tB}
             selectedRow={picked?.plan === id ? picked.row : null}
             onPick={(row) => onPick({ row, plan: id })}
@@ -767,6 +768,7 @@ function PlanMap({
   replay,
   plan,
   day,
+  ended,
   states,
   selectedRow,
   onPick,
@@ -774,6 +776,7 @@ function PlanMap({
   replay: Replay;
   plan: PlanId;
   day: number;
+  ended: boolean;
   states: ReturnType<typeof useStateTimeline>;
   selectedRow: number | null;
   onPick: (row: number) => void;
@@ -839,9 +842,151 @@ function PlanMap({
           selectedColor={fg}
           showCredit={false}
           ariaLabel={`${plan}案の日本地図。${day}日目の様子`}
+          overlay={(pos) => <RegionBubbles replay={replay} plan={plan} pos={pos} shown={ended} />}
         />
       )}
+      {ended && <RegionTable replay={replay} plan={plan} />}
+      <p className="r-maphint">
+        <svg viewBox="0 0 20 20" aria-hidden>
+          <circle cx="10" cy="10" r="3.2" />
+          <circle cx="10" cy="10" r="7.5" fill="none" strokeWidth="1.6" />
+        </svg>
+        地図の上の点を押しても、その架空の人の判断が見られます
+      </p>
     </div>
+  );
+}
+
+// ---- 地方ごとの割合（再生が終わったら地図に吹き出しで出す。トップの図と同じ置き方）----
+
+const REGIONS = [
+  { id: "hokkaido", name_ja: "北海道", prefs: [1] },
+  { id: "tohoku", name_ja: "東北", prefs: [2, 3, 4, 5, 6, 7] },
+  { id: "kanto", name_ja: "関東", prefs: [8, 9, 10, 11, 12, 13, 14] },
+  { id: "chubu", name_ja: "中部", prefs: [15, 16, 17, 18, 19, 20, 21, 22, 23] },
+  { id: "kinki", name_ja: "近畿", prefs: [24, 25, 26, 27, 28, 29, 30] },
+  { id: "chugoku", name_ja: "中国", prefs: [31, 32, 33, 34, 35] },
+  { id: "shikoku", name_ja: "四国", prefs: [36, 37, 38, 39] },
+  { id: "kyushu", name_ja: "九州・沖縄", prefs: [40, 41, 42, 43, 44, 45, 46, 47] },
+];
+
+/** 合計100になる整数の%（最大剰余法。scripts/build-hero-people.mjs と同じ） */
+function shares(values: number[]): number[] {
+  const total = values.reduce((a, b) => a + b, 0);
+  if (total === 0) return values.map(() => 0);
+  const raw = values.map((v) => (v / total) * 100);
+  const res = raw.map(Math.floor);
+  let left = 100 - res.reduce((a, b) => a + b, 0);
+  const order = raw.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  for (const [, i] of order) {
+    if (left <= 0) break;
+    res[i]++;
+    left--;
+  }
+  return res;
+}
+
+type RegionRow = { id: string; name_ja: string; install: number; core: number; pay: number };
+
+/** 地図に映した1回分（sample_run.events）を地方ごとに合計し、全国の合計のうち各地方が占める% */
+function useRegionShares(replay: Replay, plan: PlanId): RegionRow[] | null {
+  return useMemo(() => {
+    const events = replay.plans[plan]?.sample_run?.events;
+    if (!Array.isArray(events) || events.length === 0) return null;
+    const prefOf = new Map(replay.people.map((p) => [p[0], p[1]]));
+    const regionOf = new Map(REGIONS.flatMap((r, ri) => r.prefs.map((pc) => [pc, ri] as const)));
+    const sums = REGIONS.map(() => ({ install: 0, core: 0, pay: 0 }));
+    for (const ev of events) {
+      const [pid, , step, n = 1] = ev as unknown as [number, number, string, number?];
+      const ri = regionOf.get(prefOf.get(pid) ?? 0);
+      if (ri === undefined) continue;
+      if (step === "install") sums[ri].install += n;
+      else if (step === "core_action") sums[ri].core += n;
+      else if (step === "pay") sums[ri].pay += n;
+    }
+    const pi = shares(sums.map((x) => x.install));
+    const pc = shares(sums.map((x) => x.core));
+    const pp = shares(sums.map((x) => x.pay));
+    return REGIONS.map((r, i) => ({ id: r.id, name_ja: r.name_ja, install: pi[i], core: pc[i], pay: pp[i] }));
+  }, [replay, plan]);
+}
+
+function RegionNums({ r, plan }: { r: RegionRow; plan: PlanId }) {
+  return (
+    <span className="hb-nums">
+      <span className="num">
+        <span className="swatch" style={{ background: PLAN_VAR[plan], opacity: 0.45 }} />
+        {r.install}%
+      </span>
+      <span className="num">
+        <span className="swatch" style={{ background: PLAN_VAR[plan] }} />
+        {r.core}%
+      </span>
+      <span className="num">
+        <span className="swatch" style={{ background: "var(--pay)" }} />
+        {r.pay}%
+      </span>
+    </span>
+  );
+}
+
+function RegionBubbles({ replay, plan, pos, shown }: { replay: Replay; plan: PlanId; pos: Float32Array; shown: boolean }) {
+  const rows = useRegionShares(replay, plan);
+  const centers = useMemo(() => centersOf(pos, replay.people.map((p) => p[1]), REGIONS), [pos, replay.people]);
+  if (!rows) return null;
+  return (
+    <div className={`hero-bubbles r-bubbles${shown ? " on" : ""}`} aria-hidden="true">
+      <svg className="hero-leaders" viewBox="0 0 1 1" preserveAspectRatio="none">
+        {rows.map((r) => {
+          const at = BUBBLE_AT[r.id];
+          const c = centers[r.id];
+          return at && c ? <line key={r.id} x1={at.x} y1={at.y} x2={c[0]} y2={c[1]} vectorEffect="non-scaling-stroke" /> : null;
+        })}
+        {rows.map((r) => {
+          const c = centers[r.id];
+          return c && BUBBLE_AT[r.id] ? <circle key={r.id} cx={c[0]} cy={c[1]} r={0.006} /> : null;
+        })}
+      </svg>
+      {rows.map((r) => {
+        const at = BUBBLE_AT[r.id];
+        if (!at || !centers[r.id]) return null;
+        return (
+          <div key={r.id} className="hb sm" style={{ left: `${at.x * 100}%`, top: `${at.y * 100}%` }}>
+            <strong>{r.name_ja}</strong>
+            <RegionNums r={r} plan={plan} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 地図が狭いとき（吹き出しが重なるとき）の代わりの表 */
+function RegionTable({ replay, plan }: { replay: Replay; plan: PlanId }) {
+  const rows = useRegionShares(replay, plan);
+  if (!rows) return null;
+  return (
+    <table className="r-regtable">
+      <caption className="sr-only">{plan}案の地方ごとの割合（全国の合計のうち、その地方が占める割合）</caption>
+      <thead>
+        <tr>
+          <th scope="col">地方</th>
+          <th scope="col">インストール</th>
+          <th scope="col">初マッチ</th>
+          <th scope="col">課金</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.id}>
+            <th scope="row">{r.name_ja}</th>
+            <td className="num">{r.install}%</td>
+            <td className="num">{r.core}%</td>
+            <td className="num">{r.pay}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -864,6 +1009,12 @@ function MapLegend({ replay }: { replay: Replay }) {
         </span>
       ))}
       {someRegions && <span className="note">色の濃い地域が、広告を出した地域です。</span>}
+      <span className="note r-legend-note">
+        再生が終わると、地方ごとの割合が出ます。%は、全国の合計のうちその地方が占める割合で、地図に映した1回分の結果です。
+        <InfoTip label="地図に映した1回分とは">
+          地図の点の動きは、{replay.meta.runs}回のうち真ん中の条件で、1万人それぞれが進んだかどうかを1回抽選したものです。上の数字（{replay.meta.runs}回の中央値）とは少し違います。
+        </InfoTip>
+      </span>
     </div>
   );
 }
