@@ -6,7 +6,16 @@
   display: grid; gap: 4px; padding: 22px 28px; border-radius: 18px;
   background: var(--brand-soft); border-left: 6px solid var(--brand-solid); max-width: 52em;
 }
-.t-bridge strong { font-family: var(--display); font-weight: 900; font-size: clamp(20px, 2.6vw, 26px); line-height: 1.45; color: var(--fg); }
+.t-bridge { gap: 10px; padding: 30px 36px; }
+.t-bridge strong { font-family: var(--display); font-weight: 900; font-size: clamp(26px, 5vw, 52px); line-height: 1.35; color: var(--fg); }
+.t-bridge > span { font-size: 18px; }
+/* 問題とテプリでの答え */
+.t-q { justify-self: start; font-family: var(--display); font-weight: 900; font-size: 16px; letter-spacing: .06em; color: var(--error-text); background: var(--error-bg); border-radius: 999px; padding: 3px 14px; }
+.t-fix { display: grid; gap: 4px; margin-top: 4px; padding: 14px 16px; border-radius: 14px; background: var(--b-soft); }
+.t-fix b { font-family: var(--display); font-weight: 900; font-size: 15px; color: var(--b); letter-spacing: .04em; }
+.t-fix span { font-weight: 700; color: var(--fg); line-height: 1.65; }
+.t-claim-sub { font-size: 16px; }
+.t-steps-lead { color: var(--text-secondary); font-size: 16px; }
 .t-bridge > span { color: var(--text-secondary); }
 
 /* ---- 例えば（デモ） ---- */
@@ -45,7 +54,7 @@
 .t-steps-wrap { display: grid; gap: 12px; min-width: 0; }
 .t-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .t-steps li {
-  display: grid; grid-template-columns: 7.5em 3.6em minmax(0, 1fr); gap: 14px; align-items: baseline;
+  display: grid; grid-template-columns: 9em 3.6em minmax(0, 1fr); gap: 14px; align-items: baseline;
   padding: 14px 18px; border-radius: 14px; background: var(--tint); border: 1px solid var(--card-line);
 }
 .t-step-name { font-weight: 700; }

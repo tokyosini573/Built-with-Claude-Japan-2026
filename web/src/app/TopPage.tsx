@@ -186,19 +186,23 @@ function Hero() {
 
 function Problem() {
   const items = [
-    { t: "試せるのは、発売のあと", d: "全国に広告を出すか、東京に絞るか。A/B テストも、お金をかけて発売した後でしかできません。" },
-    { t: "同じ予算でも、結果は違う", d: "どの地域の、どの年代に、どの SNS で届くかで、インストールから課金までの流れが変わります。" },
-    { t: "アンケートは「地図」を見落とす", d: "マッチングアプリは、近くに相手がいないと続きません。一人に聞いても、まわりに誰がいるかは分かりません。" },
+    { t: "試せるのは、発売のあと", d: "全国に広告を出すか、東京に絞るか。A/B テストも、お金をかけて発売した後でしかできません。", fix: "発売の前に、架空の1万人の前で何度でも試せます。" },
+    { t: "同じ予算でも、結果は違う", d: "どの地域の、どの年代に、どの SNS で届くかで、インストールから課金までの流れが変わります。", fix: "地域・年代・SNS ごとに、インストールから課金までの人数を数えて比べます。" },
+    { t: "アンケートは「地図」を見落とす", d: "マッチングアプリは、近くに相手がいないと続きません。一人に聞いても、まわりに誰がいるかは分かりません。", fix: "1万人を日本地図の上に置き、近くに相手がいるかまで数えます。" },
   ];
   return (
     <Sec id="problem" eyebrow="解決したいこと" aside={<Mascot pose="wonder" />} title={<><span className="ib">「出してみないと</span><span className="ib">分からない」を、</span><span className="ib">出す前に確かめる</span></>}>
       <ol className="points t-points">
         {items.map((x, i) => (
           <li key={x.t}>
-            <span className="pt-no num" aria-hidden>{i + 1}</span>
             <div>
+              <p className="t-q">問題 {i + 1}</p>
               <h3 className="h3">{x.t}</h3>
               <p>{x.d}</p>
+              <p className="t-fix">
+                <b>テプリなら</b>
+                <span>{x.fix}</span>
+              </p>
             </div>
           </li>
         ))}
@@ -252,7 +256,11 @@ function demoHeadline(replay: Replay): { parts: string[]; unclear: boolean; sub:
   const sub = `同じ条件で${runs}回ずつ試し、${name}の数で B案が上回ったのは${runs}回中${wins}回でした。`;
   if (p >= UNCLEAR_RANGE[1]) return { parts: [`${name}は、`, `B案のほうが多い確率 ${Math.round(p * 100)}%。`], unclear: false, sub };
   if (p <= UNCLEAR_RANGE[0]) return { parts: [`${name}は、`, `A案のほうが多い確率 ${Math.round((1 - p) * 100)}%。`], unclear: false, sub };
-  return { parts: [`${name}は、`, "どちらが多いか", "はっきりしない。"], unclear: true, sub };
+  return {
+    parts: [`${name}の数は、`, "引き分け。"],
+    unclear: true,
+    sub: `同じ条件で${runs}回試すと、B案のほうが多かったのは${wins}回。半分前後なので、どちらが多いとは言えません。`,
+  };
 }
 
 function Demo({ replay, loading }: { replay: Replay | null; loading: boolean }) {
@@ -261,6 +269,14 @@ function Demo({ replay, loading }: { replay: Replay | null; loading: boolean }) 
   const cpi = replay ? ids.map((id) => replay.plans[id]?.totals.cpi_jpy?.p50) : [];
   const hasCpi = cpi.length === 2 && cpi.every((v) => v !== undefined && v > 0);
   const maxCpi = hasCpi ? Math.max(...(cpi as number[])) : 1;
+  // 安いほうが何分の1か（2倍以上違うときだけ見出しに出す）
+  const cheap = hasCpi
+    ? (() => {
+        const [a, b] = cpi as number[];
+        const ratio = Math.round(Math.max(a, b) / Math.min(a, b));
+        return ratio >= 2 ? { id: a < b ? "A" : "B", ratio } : null;
+      })()
+    : null;
   const k = replay?.meta.scale_to_japan ?? 1;
   const core = replay ? ids.map((id) => replay.plans[id]?.totals[HEADLINE_METRIC]) : [];
   return (
@@ -313,17 +329,18 @@ function Demo({ replay, loading }: { replay: Replay | null; loading: boolean }) 
                     {metricName(HEADLINE_METRIC, replay)}の人数（日本全体・{replay.meta.runs}回の中央値）は A案 {count(core[0]!.p50 * k)}人、B案 {count(core[1]!.p50 * k)}人。ただし10〜90%の幅は A案 {count(core[0]!.p10 * k)}〜{count(core[0]!.p90 * k)}人、B案 {count(core[1]!.p10 * k)}〜{count(core[1]!.p90 * k)}人で、大きく重なります。
                   </InfoTip>
                 )}
-                {head.unclear && hasCpi && (
+                {head.unclear && cheap && (
                   <span className="t-claim-2">
-                    <span className="ib">はっきり違うのは、</span>
-                    <span className="ib">費用。</span>
+                    <span className="ib">1インストールあたりの</span>
+                    <span className="ib">費用は、</span>
+                    <span className="ib">{cheap.id}案が約{cheap.ratio}分の1。</span>
                   </span>
                 )}
               </h3>
-              <p className="secondary">{head.sub}</p>
+              <p className="secondary t-claim-sub">{head.sub}</p>
               {hasCpi && (
                 <figure className="t-cpi">
-                  <figcaption>1インストールあたりの費用（{replay.meta.runs}回の中央値）</figcaption>
+                  <figcaption>1インストールあたりの費用（かけた費用 ÷ インストール数。{replay.meta.runs}回の中央値）</figcaption>
                   {ids.map((id, i) => (
                     <div key={id} className="t-cpi-row">
                       <span className="t-cpi-label" style={{ color: PLAN_VAR[id] }}>{id}案</span>
@@ -356,7 +373,10 @@ function How() {
     { n: "4", name: "結果", sub: "見て、読んで、聞ける", ai: "Claude は文章だけ", d: "1万人が日本地図の上で動く様子を再生できます。どこで何人が離れたか、なぜやめたかを Claude がまとめ、気になる一人に「なぜやめたの？」と聞くこともできます。数字はすべてエンジンが数えたものです。" },
   ];
   return (
-    <Sec id="how" eyebrow="しくみ" title="4つの部品が、それぞれ得意なことだけをする" tone="brand">
+    <Sec id="how" eyebrow="しくみ" title={<><span className="ib">Claude は判断するだけ。</span><span className="ib">人数はエンジンが数える</span></>} tone="brand">
+      <p className="lead">
+        テプリは4つの部品でできています。Claude が受け持つのは、一人ひとりの判断（2）と結果の文章（4）だけ。人数は、統計（1）と出典のある平均をもとに、AI を使わないエンジン（3）が数えます。だから AI が、もっともらしい数字をつくることはありません。
+      </p>
       <div className="flow-wrap">
         {/* 番号をつなぐ流れ（広い画面だけ） */}
         <svg className="flow-line" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -395,11 +415,11 @@ const SIGNUP_BASE = 0.466;
 const LEVEL_MULT = { higher: 1.3, similar: 1.0, lower: 0.7 } as const;
 const LEVEL_SHORT = { higher: "高い", similar: "同じ", lower: "低い" } as const;
 
+/** A案の広告3種類がどの SNS 向けか（apps/demo_matching/app.yaml の creatives のコメント） */
+const CREATIVE_JA: Record<string, string> = { a1: "TikTok 広告", a2: "Instagram 広告", a3: "X 広告" };
+
 function decisionLabel(d: PersonDecision, replay: Replay): string {
-  if (d.step === "install" && d.creative) {
-    const n = d.creative.match(/(\d+)$/)?.[1];
-    return n ? `広告（${n}本目）` : "広告";
-  }
+  if (d.step === "install" && d.creative) return CREATIVE_JA[d.creative] ?? "広告";
   return stepName(d.step, replay);
 }
 
@@ -427,11 +447,11 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
     { t: "X のクチコミ", d: "X での拡散は全国へ、身近な人からのクチコミは地域の中で広がります。" },
     { t: "電車広告", d: "都道府県ごとの鉄道通勤率で、届く人が変わります。" },
     { t: "本人確認", d: "書類と審査待ちで、何人が離れるかを数えます。" },
-    { t: "地域の密度", d: "近くに相手がいるかで、初マッチの起きやすさが変わります。", link: "解決したいこと③（アンケートが見落とす「地図」）への答えです。" },
+    { t: "地域の密度", d: "近くに相手がいるかで、初マッチの起きやすさが変わります。", link: "問題3（アンケートが見落とす「地図」）への答えです。" },
   ];
 
   return (
-    <Sec id="follow" eyebrow="しくみ ・ 1人を追ってみる" title="1万人のうちの1人に、何が起きたか">
+    <Sec id="follow" eyebrow="しくみ ・ 1人を追ってみる" title="架空の日本人1万人のうちの1人に、何が起きたか">
       {row && picked.length > 0 && replay ? (
         <>
           <div className="t-follow">
@@ -453,6 +473,9 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
               </p>
             </div>
             <div className="t-steps-wrap">
+              <p className="t-steps-lead">
+                Claude は段階ごとに、この人が<strong>同じ種類のアプリの平均より先へ進みやすいか</strong>を「高い・同じ・低い」で答え、理由を書きます。
+              </p>
               <ol className="t-steps">
                 {picked.map((d) => (
                   <li key={`${d.step}-${d.creative ?? ""}`}>
@@ -481,12 +504,12 @@ function FollowOne({ replay, loading }: { replay: Replay | null; loading: boolea
 
           {signup && (
             <div className="t-eq-wrap">
-              <h3 className="h3">判断が数字になるまで（{stepName("signup", replay)}の段階）</h3>
+              <h3 className="h3">Claude の判断が、確率になるまで（インストールした後、{stepName("signup", replay)}するか）</h3>
               <div className="t-eq" role="group" aria-label="登録する確率の計算">
                 <div className="t-eq-box">
                   <span className="t-eq-tag">出典のある平均</span>
                   <span className="t-eq-num num">{pct(SIGNUP_BASE)}</span>
-                  <span className="t-eq-d">日本のマッチングアプリで、インストールした人が登録する割合の平均（出典 [LD22]）</span>
+                  <span className="t-eq-d">日本のマッチングアプリを入れた人のうち、登録まで進む人の割合の平均（出典 [LD22]）</span>
                 </div>
                 <span className="t-eq-op" aria-label="かける">×</span>
                 <div className="t-eq-box is-claude">
