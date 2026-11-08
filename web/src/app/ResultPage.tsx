@@ -180,7 +180,7 @@ function RunsChart({ replay, metric }: { replay: Replay; metric: TotalKey }) {
           ))}
         </ol>
         <p className="r-read">
-          {nA}回 対 {nB}回。{close ? "ほぼ半々なので、どちらが多いとは言えません。" : `${nA > nB ? "A" : "B"}案のほうが多い回が多めです。`}
+          {nA}回 対 {nB}回。{close ? `ほぼ半々なので、${name}の人数では、A案と B案のどちらが優れているとは言えません。` : `${nA > nB ? "A" : "B"}案のほうが多い回が多めです。`}
         </p>
       </div>
 
