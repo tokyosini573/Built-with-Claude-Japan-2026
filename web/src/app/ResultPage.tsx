@@ -1,4 +1,6 @@
-// 結果: 何を比べたか＋結論（トップと同じ言い方）→ 幅の図 → どこで減ったか → 離れた理由と次に試すこと → 地図で見る。
+// 結果: 何を比べたか＋結論（トップと同じ言い方）→ 地図の再生（30回のうちの1回）と話を聞いた人 → 30回の結果と費用
+// → どこで減ったか → 離れた理由と次に試すこと。「デモを再生」から来た人には、まず地図が動くのを見せる。
+// 地図は30回とは別の1回（teppuri/engine/rules.py の mid 回）。30回のうちの1回とは書かない。
 // 数字はすべて日本全体（1万人の数に scale_to_japan を掛けたもの）。細かい説明は「?」の吹き出しと折りたたみに入れる。
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -35,9 +37,10 @@ export function ResultPage({ replay, autoplay, onAutoplayDone }: Props) {
   return (
     <>
       <Verdict replay={replay} />
+      <Player replay={replay} autoplay={autoplay} onAutoplayDone={onAutoplayDone} picked={picked} onPick={setPicked} />
+      <RunsSection replay={replay} />
       <FunnelSection replay={replay} />
       <ReasonsAndNext replay={replay} />
-      <Player replay={replay} autoplay={autoplay} onAutoplayDone={onAutoplayDone} picked={picked} onPick={setPicked} />
     </>
   );
 }
@@ -108,6 +111,21 @@ function Verdict({ replay }: { replay: Replay }) {
         <Mascot pose="inspect" />
       </div>
       {name === "初マッチ" && <p className="r-sub">初マッチ＝アプリで、はじめて相手とマッチした人。</p>}
+    </section>
+  );
+}
+
+// ---- 30回の結果と費用（地図で1回を見たあとに、30回全部でまとめる） ----
+
+function RunsSection({ replay }: { replay: Replay }) {
+  return (
+    <section className="section r-verdict" aria-labelledby="runs-h">
+      <div style={{ display: "grid", gap: 6 }}>
+        <h2 className="h2" id="runs-h">
+          {replay.meta.runs}回くり返した結果
+        </h2>
+        <p className="note">上の地図は、代表として1回だけ動かした様子です。結果は1回ごとに変わるので、{replay.meta.runs}回くり返して比べました。</p>
+      </div>
       {hasRuns(replay, HEADLINE_METRIC) ? <RunsChart replay={replay} metric={HEADLINE_METRIC} /> : <RangeChart replay={replay} metric={HEADLINE_METRIC} />}
       <CostRow replay={replay} />
     </section>
@@ -699,11 +717,31 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
   const [shown, setShown] = useState<PlanId>(ids[0] ?? "A");
   const tA = useStateTimeline(replay, "A");
   const tB = useStateTimeline(replay, "B");
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // トップの「再生」から来たときは、地図が画面に入ったところで再生を始める
+  // トップの「再生」から来たときは、地図の節まで送り、地図が画面に入ったところで再生を始める
+  // （結論の見出しは地図のすぐ上にあるので、上へ少し戻れば読める）
   useEffect(() => {
     if (!autoplay || !ref.current) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // 広い画面は見出しから。狭い画面は見出しと説明で地図が下に押し出されるので、地図の下端を画面の下端に合わせる
+    const align = (behavior: ScrollBehavior) => {
+      if (wide) sectionRef.current?.scrollIntoView({ behavior, block: "start" });
+      else ref.current?.scrollIntoView({ behavior, block: "end" });
+    };
+    align(reduce ? "auto" : "smooth");
+    // 地図は読み込みのあとで高さが変わるので、少しのあいだ合わせ直す。利用者が自分で動かしたらやめる
+    const ro = new ResizeObserver(() => align("auto"));
+    const stopAlign = () => {
+      ro.disconnect();
+      window.removeEventListener("wheel", stopAlign);
+      window.removeEventListener("touchstart", stopAlign);
+    };
+    ro.observe(ref.current);
+    window.addEventListener("wheel", stopAlign, { passive: true });
+    window.addEventListener("touchstart", stopAlign, { passive: true });
+    const timer = window.setTimeout(stopAlign, 2000);
     const io = new IntersectionObserver(
       (es) => {
         if (es.some((e) => e.isIntersecting)) {
@@ -716,7 +754,11 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
       { threshold: 0.35 },
     );
     io.observe(ref.current);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      stopAlign();
+      window.clearTimeout(timer);
+    };
     // 最初の1回だけ
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -724,13 +766,13 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
   const visible = wide ? ids : ids.filter((id) => id === shown);
 
   return (
-    <section className="section player" aria-labelledby="player-h" ref={ref}>
+    <section className="section player" aria-labelledby="player-h" ref={sectionRef}>
       <div style={{ display: "grid", gap: 6 }}>
         <h2 className="h2" id="player-h">
           地図で見る: 同じ1万人に、{replay.meta.period_days}日間で起きたこと
         </h2>
         <p className="note">
-          点1つが架空の1人（実際の約{formatCount(replay.meta.scale_to_japan)}人分）。▶ を押すと、左が A案、右が B案のときの様子が1日ずつ進みます。点を押すと、その人の判断と理由が見られます。
+          代表として1回だけ動かした様子です。点1つが架空の1人（実際の約{formatCount(replay.meta.scale_to_japan)}人分）。▶ を押すと、左が A案、右が B案のときの様子が1日ずつ進みます。点を押すと、その人の判断と理由が見られます。
         </p>
       </div>
       <Timeline playback={playback} extrapolatedAfterDay={replay.meta.extrapolated_after_day} />
@@ -743,7 +785,7 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
           ))}
         </div>
       )}
-      <div className={`maps${visible.length === 1 ? " single" : ""}`}>
+      <div className={`maps${visible.length === 1 ? " single" : ""}`} ref={ref}>
         {visible.map((id) => (
           <PlanMap
             key={id}
@@ -907,7 +949,7 @@ function DotsSummary({ replay }: { replay: Replay }) {
           {id}案 {count(c!.install)}点 → {count(c!.core)}点
         </span>
       ))}
-      ）。上の「どこで減ったか」と同じ減り方です。
+      ）。下の「どこで減ったか」と同じ減り方です。
     </p>
   );
 }
@@ -1067,7 +1109,7 @@ function MapLegend({ replay }: { replay: Replay }) {
       <span className="note r-legend-note">
         再生が終わると、地方ごとの割合が出ます。%は、全国の合計のうちその地方が占める割合で、地図に映した1回分の結果です。
         <InfoTip label="地図に映した1回分とは">
-          地図の点の動きは、データだけでは1つに決めきれない数字（広告が押される割合、マッチの起きやすさなど）を、すべて範囲の真ん中にした条件で、1万人それぞれが進んだかどうかを1回抽選したものです。{replay.meta.runs}回とは別の1回なので、上の数字（{replay.meta.runs}回の中央値）とは少し違います。
+          地図の点の動きは、データだけでは1つに決めきれない数字（広告が押される割合、マッチの起きやすさなど）を、すべて範囲の真ん中にした条件で、1万人それぞれが進んだかどうかを1回抽選したものです。{replay.meta.runs}回とは別の1回なので、下の数字（{replay.meta.runs}回の中央値）とは少し違います。
         </InfoTip>
       </span>
     </div>
