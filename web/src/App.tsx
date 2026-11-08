@@ -9,7 +9,6 @@ import { InputPage } from "./app/InputPage";
 import { SourcesFullPage, SourcesPage } from "./app/SourcesPage";
 import { TopPage } from "./app/TopPage";
 import { LivePage } from "./app/LivePage";
-import { KoToggle } from "./components/KoToggle"; // 一時的（提出前に消す）
 import { href, useRoute, type Route } from "./lib/router";
 import { useReplayAuto } from "./lib/useReplayAuto";
 import type { Scale } from "./lib/format";
@@ -60,7 +59,6 @@ function Site({ replayParam }: { replayParam: string | null }) {
               ))}
             </nav>
           )}
-          <KoToggle />
         </div>
         {isMock && (route === "result" || route === "input") && <div className="mock-note">モックの数字です。根拠はありません。</div>}
       </header>
