@@ -46,3 +46,68 @@
 .linkbtn { justify-self: start; padding: 4px 0; border: 0; background: none; color: var(--link); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 .linkbtn:hover { text-decoration: underline; text-underline-offset: 3px; }
 .h2 .tip-pop, .h3 .tip-pop, .h4 .tip-pop, h4 .tip-pop { font-weight: 400; font-family: var(--body); letter-spacing: 0; }
+
+/* ==== 結果ページ（結論 → 幅 → どこで減ったか → 理由と次の一手 → 地図） ==== */
+.r-verdict { gap: 18px; }
+.r-context { font-size: 17px; line-height: 1.75; color: var(--text-secondary); max-width: 46em; }
+.r-context b { font-family: var(--display); font-weight: 900; }
+.r-verdict .with-mascot { max-width: 920px; }
+.claim-2 { display: block; color: var(--brand-text); font-size: 0.72em; margin-top: 6px; }
+.r-sub { font-size: 16px; color: var(--text-secondary); line-height: 1.7; }
+.r-sub strong { color: var(--fg); }
+
+/* 幅の図 */
+.r-range { display: grid; gap: 14px; max-width: 920px; margin: 0; }
+.r-range figcaption { display: grid; gap: 4px; }
+.r-range figcaption strong { font-family: var(--display); font-weight: 900; font-size: 18px; }
+.r-plot { position: relative; margin: 30px 8px 0 3.6em; }
+.r-overlap {
+  position: absolute; top: -26px; bottom: 26px; border-radius: 12px; z-index: 0;
+  background: color-mix(in srgb, var(--gold, #b07a00) 12%, transparent); border: 2px dashed color-mix(in srgb, var(--gold, #b07a00) 55%, transparent);
+}
+.r-overlap span { position: absolute; top: 2px; left: 8px; font-size: 12px; font-weight: 700; color: var(--gold, #b07a00); }
+.r-row { position: relative; height: 70px; z-index: 1; }
+.r-tag { position: absolute; left: -3.6em; top: 20px; font-size: 18px; }
+.r-band { position: absolute; top: 24px; height: 18px; border-radius: 999px; opacity: 0.3; }
+.r-med { position: absolute; top: 16px; width: 5px; height: 34px; border-radius: 3px; transform: translateX(-50%); }
+.r-val { position: absolute; top: -6px; transform: translateX(-50%); font-family: var(--display); font-weight: 900; font-size: 17px; white-space: nowrap; }
+.r-ends { position: absolute; top: 48px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.r-axis { position: relative; height: 26px; border-top: 1px solid var(--line); }
+.r-axis span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.r-read { font-family: var(--display); font-weight: 900; font-size: 16px; color: var(--fg); }
+
+/* 費用 */
+.r-cpi { font-size: 15px; color: var(--text-secondary); }
+.r-cpi .cost-amount { color: var(--fg); margin-left: 4px; }
+.r-cost-note { grid-column: 1 / -1; }
+
+/* どこで減ったか */
+.r-funnel { display: grid; gap: 18px; max-width: 920px; }
+.r-funnel .frow { padding: 8px 10px; border-radius: 12px; }
+.r-funnel .frow.is-worst { background: var(--error-bg); }
+.r-funnel .frow.is-worst .lbl { font-weight: 700; }
+.r-funnel .frow.is-worst .fpct { color: var(--error-text); font-weight: 700; }
+.fpct { color: var(--muted); }
+.r-callout { display: grid; gap: 8px; max-width: 920px; padding: 18px 20px; border-radius: 16px; background: var(--brand-soft); line-height: 1.75; }
+.r-callout-head { font-family: var(--display); font-weight: 900; font-size: 19px; }
+.r-callout b { font-family: var(--display); font-weight: 900; }
+.r-more { max-width: 920px; }
+
+/* 離れた理由と次の一手 */
+.r-pairs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; max-width: 1040px; }
+.r-pair { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; align-items: stretch; }
+.r-pair.no-next { grid-template-columns: minmax(0, 1fr); }
+.r-why { grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+.r-why .next-no { margin-top: 2px; }
+.r-next { position: relative; display: grid; gap: 4px; align-content: center; padding: 16px 18px; border-radius: 16px; background: var(--b-soft); }
+.r-next b { font-family: var(--display); font-weight: 900; font-size: 14px; color: var(--b); letter-spacing: .04em; }
+.r-next span { font-weight: 700; line-height: 1.65; }
+@media (min-width: 761px) {
+  .r-next::before { content: "→"; position: absolute; left: -12px; top: 50%; transform: translate(-50%, -50%); font-weight: 900; color: var(--b); }
+}
+@media (max-width: 760px) { .r-pair { grid-template-columns: 1fr; gap: 8px; } }
+
+/* 話を聞いた人 */
+.r-talk { display: grid; gap: 10px; }
+.r-talk-row { display: grid; grid-template-columns: 6em minmax(0, 1fr); gap: 8px 12px; align-items: center; }
+@media (max-width: 640px) { .r-talk-row { grid-template-columns: 1fr; } }

@@ -220,7 +220,7 @@ function Problem() {
 
 // ---- 3. 例えば（デモの結果を先に） ----
 
-function planSummary(replay: Replay, id: PlanId): { title: string; detail: string; cost: string | null; video: boolean } {
+export function planSummary(replay: Replay, id: PlanId): { title: string; detail: string; cost: string | null; video: boolean } {
   const plan = replay.plans[id];
   if (!plan) return { title: `${id}案`, detail: "", cost: null, video: false };
   const c = plan.config;

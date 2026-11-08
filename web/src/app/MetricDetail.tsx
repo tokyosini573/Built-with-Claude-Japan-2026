@@ -18,7 +18,7 @@ const RELATED_STEPS: Record<string, (step: string) => boolean> = {
   payers: (s) => s === "pay" || s === "trial" || s === "retention",
 };
 
-function funnelKeys(replay: Replay): TotalKey[] {
+export function funnelKeys(replay: Replay): TotalKey[] {
   const ids = planIds(replay);
   const has = (k: TotalKey) => ids.some((id) => replay.plans[id]!.totals[k]);
   const gates = new Set<string>();
@@ -129,7 +129,7 @@ function Funnel({ replay, metric, scale }: { replay: Replay; metric: string; sca
   );
 }
 
-function Trend({ replay, metric, scale }: { replay: Replay; metric: string; scale: Scale }) {
+export function Trend({ replay, metric, scale }: { replay: Replay; metric: string; scale: Scale }) {
   const dailyKey = metric as DailyKey;
   const ids = planIds(replay);
   if (!ids.some((id) => replay.plans[id]!.daily[dailyKey])) return null;
@@ -206,7 +206,7 @@ const VIDEO_ROWS: [TotalKey, string, string][] = [
 ];
 
 /** 動画の大量投稿の案（config.organic_video）の再生数・届いた人・インストール */
-function VideoBlock({ replay, scale }: { replay: Replay; scale: Scale }) {
+export function VideoBlock({ replay, scale }: { replay: Replay; scale: Scale }) {
   const ids = planIds(replay).filter((id) => replay.plans[id]!.config.organic_video);
   if (ids.length === 0) return null;
   const k = scaleFactor(replay.meta, scale);
