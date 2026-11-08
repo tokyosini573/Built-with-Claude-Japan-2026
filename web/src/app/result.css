@@ -197,3 +197,10 @@
 }
 .r-maphint svg { width: 18px; height: 18px; flex: none; fill: currentColor; stroke: currentColor; }
 .r-legend-note { flex-basis: 100%; }
+
+/* 点の数の減り方（再生が終わったあと） */
+.r-dotcount { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 4px 8px; margin: 0; font-size: 14px; }
+.r-dotcount span { color: var(--muted); font-size: 13px; margin-right: 2px; }
+.r-dotcount b { font-family: var(--display); font-weight: 900; }
+.r-dotcount i { font-style: normal; color: var(--muted); }
+.r-dots-sum { max-width: 920px; padding: 14px 18px; border-radius: 14px; background: var(--error-bg); color: var(--fg); font-weight: 700; line-height: 1.75; }

@@ -28,7 +28,7 @@ export interface JapanMapProps {
   /** 地図の出典表記を出す（ATTRIBUTION.md。別の場所にまとめて出すときだけ false） */
   showCredit?: boolean;
   /** 状態ごとの色・濃さ・大きさ（指定しなければ STATE_COLORS） */
-  stateStyle?: (s: PersonState) => { color: string; alpha?: number; size?: number } | null;
+  stateStyle?: (s: PersonState) => { color: string; alpha?: number; size?: number; ring?: string } | null;
   /** 点を押したとき（people の行番号）。近くに点がなければ呼ばれない */
   onPick?: (row: number) => void;
   /** 強調して描く人（people の行番号） */
@@ -43,8 +43,8 @@ export interface JapanMapProps {
 
 /** 1色の丸を小さなキャンバスに描いておく（1万個を毎フレーム描くため。HeroDots と同じやり方） */
 const spriteCache = new Map<string, HTMLCanvasElement>();
-function dotSprite(color: string, d: number, dpr: number): HTMLCanvasElement {
-  const key = `${color}|${d.toFixed(2)}|${dpr}`;
+function dotSprite(color: string, d: number, dpr: number, ring?: string): HTMLCanvasElement {
+  const key = `${color}|${d.toFixed(2)}|${dpr}|${ring ?? ""}`;
   let c = spriteCache.get(key);
   if (c) return c;
   if (spriteCache.size > 64) spriteCache.clear();
@@ -56,6 +56,12 @@ function dotSprite(color: string, d: number, dpr: number): HTMLCanvasElement {
   g.beginPath();
   g.arc(side / 2, side / 2, (d / 2) * dpr, 0, Math.PI * 2);
   g.fill();
+  // 縁取り（少ない点を、周りの点から浮かせる）
+  if (ring) {
+    g.lineWidth = 1.2 * dpr;
+    g.strokeStyle = ring;
+    g.stroke();
+  }
   spriteCache.set(key, c);
   return c;
 }
@@ -227,7 +233,7 @@ export function JapanMap({
           : STATE_COLORS[s];
       const size = (custom?.size ?? (s === PersonState.None ? r * 0.8 : r)) * unit;
       const color = ctx.fillStyle as string;
-      const sprite = dots ? dotSprite(color, size, dpr) : null;
+      const sprite = dots ? dotSprite(color, size, dpr, custom?.ring) : null;
       const half = sprite ? (size + 2) / 2 : 0;
       for (const i of list) {
         const x = positions[i * 2], y = positions[i * 2 + 1];

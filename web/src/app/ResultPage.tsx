@@ -757,6 +757,7 @@ function Player({ replay, autoplay, onAutoplayDone, picked, onPick }: PlayerProp
           />
         ))}
       </div>
+      {playback.day >= maxDay && <DotsSummary replay={replay} />}
       <MapLegend replay={replay} />
       <InterviewChips replay={replay} picked={picked} onPick={onPick} />
       {picked && <PersonPanel replay={replay} row={picked.row} plan={picked.plan} onPlan={(plan) => onPick({ ...picked, plan })} onClose={() => onPick(null)} />}
@@ -787,6 +788,7 @@ function PlanMap({
   const muted = useCssVar("--muted");
   const untouched = useCssVar("--dot-untouched");
   const fg = useCssVar("--fg");
+  const surface = useCssVar("--surface");
   // 点の直径（幅 320px のとき。地図の幅に合わせて少し変わる）。トップの図と同じく、進んだ人ほど少し大きい丸
   const style = useCallback(
     (s: PersonState) => {
@@ -796,18 +798,19 @@ function PlanMap({
         case PersonState.Install:
         case PersonState.Signup:
           return { color, alpha: 0.6, size: 2.3 };
+        // 初マッチと課金は数が少ないので、大きくして白い縁で浮かせる（数は変えない）
         case PersonState.CoreAction:
         case PersonState.Trial:
-          return { color, alpha: 1, size: 2.8 };
+          return { color, alpha: 1, size: 4.6, ring: surface };
         case PersonState.Paid:
-          return { color: gold, alpha: 1, size: 3.5 };
+          return { color: gold, alpha: 1, size: 5.4, ring: surface };
         case PersonState.Churned:
           return { color: muted, alpha: 0.55, size: 2.1 };
         default:
           return null;
       }
     },
-    [color, gold, muted, untouched],
+    [color, gold, muted, untouched, surface],
   );
   const st = useMemo(() => (states ? statesOnDay(states, day) : undefined), [states, day]);
   const k = scaleFactor(replay.meta, SCALE);
@@ -845,6 +848,7 @@ function PlanMap({
           overlay={(pos) => <RegionBubbles replay={replay} plan={plan} pos={pos} shown={ended} />}
         />
       )}
+      {ended && <DotCount replay={replay} plan={plan} />}
       {ended && <RegionTable replay={replay} plan={plan} />}
       <p className="r-maphint">
         <svg viewBox="0 0 20 20" aria-hidden>
@@ -854,6 +858,57 @@ function PlanMap({
         地図の上の点を押しても、その架空の人の判断が見られます
       </p>
     </div>
+  );
+}
+
+/** 地図に映した1回分で、その段階まで進んだ点（架空の人）の数。同じ人は1回だけ数える */
+function useDotCounts(replay: Replay, plan: PlanId): { install: number; core: number; pay: number } | null {
+  return useMemo(() => {
+    const events = replay.plans[plan]?.sample_run?.events;
+    if (!Array.isArray(events) || events.length === 0) return null;
+    const seen = { install: new Set<number>(), core_action: new Set<number>(), pay: new Set<number>() };
+    for (const ev of events) {
+      const [pid, , step] = ev as unknown as [number, number, string];
+      if (step in seen) seen[step as keyof typeof seen].add(pid);
+    }
+    return { install: seen.install.size, core: seen.core_action.size, pay: seen.pay.size };
+  }, [replay, plan]);
+}
+
+/** 再生が終わったら、点の数の減り方を1行で（例: インストール 2,029点 → 初マッチ 91点 → 課金 17点） */
+function DotCount({ replay, plan }: { replay: Replay; plan: PlanId }) {
+  const c = useDotCounts(replay, plan);
+  if (!c || c.install === 0) return null;
+  return (
+    <p className="r-dotcount num">
+      <span>点の数</span>
+      <b>インストール {count(c.install)}点</b>
+      <i aria-hidden>→</i>
+      <b style={{ color: PLAN_VAR[plan] }}>初マッチ {count(c.core)}点</b>
+      <i aria-hidden>→</i>
+      <b style={{ color: "var(--pay)" }}>課金 {count(c.pay)}点</b>
+    </p>
+  );
+}
+
+/** 再生が終わったら、地図の下に「ほとんどが初マッチの手前で止まった」を1文で（両案とも1割未満のときだけ） */
+function DotsSummary({ replay }: { replay: Replay }) {
+  const ids = planIds(replay);
+  const cs = ids.map((id) => [id, useDotCounts(replay, id)] as const);
+  if (cs.some(([, c]) => !c || c.install === 0)) return null;
+  const allLow = cs.every(([, c]) => c!.core / c!.install < 0.1);
+  if (!allLow) return null;
+  return (
+    <p className="r-dots-sum">
+      どちらの案も、インストールした点のほとんどが、初マッチの手前で止まりました（
+      {cs.map(([id, c], i) => (
+        <span key={id}>
+          {i > 0 && "、"}
+          {id}案 {count(c!.install)}点 → {count(c!.core)}点
+        </span>
+      ))}
+      ）。上の「どこで減ったか」と同じ減り方です。
+    </p>
   );
 }
 
@@ -1012,7 +1067,7 @@ function MapLegend({ replay }: { replay: Replay }) {
       <span className="note r-legend-note">
         再生が終わると、地方ごとの割合が出ます。%は、全国の合計のうちその地方が占める割合で、地図に映した1回分の結果です。
         <InfoTip label="地図に映した1回分とは">
-          地図の点の動きは、{replay.meta.runs}回のうち真ん中の条件で、1万人それぞれが進んだかどうかを1回抽選したものです。上の数字（{replay.meta.runs}回の中央値）とは少し違います。
+          地図の点の動きは、データだけでは1つに決めきれない数字（広告が押される割合、マッチの起きやすさなど）を、すべて範囲の真ん中にした条件で、1万人それぞれが進んだかどうかを1回抽選したものです。{replay.meta.runs}回とは別の1回なので、上の数字（{replay.meta.runs}回の中央値）とは少し違います。
         </InfoTip>
       </span>
     </div>
